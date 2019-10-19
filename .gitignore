@@ -9,3 +9,9 @@
 
 # rspec failure tracking
 .rspec_status
+.env.development.local
+.env.test.local
+
+!/**/.keep
+/storage/
+.idea/

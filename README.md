@@ -10,20 +10,16 @@ class ApplicationWorkflow
   end
   
   state_machine(:application) do
-    transition_state_with do |from, to| 
+    transition_with do |from, to| 
       @application.update!(state: to)  
     end
     
-    before_state_enter do |from, to| 
-             
+    before_transition from: any, to: :rejected do
+      
     end
+    
+    after_transition from: all, to: :rejected do
           
-    after_state_entered do |from, to| 
-  
-    end
-          
-    before_state_exit do |from, to|
-  
     end
     
     # draft -|---|- approve -|---|-> appr-|-oved -|---- - -
@@ -31,16 +27,8 @@ class ApplicationWorkflow
     state :draft, initial: true
     state :review_pending
     state :approved do |state|
-      state.before_enter do |from|
-         halt 'This is stupid' if 1 == 2
-      end
-      
-      state.after_entered do |from|
-      
-      end
-      
-      state.before_exit do |to|
-      
+      state.guard do
+        halt if 1 == 2  
       end
     end
     

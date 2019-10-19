@@ -1,4 +1,5 @@
 require "bundler/setup"
+require "pry"
 require "nxt_state_machine"
 
 RSpec.configure do |config|
