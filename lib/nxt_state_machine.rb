@@ -3,6 +3,7 @@ require "nxt_state_machine/version"
 require_relative 'nxt_state_machine/state'
 require_relative 'nxt_state_machine/event'
 require_relative 'nxt_state_machine/transition'
+require_relative 'nxt_state_machine/state_machine'
 
 module NxtStateMachine
   module InstanceMethods
