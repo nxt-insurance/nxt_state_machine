@@ -5,5 +5,13 @@ module NxtStateMachine
     def initialize(name)
       @name = name
     end
+
+    def state
+
+    end
+
+    def event(name, from, to)
+
+    end
   end
 end

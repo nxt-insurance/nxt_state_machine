@@ -9,17 +9,28 @@ class ApplicationWorkflow
     @application = application
   end
   
+  # This could also be a method that comes from include NxtStateMachine and then captures "self" in order to
+  # execute the transitions in the scope of "self"  
+  # state_machine should be a config that can be called multiple times like in pipeline!
+  
   state_machine(:application) do
     transition_with do |from, to| 
-      @application.update!(state: to)  
+      # all blocks should be evaluated within the "self"
+      @application.update(state: to)
     end
     
-    before_transition from: any, to: :rejected do
-      
+    transition_with! do |from, to| 
+      # all blocks should be evaluated within the "self"
+      @application.update!(state: to)
+    end
+    
+    before_transition from: any, to: :rejected do |**attributes|
+      # all blocks should be evaluated within the "self"
+      # we should allow to define attributes or not
     end
     
     after_transition from: all, to: :rejected do
-          
+          # all blocks should be evaluated within the "self"
     end
     
     # draft -|---|- approve -|---|-> appr-|-oved -|---- - -
@@ -34,8 +45,9 @@ class ApplicationWorkflow
     
     state :rejected
     
-    event :request_review, from: [:draft, :rejected], to: :review_pending do |event|
-      halt # maybe we can halt everywhere
+    event :request_review, from: [:draft, :rejected], to: :review_pending do |**attributes|
+      @application.attributes = attributes
+      # reject if ...
     end
     
     event :approve, from: :review_pending, to: :approved # without block just updates the state

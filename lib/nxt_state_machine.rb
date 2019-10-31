@@ -19,6 +19,7 @@ module NxtStateMachine
     end
 
     def state_machine(&block)
+      # This would build or configure a statemachine that is already there
       instance_exec(&block)
     end
 
