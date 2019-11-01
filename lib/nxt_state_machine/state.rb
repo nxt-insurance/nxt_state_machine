@@ -1,8 +1,13 @@
 module NxtStateMachine
   class State
-    def initialize(name, guard = nil)
+    def initialize(name, initial:)
       @name = name
-      @guard = guard
+      @initial = initial
+      @transitions = []
     end
+
+    attr_accessor :name, :initial, :transitions
+
+
   end
 end

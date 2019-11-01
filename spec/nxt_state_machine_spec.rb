@@ -5,23 +5,35 @@ RSpec.describe NxtStateMachine do
       include NxtStateMachine
 
       def initialize
-        @state = :draft
+        @application = {}
       end
 
-      attr_accessor :state
+      attr_accessor :application
 
       state_machine do
-        transition_with do |from, to|
-          self.state = to
-        end
+        # transition_with do |from, to|
+        #   self.state = to
+        # end
 
-        state :draft
+        state :draft, initial: true
         state :approved
         state :rejected
 
-        event :approve, from: :draft, to: :approved do
-          puts 'approved'
+        event :approve, from: :draft, to: :approved do |attributes:|
+          mark_approved
         end
+
+        # after_transition from: all, to: :approved do
+        #   reject if 1 == 2
+        # end
+
+        # before_transition from: all, to: :approved do
+        #   reject if 1 == 2
+        # end
+      end
+
+      def mark_approved
+        puts 'approved'
       end
     end
   end
@@ -31,8 +43,8 @@ RSpec.describe NxtStateMachine do
   end
 
   describe '.state' do
-    it 'adds a state to the state machine' do
-      expect { subject.approve }.to change { subject.state }.from(:draft).to(:approved)
+    it do
+      binding.pry
     end
   end
 end
