@@ -15,21 +15,42 @@ RSpec.describe NxtStateMachine do
         #   self.state = to
         # end
 
-        state :draft, initial: true
+        state :pending, initial: true
+        state :revised
         state :approved
+        state :published
+        state :deleted
         state :rejected
 
-        event :approve do
-          transition from: [:draft, :rejected], to: :approved do |**opts|
+        event :revise do
+          transition from: :pending, to: :revised do |**opts|
             mark_approved(opts)
           end
         end
 
-        # after_transition from: all, to: :approved do
+        event :reject do
+          transition from: %i[pending revised approved], to: :rejected do |**opts|
+            mark_approved(opts)
+          end
+        end
+
+        event :reject do
+          transition from: %i[pending revised approved], to: :rejected do |**opts|
+            mark_approved(opts)
+          end
+        end
+
+        event :delete do
+          transition from: any_state, to: :deleted do |**opts|
+            mark_approved(opts)
+          end
+        end
+
+        # after_transition from: any_state, to: :approved do
         #   reject if 1 == 2
         # end
 
-        # before_transition from: all, to: :approved do
+        # before_transition from: all_states, to: :approved do
         #   reject if 1 == 2
         # end
       end
