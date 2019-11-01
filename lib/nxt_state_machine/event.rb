@@ -8,6 +8,8 @@ module NxtStateMachine
 
     attr_reader :name, :state_machine, :transitions
 
+    delegate :any_state, :all_states, :all_states_without, to: :state_machine
+
     def configure(&block)
       instance_exec(&block)
     end

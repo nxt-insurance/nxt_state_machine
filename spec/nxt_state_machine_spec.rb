@@ -29,7 +29,7 @@ RSpec.describe NxtStateMachine do
         end
 
         event :reject do
-          transition from: %i[pending revised approved], to: :rejected do |**opts|
+          transition from: %i[revised approved], to: :rejected do |**opts|
             mark_approved(opts)
           end
         end

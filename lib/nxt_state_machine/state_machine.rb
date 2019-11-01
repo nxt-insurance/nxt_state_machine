@@ -23,7 +23,7 @@ module NxtStateMachine
     end
 
     def any_state
-      states.map(&:name)
+      states.values.map(&:name)
     end
 
     alias_method :all_states, :any_state
@@ -46,10 +46,14 @@ module NxtStateMachine
         transition = state_machine.events[name].transitions[current_state.name]
         transition.execute(self, *args, **opts)
       end
+
+      context.define_method "can_#{name}?" do
+        state_machine.can_transition?(name)
+      end
     end
 
-    def can_transition_to?(state)
-
+    def can_transition?(event)
+      events[event].transitions[current_state.name]
     end
   end
 end
