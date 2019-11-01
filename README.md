@@ -45,7 +45,14 @@ class ApplicationWorkflow
     
     state :rejected
     
-    event :request_review, from: [:draft, :rejected], to: :review_pending do |**attributes|
+    event :request_review do
+      transitions from: :draft, to: :draft do |**attributes|
+        
+      end
+    
+      # transitions from: :draft, to: :draft
+      # transitions from: :review_pending, to: :review_pending
+    
       @application.attributes = attributes
       # reject if ...
     end
