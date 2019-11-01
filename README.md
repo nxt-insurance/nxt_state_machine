@@ -46,7 +46,7 @@ class ApplicationWorkflow
     state :rejected
     
     event :request_review do
-      transitions from: :draft, to: :draft do |**attributes|
+      transition from: :draft, to: :draft do |**attributes|
         
       end
     

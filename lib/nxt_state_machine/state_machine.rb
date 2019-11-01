@@ -4,10 +4,11 @@ module NxtStateMachine
       @context = context
       @states = {}
       @transitions = {}
+      @events = {}
       @current_state = nil
     end
 
-    attr_accessor :context, :states, :transitions, :current_state
+    attr_accessor :context, :states, :transitions, :current_state, :events
 
     def configure(&block)
       instance_exec(&block)
@@ -21,18 +22,16 @@ module NxtStateMachine
       state
     end
 
-    def event(name, from:, to:, &block)
+    def event(name, &block)
       # should probably add_transition
-      transition = Transition.new(name, from: from, to: to, &block)
-      transitions[name] = transition
-
-      Array(from).each do |from|
-        states[from].transitions << to
-      end
+      event = Event.new(self, name)
+      event.configure(&block)
+      events[name] = event
 
       # we might also put this in a module for easy overwriting
       context.define_method name do |*args, **opts|
         # we might want to pass in the current_state here
+        transition = state_machine.events[name].transitions[current_state.name]
         transition.execute(self, *args, **opts)
       end
     end

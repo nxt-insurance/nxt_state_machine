@@ -1,6 +1,7 @@
 require 'active_support/all'
 require "nxt_state_machine/version"
 require "nxt_state_machine/state"
+require "nxt_state_machine/event"
 require "nxt_state_machine/transition"
 require "nxt_state_machine/state_machine"
 

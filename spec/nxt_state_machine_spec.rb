@@ -19,8 +19,10 @@ RSpec.describe NxtStateMachine do
         state :approved
         state :rejected
 
-        event :approve, from: :draft, to: :approved do |attributes:|
-          mark_approved
+        event :approve do
+          transition from: [:draft, :rejected], to: :approved do |**opts|
+            mark_approved(opts)
+          end
         end
 
         # after_transition from: all, to: :approved do
@@ -32,8 +34,8 @@ RSpec.describe NxtStateMachine do
         # end
       end
 
-      def mark_approved
-        puts 'approved'
+      def mark_approved(opts)
+        puts opts
       end
     end
   end
