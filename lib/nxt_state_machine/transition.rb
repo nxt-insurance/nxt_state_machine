@@ -13,6 +13,8 @@ module NxtStateMachine
     attr_reader :name, :from, :to, :block, :state_machine
 
     def execute(context, *args, **opts)
+      # TODO: We might prefer to just execute the transition instead of
+      # passing it to the :set_state_with method?!
       transition = lambda do
         if block
           context.instance_exec(*args, **opts, &block)
@@ -20,7 +22,6 @@ module NxtStateMachine
       end
 
       context.instance_exec(from, to, transition, &state_machine.set_state_with)
-      # state_machine.current_state = state_machine.states.fetch(to)
     end
 
     def ensure_states_exist

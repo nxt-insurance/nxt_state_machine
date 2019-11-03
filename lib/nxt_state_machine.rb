@@ -24,7 +24,7 @@ module NxtStateMachine
     end
 
     def current_state_name
-      instance_exec(&state_machine.get_state_with) || state_machine.initial_state.name
+      instance_exec(&state_machine.get_state_with)
     end
   end
 

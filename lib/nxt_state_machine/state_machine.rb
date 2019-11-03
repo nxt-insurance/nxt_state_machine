@@ -74,12 +74,12 @@ module NxtStateMachine
       end
 
       context.define_method "can_#{name}?" do
-        state_machine.can_transition?(name)
+        state_machine.can_transition?(name, current_state_name)
       end
     end
 
-    def can_transition?(event)
-      events[event].transitions.key?(current_state_name)
+    def can_transition?(event, from)
+      events[event].transitions.key?(from)
     end
   end
 end

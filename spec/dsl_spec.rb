@@ -9,12 +9,27 @@ RSpec.describe NxtStateMachine do
     context 'when the event was not registered before' do
       context 'and the event has transitions' do
         subject do
-          workflow.state_machine do
-            state :draft, initial: true
-            state :approved
+          workflow.class_eval do
+            def initialize
+              @state = nil
+            end
 
-            event :approve do
-              transition from: :draft, to: :approved
+            attr_accessor :state
+
+            state_machine do
+              # TODO: This could also be used to set the default?
+              get_state_with { self.state ||= :draft }
+              set_state_with do |from, to, transition|
+                transition.call
+                self.state = to
+              end
+
+              state :draft, initial: true
+              state :approved
+
+              event :approve do
+                transition from: :draft, to: :approved
+              end
             end
           end
 
@@ -23,12 +38,11 @@ RSpec.describe NxtStateMachine do
 
         it 'adds the :approve method' do
           expect(subject.respond_to?(:approve)).to be_truthy
-          # TODO: Check this works
         end
 
         it 'adds the :can_approve? method' do
           expect(subject.respond_to?(:can_approve?)).to be_truthy
-          # TODO: Check that this actually works
+          expect(subject.can_approve?).to be_truthy
         end
       end
 
@@ -148,15 +162,14 @@ RSpec.describe NxtStateMachine do
         attr_accessor :state, :approved_at
 
         state_machine do
-          get_state_with { state }
+          get_state_with { self.state ||= :draft }
 
           set_state_with do |from, to, transition|
             transition.call
             self.state = to
-            # save || self.state = from
           end
 
-          state :draft, initial: true
+          state :draft
           state :approved
 
           event :approve do
