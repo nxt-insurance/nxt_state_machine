@@ -11,31 +11,37 @@ RSpec.describe NxtStateMachine do
       attr_accessor :application
 
       state_machine do
-        # transition_with do |from, to|
+        # set_state_with do |from, to|
         #   self.state = to
         # end
 
         state :pending, initial: true
+        state :proposed
         state :revised
         state :approved
-        state :published
-        state :deleted
         state :rejected
+        state :deleted
+
+        event :propose do
+          transition from: %i[pending rejected], to: :proposed do |**opts|
+            mark_approved(opts)
+          end
+        end
 
         event :revise do
-          transition from: :pending, to: :revised do |**opts|
+          transition from: :proposed, to: :revised do |**opts|
+            mark_approved(opts)
+          end
+        end
+
+        event :approved do
+          transition from: :revised, to: :approved do |**opts|
             mark_approved(opts)
           end
         end
 
         event :reject do
-          transition from: %i[revised approved], to: :rejected do |**opts|
-            mark_approved(opts)
-          end
-        end
-
-        event :reject do
-          transition from: %i[pending revised approved], to: :rejected do |**opts|
+          transition from: :revised, to: :rejected do |**opts|
             mark_approved(opts)
           end
         end

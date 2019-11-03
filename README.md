@@ -14,12 +14,13 @@ class ApplicationWorkflow
   # state_machine should be a config that can be called multiple times like in pipeline!
   
   state_machine(:application) do
-    transition_with do |from, to| 
+    set_state_with do |from, to, transition| 
       # all blocks should be evaluated within the "self"
+      transition.call
       @application.update(state: to)
     end
     
-    transition_with! do |from, to| 
+    set_state_with! do |from, to| 
       # all blocks should be evaluated within the "self"
       @application.update!(state: to)
     end

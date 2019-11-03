@@ -1,5 +1,8 @@
 require 'active_support/all'
 require "nxt_state_machine/version"
+require "nxt_state_machine/errors"
+require "nxt_state_machine/registry"
+require "nxt_state_machine/transitions_store"
 require "nxt_state_machine/state"
 require "nxt_state_machine/event"
 require "nxt_state_machine/transition"
@@ -20,8 +23,8 @@ module NxtStateMachine
       @state_machine ||= self.class.state_machine
     end
 
-    def current_state
-      state_machine.current_state
+    def current_state_name
+      instance_exec(&state_machine.get_state_with) || state_machine.initial_state.name
     end
   end
 

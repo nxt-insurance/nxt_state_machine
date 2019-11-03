@@ -1,9 +1,12 @@
 module NxtStateMachine
   class Event
-    def initialize(state_machine, name)
+    def initialize(name, state_machine:, &block)
       @state_machine = state_machine
       @name = name
-      @transitions = {}
+      @transitions = Registry.new("#{name} event transitions")
+      configure(&block)
+
+      ensure_event_has_transitions
     end
 
     attr_reader :name, :state_machine, :transitions
@@ -16,10 +19,17 @@ module NxtStateMachine
 
     def transition(from:, to:, &block)
       Array(from).each do |from|
-        transition = Transition.new(name, from: from, to: to, &block)
-        state_machine.transitions[from] = transition
+        transition = Transition.new(name, from: from, to: to, state_machine: state_machine, &block)
+        puts "from: #{from} - to: #{to}"
+        state_machine.transitions << transition
         transitions[from] = transition
       end
+    end
+
+    def ensure_event_has_transitions
+      return if transitions.size > 0
+
+      raise NxtStateMachine::Errors::EventWithoutTransitions, "No transitions for event :#{name} defined"
     end
   end
 end

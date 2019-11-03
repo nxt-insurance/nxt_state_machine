@@ -2,24 +2,51 @@ module NxtStateMachine
   class StateMachine
     def initialize(context)
       @context = context
-      @states = {}
-      @transitions = {}
-      @events = {}
-      @current_state = nil
+
+      @states = Registry.new(
+        :states,
+        on_key_error: lambda do |name|
+          raise NxtStateMachine::Errors::StateAlreadyRegistered,
+                "An state with the name '#{name}' was already registered!"
+        end
+      )
+
+      @transitions = TransitionsStore.new
+
+      @events = Registry.new(
+        :events,
+        on_key_error: lambda do |name|
+          raise NxtStateMachine::Errors::EventAlreadyRegistered,
+                "An event with the name '#{name}' was already registered!"
+        end
+      )
+
+      @initial_state = nil
     end
 
-    attr_accessor :context, :states, :transitions, :current_state, :events
+    attr_accessor :context, :states, :transitions, :initial_state, :events
 
     def configure(&block)
       instance_exec(&block)
     end
 
+    def get_state_with(&block)
+      @get_state ||= block
+    end
+
+    def set_state_with(&block)
+      @set_state_with ||= block
+    end
+
     def state(name, initial: false)
-      # should probably add_state
-      state = State.new(name, initial: initial)
-      states[name] = state
-      self.current_state = state if initial
-      state
+      if initial && initial_state.present?
+        raise InitialStateAlreadySet, ":#{initial_state.name} was already set as the initial state"
+      else
+        state = State.new(name, initial: initial)
+        states[name] = state
+        self.initial_state = state if initial
+        state
+      end
     end
 
     def any_state
@@ -34,16 +61,15 @@ module NxtStateMachine
 
     def event(name, &block)
       # should probably add_transition
-      event = Event.new(self, name)
-      event.configure(&block)
+      event = Event.new(name, state_machine: self, &block)
       events[name] = event
 
       # TODO: May transition method
       # TODO: Bang event method
       # we might also put this in a module for easy overwriting
       context.define_method name do |*args, **opts|
-        # we might want to pass in the current_state here
-        transition = state_machine.events[name].transitions[current_state.name]
+        # would we raise an error in case transition is not valid?
+        transition = state_machine.events[name].transitions.fetch(current_state_name)
         transition.execute(self, *args, **opts)
       end
 
@@ -53,7 +79,7 @@ module NxtStateMachine
     end
 
     def can_transition?(event)
-      events[event].transitions[current_state.name]
+      events[event].transitions.key?(current_state_name)
     end
   end
 end
