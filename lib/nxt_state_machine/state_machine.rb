@@ -64,11 +64,9 @@ module NxtStateMachine
     end
 
     def event(name, &block)
-      # should probably add_transition
       event = Event.new(name, state_machine: self, &block)
       events[name] = event
 
-      # TODO: Bang event method
       # we might also put this in a module for easy overwriting
       context.define_method name do |*args, **opts|
         state_machine.can_transition!(name, current_state_name)

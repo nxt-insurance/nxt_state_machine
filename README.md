@@ -48,13 +48,13 @@ class ApplicationWorkflow
     
     event :request_review do
       transition from: :draft, to: :draft do |**attributes|
-        
+        @application.attributes = attributes  
       end
     
       # transitions from: :draft, to: :draft
       # transitions from: :review_pending, to: :review_pending
     
-      @application.attributes = attributes
+      
       # reject if ...
     end
     

@@ -58,7 +58,6 @@ RSpec.describe NxtStateMachine do
     end
   end
 
-
   describe '#<event>' do
     context 'when the transition exists' do
       it do

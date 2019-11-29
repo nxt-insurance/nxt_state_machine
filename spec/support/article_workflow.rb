@@ -42,8 +42,8 @@ class ArticleWorkflow
     end
 
     event :approve do
-      transition from: %i[written submitted deleted], to: :approved do |**attrs|
-        article.attributes = attrs
+      transition from: %i[written submitted deleted], to: :approved do |headline:|
+        article.headline = headline
       end
     end
 
@@ -56,7 +56,7 @@ class ArticleWorkflow
     end
 
     event :delete do
-      transition from: any_state, to: :deleted do |**opts|
+      transition from: any_state, to: :deleted do
         article.deleted_at = Time.current
       end
     end
