@@ -1,5 +1,9 @@
 module NxtStateMachine
   class Transition
+    # TODO: Implement callbacks
+    include ActiveSupport::Callbacks
+    define_callbacks :transition
+
     def initialize(name, from:, to:, state_machine:, &block)
       @name = name
       @from = from
@@ -13,15 +17,15 @@ module NxtStateMachine
     attr_reader :name, :from, :to, :block, :state_machine
 
     def execute(context, set_state_with, *args, **opts)
-      # TODO: We might prefer to just execute the transition instead of
-      # passing it to the :set_state_with method?!
       transition = lambda do
         if block
           context.instance_exec(*args, **opts, &block)
         end
       end
 
-      context.instance_exec(from, to, transition, &set_state_with)
+      run_callbacks :transition do
+        context.instance_exec(from, to, transition, &set_state_with)
+      end
     end
 
     def ensure_states_exist

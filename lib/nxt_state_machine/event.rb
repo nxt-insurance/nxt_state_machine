@@ -20,7 +20,6 @@ module NxtStateMachine
     def transition(from:, to:, &block)
       Array(from).each do |from|
         transition = Transition.new(name, from: from, to: to, state_machine: state_machine, &block)
-        puts "from: #{from} - to: #{to}"
         state_machine.transitions << transition
         transitions[from] = transition
       end
