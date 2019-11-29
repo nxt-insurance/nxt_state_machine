@@ -17,7 +17,6 @@ RSpec.describe NxtStateMachine do
             attr_accessor :state
 
             state_machine do
-              # TODO: This could also be used to set the default?
               get_state_with { self.state ||= :draft }
               set_state_with do |from, to, transition|
                 transition.call
@@ -98,6 +97,26 @@ RSpec.describe NxtStateMachine do
   end
 
   describe '.state' do
+    context 'options' do
+      subject do
+        Class.new do
+          include NxtStateMachine
+
+          state_machine do
+            state :draft, pre_published: true
+            state :approved, pre_published: true
+            state :published, pre_published: false
+          end
+        end
+      end
+
+      it 'is possible to pass options to a state' do
+        expect(subject.state_machine.states.fetch(:draft).options[:pre_published]).to be_truthy
+        expect(subject.state_machine.states.fetch(:approved).options['pre_published']).to be_truthy
+        expect(subject.state_machine.states.fetch(:published).options[:pre_published]).to be_falsey
+      end
+    end
+
     context 'when a state with the same name was registered before' do
       subject do
         Class.new do

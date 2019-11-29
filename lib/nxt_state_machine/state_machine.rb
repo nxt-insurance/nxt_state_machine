@@ -42,13 +42,16 @@ module NxtStateMachine
       @set_state_with_bang ||= block || raise_missing_configuration_error(:set_state_with!)
     end
 
-    def state(name, initial: false)
-      if initial && initial_state.present?
+    def state(name, **opts)
+      defaults = { initial: false }
+      opts.reverse_merge!(defaults)
+
+      if opts.fetch(:initial) && initial_state.present?
         raise NxtStateMachine::Errors::InitialStateAlreadySet, ":#{initial_state.name} was already set as the initial state"
       else
-        state = State.new(name, initial: initial)
+        state = State.new(name, opts)
         states[name] = state
-        self.initial_state = state if initial
+        self.initial_state = state if opts.fetch(:initial)
         state
       end
     end

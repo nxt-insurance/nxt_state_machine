@@ -1,12 +1,13 @@
 module NxtStateMachine
   class State
-    def initialize(name, initial:)
+    def initialize(name, **opts)
       @name = name
-      @initial = initial
+      @initial = opts.delete(:initial)
       @transitions = []
+      @options = opts.with_indifferent_access
     end
 
-    attr_accessor :name, :initial, :transitions
+    attr_accessor :name, :initial, :transitions, :options
 
     def to_s
       name
