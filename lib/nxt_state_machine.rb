@@ -27,7 +27,7 @@ module NxtStateMachine
       instance_exec(&state_machine.get_state_with)
     end
 
-    delegate :initial_state, to: :state_machine
+    delegate :initial_state, :states, to: :state_machine
   end
 
   def self.included(base)
