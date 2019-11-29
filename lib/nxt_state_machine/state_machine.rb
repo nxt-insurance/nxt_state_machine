@@ -64,12 +64,12 @@ module NxtStateMachine
       event = Event.new(name, state_machine: self, &block)
       events[name] = event
 
-      # TODO: May transition method
       # TODO: Bang event method
       # we might also put this in a module for easy overwriting
       context.define_method name do |*args, **opts|
-        # would we raise an error in case transition is not valid?
+        raise KeyError, "No transition :#{name} for state :#{current_state_name} defined" unless send("can_#{name}?")
         transition = state_machine.events[name].transitions.fetch(current_state_name)
+
         transition.execute(self, *args, **opts)
       end
 

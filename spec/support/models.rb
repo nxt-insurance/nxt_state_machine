@@ -6,4 +6,5 @@ class Article < ActiveRecord::Base
 
   validates_inclusion_of :status, in: ArticleWorkflow.state_machine.states.keys
   validates_inclusion_of :type, in: TYPES
+  validates :approved_by, presence: true, if: -> { type == 'manual_approval' && status.in?(%w[approved published]) }
 end

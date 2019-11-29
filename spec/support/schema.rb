@@ -6,7 +6,7 @@ ActiveRecord::Schema.define do
     t.string :type
     t.string :heading
     t.text :text
-    t.deleted_at :datetime
+    t.datetime :deleted_at
 
     t.timestamps
   end
