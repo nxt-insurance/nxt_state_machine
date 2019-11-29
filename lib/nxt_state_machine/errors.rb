@@ -7,5 +7,6 @@ module NxtStateMachine
     UnknownStateError = Class.new(Error)
     EventWithoutTransitions = Class.new(Error)
     InitialStateAlreadySet = Class.new(Error)
+    TransitionNotDefined = Class.new(Error)
   end
 end

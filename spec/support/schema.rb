@@ -4,7 +4,7 @@ ActiveRecord::Schema.define do
   create_table :articles, :force => true do |t|
     t.string :status
     t.string :type
-    t.string :heading
+    t.string :headline
     t.text :text
     t.datetime :deleted_at
 

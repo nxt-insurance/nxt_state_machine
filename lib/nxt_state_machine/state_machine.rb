@@ -38,9 +38,13 @@ module NxtStateMachine
       @set_state_with ||= block
     end
 
+    def set_state_with!(&block)
+      @set_state_with_bang ||= block
+    end
+
     def state(name, initial: false)
       if initial && initial_state.present?
-        raise InitialStateAlreadySet, ":#{initial_state.name} was already set as the initial state"
+        raise NxtStateMachine::Errors::InitialStateAlreadySet, ":#{initial_state.name} was already set as the initial state"
       else
         state = State.new(name, initial: initial)
         states[name] = state
@@ -67,10 +71,17 @@ module NxtStateMachine
       # TODO: Bang event method
       # we might also put this in a module for easy overwriting
       context.define_method name do |*args, **opts|
-        raise KeyError, "No transition :#{name} for state :#{current_state_name} defined" unless send("can_#{name}?")
+        state_machine.can_transition!(name, current_state_name)
         transition = state_machine.events[name].transitions.fetch(current_state_name)
 
-        transition.execute(self, *args, **opts)
+        transition.execute(self, state_machine.set_state_with, *args, **opts)
+      end
+
+      context.define_method "#{name}!" do |*args, **opts|
+        state_machine.can_transition!(name, current_state_name)
+        transition = state_machine.events[name].transitions.fetch(current_state_name)
+
+        transition.execute(self, state_machine.set_state_with!, *args, **opts)
       end
 
       context.define_method "can_#{name}?" do
@@ -79,7 +90,13 @@ module NxtStateMachine
     end
 
     def can_transition?(event, from)
-      events[event].transitions.key?(from)
+      event = events[event]
+      event && event.transitions.key?(from)
+    end
+
+    def can_transition!(event, from)
+      return true if can_transition?(event, from)
+      raise NxtStateMachine::Errors::TransitionNotDefined, "No transition :#{event} for state :#{from} defined"
     end
   end
 end

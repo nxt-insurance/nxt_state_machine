@@ -16,6 +16,12 @@ class ArticleWorkflow
     set_state_with do |from, to, transition|
       transition.call
       article.status = to
+      article.save
+    end
+
+    set_state_with! do |from, to, transition|
+      transition.call
+      article.status = to
       article.save!
     end
 
@@ -36,8 +42,8 @@ class ArticleWorkflow
     end
 
     event :approve do
-      transition from: %i[written submitted deleted], to: :approved do |**opts|
-        puts 'approving'
+      transition from: %i[written submitted deleted], to: :approved do |**attrs|
+        article.attributes = attrs
       end
     end
 
