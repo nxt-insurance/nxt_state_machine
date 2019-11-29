@@ -31,15 +31,15 @@ module NxtStateMachine
     end
 
     def get_state_with(&block)
-      @get_state ||= block
+      @get_state_with ||= block || raise_missing_configuration_error(:get_state_with)
     end
 
     def set_state_with(&block)
-      @set_state_with ||= block
+      @set_state_with ||= block || raise_missing_configuration_error(:set_state_with)
     end
 
     def set_state_with!(&block)
-      @set_state_with_bang ||= block
+      @set_state_with_bang ||= block || raise_missing_configuration_error(:set_state_with!)
     end
 
     def state(name, initial: false)
@@ -97,6 +97,10 @@ module NxtStateMachine
     def can_transition!(event, from)
       return true if can_transition?(event, from)
       raise NxtStateMachine::Errors::TransitionNotDefined, "No transition :#{event} for state :#{from} defined"
+    end
+
+    def raise_missing_configuration_error(method)
+      raise NxtStateMachine::Errors::MissingConfiguration, "Configuration method :#{method} was not defined"
     end
   end
 end
