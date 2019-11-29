@@ -1,9 +1,9 @@
 module NxtStateMachine
   class TransitionsStore < Array
-    def <<(value)
-      if find { |item| item.from == value.from && item.to == item.to }
+    def <<(transition)
+      if find { |item| item.from == transition.from && item.to == transition.to }
         raise NxtStateMachine::Errors::TransitionAlreadyRegistered,
-              "A transition from :#{value.from} to :#{value.to} was already registered"
+              "A transition from :#{transition.from} to :#{transition.to} was already registered"
       end
 
       super

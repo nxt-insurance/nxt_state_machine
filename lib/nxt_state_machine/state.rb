@@ -8,6 +8,8 @@ module NxtStateMachine
 
     attr_accessor :name, :initial, :transitions
 
-
+    def to_s
+      name
+    end
   end
 end

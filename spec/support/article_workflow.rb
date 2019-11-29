@@ -1,51 +1,57 @@
 class ArticleWorkflow
   include NxtStateMachine
 
-  def initialize
-    @article = Struct.new(:state)
+  def initialize(article)
+    @article = article
   end
 
   attr_accessor :article
 
   state_machine do
-    # set_state_with do |from, to|
-    #   self.state = to
-    # end
+    get_state_with do
+      article.status = initial_state.name if article.new_record?
+      article.status
+    end
 
-    state :pending, initial: true
-    state :proposed
-    state :revised
+    set_state_with do |from, to, transition|
+      transition.call
+      article.status = to
+      article.save!
+    end
+
+    state :draft, initial: true
+    state :written
+    state :submitted
     state :approved
+    state :published
     state :rejected
     state :deleted
 
-    event :propose do
-      transition from: %i[pending rejected], to: :proposed do |**opts|
-        mark_approved(opts)
-      end
+    event :write do
+      transition from: %i[draft written deleted], to: :written
     end
 
-    event :revise do
-      transition from: :proposed, to: :revised do |**opts|
-        mark_approved(opts)
-      end
+    event :submit do
+      transition from: %i[written rejected deleted], to: :submitted
     end
 
     event :approve do
-      transition from: :revised, to: :approved do |**opts|
-        mark_approved(opts)
+      transition from: %i[written submitted deleted], to: :approved do |**opts|
+        puts 'approving'
       end
     end
 
+    event :publish do
+      transition from: :approved, to: :published
+    end
+
     event :reject do
-      transition from: :revised, to: :rejected do |**opts|
-        mark_approved(opts)
-      end
+      transition from: %i[draft submitted deleted], to: :rejected
     end
 
     event :delete do
       transition from: any_state, to: :deleted do |**opts|
-        mark_approved(opts)
+        article.deleted_at = Time.current
       end
     end
 
