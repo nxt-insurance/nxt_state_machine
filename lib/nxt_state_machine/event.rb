@@ -18,11 +18,11 @@ module NxtStateMachine
     end
 
     def transition(from:, to:, &block)
-      Array(from).each do |from|
-        transition = Transition.new(name, from: from, to: to, state_machine: state_machine, &block)
+      Array(from).each do |from_state|
+        transition = Transition.new(name, from: from_state, to: to, state_machine: state_machine, &block)
         # TODO: Would it not be better if this was a nested hash?
         state_machine.transitions << transition
-        transitions[from] = transition
+        transitions[from_state] = transition
       end
     end
 
