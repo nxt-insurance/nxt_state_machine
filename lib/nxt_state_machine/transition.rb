@@ -1,9 +1,5 @@
 module NxtStateMachine
   class Transition
-    # TODO: Implement callbacks
-    include ActiveSupport::Callbacks
-    define_callbacks :transition
-
     def initialize(name, from:, to:, state_machine:, &block)
       @name = name
       @from = from
@@ -23,7 +19,7 @@ module NxtStateMachine
         end
       end
 
-      run_callbacks :transition do
+      context.run_callbacks :transition do
         context.instance_exec(from, to, transition, &set_state_with)
       end
     end

@@ -33,5 +33,7 @@ module NxtStateMachine
   def self.included(base)
     base.extend(ClassMethods)
     base.include(InstanceMethods)
+    base.include(ActiveSupport::Callbacks)
+    base.define_callbacks :transition
   end
 end
