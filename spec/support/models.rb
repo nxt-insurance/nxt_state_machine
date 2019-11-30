@@ -8,3 +8,15 @@ class Article < ActiveRecord::Base
   validates_inclusion_of :type, in: TYPES
   validates :headline, presence: true, if: -> { status.in?(%w[approved published]) }
 end
+
+class Application < ActiveRecord::Base
+  validates :content, presence: true
+  validates :received_at, presence: true, if: -> { status == 'received' }
+  validates :processed_at, presence: true, if: -> { status == 'processed' }
+  validates :rejected_at, presence: true, if: -> { status == 'rejected' }
+  validates :accepted_at, presence: true, if: -> { status == 'accepted' }
+end
+
+class ApplicationWithStateMachine < Application
+  include NxtStateMachine::ActiveRecord
+end

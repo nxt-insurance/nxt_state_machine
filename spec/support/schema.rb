@@ -10,4 +10,15 @@ ActiveRecord::Schema.define do
 
     t.timestamps
   end
+
+  create_table :applications, :force => true do |t|
+    t.string :status
+    t.string :content
+    t.datetime :received_at
+    t.datetime :processed_at
+    t.datetime :accepted_at
+    t.datetime :rejected_at
+
+    t.timestamps
+  end
 end

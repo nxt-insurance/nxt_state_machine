@@ -1,7 +1,8 @@
 module NxtStateMachine
   class StateMachine
-    def initialize(context)
+    def initialize(context, **opts)
       @context = context
+      @options = opts
 
       @states = Registry.new(
         :states,
@@ -24,7 +25,7 @@ module NxtStateMachine
       @initial_state = nil
     end
 
-    attr_accessor :context, :states, :transitions, :initial_state, :events
+    attr_accessor :context, :states, :transitions, :initial_state, :events, :options
 
     def configure(&block)
       instance_exec(&block)

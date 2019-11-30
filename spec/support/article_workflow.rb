@@ -7,10 +7,6 @@ class ArticleWorkflow
 
   attr_accessor :article
 
-  # ar_state_machine(state: :status, scope: :self) do
-  #
-  # end
-
   state_machine do
     get_state_with do
       article.status = initial_state.name if article.new_record?

@@ -8,12 +8,12 @@ require "nxt_state_machine/event"
 require "nxt_state_machine/callback"
 require "nxt_state_machine/transition"
 require "nxt_state_machine/state_machine"
-
+require "nxt_state_machine/active_record"
 
 module NxtStateMachine
   module ClassMethods
-    def state_machine(&block)
-      @state_machine ||= StateMachine.new(self)
+    def state_machine(**opts, &block)
+      @state_machine ||= StateMachine.new(self, opts)
       @state_machine.configure(&block) if block_given?
       @state_machine
     end
