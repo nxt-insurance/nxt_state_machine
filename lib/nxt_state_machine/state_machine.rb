@@ -38,9 +38,13 @@ module NxtStateMachine
       @set_state_with ||= block || raise_missing_configuration_error(:set_state_with)
     end
 
+    alias_method :transition_with, :set_state_with
+
     def set_state_with!(&block)
       @set_state_with_bang ||= block || raise_missing_configuration_error(:set_state_with!)
     end
+
+    alias_method :transition_with!, :set_state_with!
 
     def state(name, **opts)
       defaults = { initial: false }
@@ -75,14 +79,26 @@ module NxtStateMachine
         state_machine.can_transition!(name, current_state_name)
         transition = event.transitions.fetch(current_state_name)
 
-        event.callbacks[transition.from][:before].each do |callback|
-          callback.run(self)
-        end
+        puts "#{name} transition from #{transition.from} --> to #{transition.to}"
 
-        transition.execute(self, state_machine.set_state_with, *args, **opts)
+        empty_callbacks = { before: [], after: [] }
+        callbacks = event.callbacks[transition.from] ||= empty_callbacks
+        callbacks = empty_callbacks.deep_merge(callbacks)
 
-        event.callbacks[transition.from][:after].each do |callback|
-          callback.run(self)
+        if state_machine.set_state_with.arity == 3
+          callbacks[:before].each do |callback|
+            callback.run(self)
+          end
+
+          transition.execute(self, state_machine.set_state_with, nil, *args, **opts)
+
+          callbacks[:after].each do |callback|
+            callback.run(self)
+          end
+        elsif state_machine.set_state_with.arity == 4
+          transition.execute(self, state_machine.set_state_with, callbacks, *args, **opts)
+        else
+          raise StandardError, 'Block must at least have an arity of 3' # TODO: Make this a proper error
         end
       end
 
@@ -90,14 +106,24 @@ module NxtStateMachine
         state_machine.can_transition!(name, current_state_name)
         transition = event.transitions.fetch(current_state_name)
 
-        event.callbacks[transition.from][:before].each do |callback|
-          callback.run(self)
-        end
+        empty_callbacks = { before: [], after: [] }
+        callbacks = event.callbacks[transition.from] ||= empty_callbacks
+        callbacks = empty_callbacks.deep_merge(callbacks)
 
-        transition.execute(self, state_machine.set_state_with!, *args, **opts)
+        if state_machine.set_state_with.arity == 3
+          callbacks[:before].each do |callback|
+            callback.run(self)
+          end
 
-        event.callbacks[transition.from][:after].each do |callback|
-          callback.run(self)
+          transition.execute(self, state_machine.set_state_with, nil, *args, **opts)
+
+          callbacks[:after].each do |callback|
+            callback.run(self)
+          end
+        elsif state_machine.set_state_with.arity == 4
+          transition.execute(self, state_machine.set_state_with!, callbacks, *args, **opts)
+        else
+          raise StandardError, 'Block must at least have an arity of 3' # TODO: Make this a proper error
         end
       end
 

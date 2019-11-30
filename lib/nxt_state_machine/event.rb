@@ -4,7 +4,7 @@ module NxtStateMachine
       @state_machine = state_machine
       @name = name
       @transitions = Registry.new("#{name} event transitions")
-      @callbacks = Hash.new(Hash.new([]))
+      @callbacks = {}
       configure(&block)
 
       ensure_event_has_transitions
@@ -38,7 +38,8 @@ module NxtStateMachine
       method_or_block = method || block
 
       Array(from).each do |from_state|
-        callbacks[from_state] ||= { kind => [] }
+        callbacks[from_state] ||= { }
+        callbacks[from_state][kind] ||= []
         callbacks[from_state][kind] << NxtStateMachine::Callback.new(method_or_block)
       end
     end

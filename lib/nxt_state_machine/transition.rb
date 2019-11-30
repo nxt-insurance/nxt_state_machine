@@ -11,14 +11,14 @@ module NxtStateMachine
 
     attr_reader :name, :from, :to, :block, :state_machine
 
-    def execute(context, set_state_with, *args, **opts)
+    def execute(context, set_state_with, callbacks = nil, *args, **opts)
       transition = lambda do
         if block
           context.instance_exec(*args, **opts, &block)
         end
       end
 
-      context.instance_exec(from, to, transition, &set_state_with)
+      context.instance_exec(from, to, transition, callbacks, &set_state_with)
     end
 
     private

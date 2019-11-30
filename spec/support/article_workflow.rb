@@ -7,16 +7,27 @@ class ArticleWorkflow
 
   attr_accessor :article
 
+  # ar_state_machine(state: :status, scope: :self) do
+  #
+  # end
+
   state_machine do
     get_state_with do
       article.status = initial_state.name if article.new_record?
       article.status
     end
 
-    set_state_with do |from, to, transition|
-      transition.call
-      article.status = to
-      article.save
+    set_state_with do |from, to, transition, callbacks|
+      article.transaction do
+        callbacks[:before].each { |callback| callback.run(self) }
+
+        transition.call
+        article.status = to
+
+        if article.save
+          callbacks[:after].each { |callback| callback.run(self) }
+        end
+      end
     end
 
     set_state_with! do |from, to, transition|
@@ -48,7 +59,7 @@ class ArticleWorkflow
         article.headline = headline
       end
 
-      after_transition from: :written do
+      after_transition from: :submitted do
         puts '------------------'
         puts '------------------'
         puts '------------------'
@@ -70,14 +81,6 @@ class ArticleWorkflow
         article.deleted_at = Time.current
       end
     end
-
-    # after_transition from: any_state, to: :approved do
-    #   reject if 1 == 2
-    # end
-
-    # before_transition from: all_states, to: :approved do
-    #   reject if 1 == 2
-    # end
   end
 
   def call_me_back
