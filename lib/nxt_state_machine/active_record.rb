@@ -6,46 +6,46 @@ module NxtStateMachine
         state_machine(state: state, scope: scope, &block)
 
         state_machine.get_state_with do
-          record = scope ? send(scope) : self
-          record.assign_attributes(state => initial_state.name) if record.new_record?
-          record.send(state)
+          @record ||= scope ? send(scope) : self
+          @record.assign_attributes(state => initial_state.name) if @record.new_record?
+          @record.send(state)
         end
 
         state_machine.set_state_with do |from, to, transition, callbacks|
-          record = scope ? send(scope) : self
+          @record ||= scope ? send(scope) : self
 
-          record.transaction do
+          @record.transaction do
             callbacks[:before].each { |callback| callback.run(self) }
 
             transition.call
-            record.assign_attributes(state => to)
+            @record.assign_attributes(state => to)
 
-            result = record.save
+            result = @record.save
 
             if result
               callbacks[:after].each { |callback| callback.run(self) }
               result
             else
               # reset state
-              record.assign_attributes(state => from)
+              @record.assign_attributes(state => from)
             end
           end
         end
 
         state_machine.set_state_with! do |from, to, transition, callbacks|
-          record = scope ? send(scope) : self
+          @record ||= scope ? send(scope) : self
 
-          record.transaction do
+          @record.transaction do
             callbacks[:before].each { |callback| callback.run(self) }
 
             transition.call
-            record.assign_attributes(state => to)
+            @record.assign_attributes(state => to)
 
             begin
-              record.save!
+              @record.save!
               callbacks[:after].each { |callback| callback.run(self) }
             rescue ::ActiveRecord::RecordInvalid, ActiveRecord::Rollback => e
-              record.assign_attributes(state => from)
+              @record.assign_attributes(state => from)
               raise
             end
           end

@@ -17,6 +17,17 @@ module NxtStateMachine
       @state_machine.configure(&block) if block_given?
       @state_machine
     end
+
+    def new(*args, **opts, &block)
+      instance = if opts.any?
+        super(*args, **opts, &block)
+      else
+        super(*args, &block)
+      end
+
+      instance.current_state_name
+      instance
+    end
   end
 
   module InstanceMethods
@@ -26,6 +37,10 @@ module NxtStateMachine
 
     def current_state_name
       instance_exec(&state_machine.get_state_with)
+    end
+
+    def current_state
+      state_machine.states.fetch(current_state_name)
     end
 
     delegate :initial_state, :states, to: :state_machine

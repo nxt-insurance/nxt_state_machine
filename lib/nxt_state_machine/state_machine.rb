@@ -80,8 +80,6 @@ module NxtStateMachine
         state_machine.can_transition!(name, current_state_name)
         transition = event.transitions.fetch(current_state_name)
 
-        puts "#{name} transition from #{transition.from} --> to #{transition.to}"
-
         empty_callbacks = { before: [], after: [] }
         callbacks = event.callbacks[transition.from] ||= empty_callbacks
         callbacks = empty_callbacks.deep_merge(callbacks)

@@ -1,8 +1,9 @@
 class ArticleWorkflow
   include NxtStateMachine
 
-  def initialize(article)
+  def initialize(article, **options)
     @article = article
+    @options = options
   end
 
   attr_accessor :article

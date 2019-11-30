@@ -207,7 +207,7 @@ RSpec.describe NxtStateMachine do
 
       expect {
         subject.approve(approved_at: now)
-      }.to change { subject.state }.from(nil).to(:approved)
+      }.to change { subject.state }.from(:draft).to(:approved)
 
       expect(subject.approved_at).to eq(now)
     end

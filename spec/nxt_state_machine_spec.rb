@@ -4,7 +4,13 @@ RSpec.describe NxtStateMachine do
   let(:headline) { 'Article about state machines' }
 
   subject do
-    ArticleWorkflow.new(article)
+    ArticleWorkflow.new(article, test: 'options')
+  end
+
+  describe '.new' do
+    it 'sets the initial state' do
+      expect(subject.article.status).to eq('draft')
+    end
   end
 
   describe '#get_state_with' do
@@ -117,5 +123,9 @@ RSpec.describe NxtStateMachine do
         expect(subject.can_publish?).to be_falsey
       end
     end
+  end
+
+  describe 'callbacks' do
+
   end
 end
