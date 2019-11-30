@@ -6,7 +6,6 @@ module NxtStateMachine
       @to = to
       @state_machine = state_machine
       @block = block
-
       ensure_states_exist
     end
 
@@ -19,10 +18,10 @@ module NxtStateMachine
         end
       end
 
-      context.run_callbacks :transition do
-        context.instance_exec(from, to, transition, &set_state_with)
-      end
+      context.instance_exec(from, to, transition, &set_state_with)
     end
+
+    private
 
     def ensure_states_exist
       raise NxtStateMachine::Errors::UnknownStateError, "No state with :#{from} registered" unless state_machine.states.key?(from)

@@ -5,6 +5,7 @@ require "nxt_state_machine/registry"
 require "nxt_state_machine/transitions_store"
 require "nxt_state_machine/state"
 require "nxt_state_machine/event"
+require "nxt_state_machine/callback"
 require "nxt_state_machine/transition"
 require "nxt_state_machine/state_machine"
 
@@ -33,7 +34,5 @@ module NxtStateMachine
   def self.included(base)
     base.extend(ClassMethods)
     base.include(InstanceMethods)
-    base.include(ActiveSupport::Callbacks)
-    base.define_callbacks :transition
   end
 end

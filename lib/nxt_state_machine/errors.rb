@@ -9,5 +9,6 @@ module NxtStateMachine
     InitialStateAlreadySet = Class.new(Error)
     TransitionNotDefined = Class.new(Error)
     MissingConfiguration = Class.new(Error)
+    InvalidCallbackOption = Class.new(Error)
   end
 end
