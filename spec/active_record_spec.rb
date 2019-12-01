@@ -13,13 +13,13 @@ RSpec.describe NxtStateMachine::ActiveRecord do
           state :processed, :accepted, :rejected
 
           event :process do
-            transition from: :received, to: :processed do |processed_at|
+            transitions from: :received, to: :processed do |processed_at|
               self.processed_at = processed_at
             end
           end
 
           event :accept do
-            transition from: :processed, to: :accepted do |accepted_at|
+            transitions from: :processed, to: :accepted do |accepted_at|
               self.accepted_at = accepted_at
             end
           end
@@ -449,7 +449,7 @@ RSpec.describe NxtStateMachine::ActiveRecord do
                 state :processed, :accepted, :rejected
 
                 event :process do
-                  transition from: :received, to: :processed do |processed_at|
+                  transitions from: :received, to: :processed do |processed_at|
                     application.processed_at = processed_at
                   end
 
@@ -459,7 +459,7 @@ RSpec.describe NxtStateMachine::ActiveRecord do
                 end
 
                 event :accept do
-                  transition from: :processed, to: :accepted do |accepted_at|
+                  transitions from: :processed, to: :accepted do |accepted_at|
                     application.accepted_at = accepted_at
                   end
                 end

@@ -80,7 +80,7 @@ module NxtStateMachine
       # we might also put this in a module for easy overwriting
       context.define_method name do |*args, **opts|
         state_machine.can_transition!(name, current_state_name)
-        transition = event.transitions.fetch(current_state_name)
+        transition = event.event_transitions.fetch(current_state_name)
 
         empty_callbacks = { before: [], after: [] }
         callbacks = event.callbacks[transition.from] ||= empty_callbacks
@@ -105,7 +105,7 @@ module NxtStateMachine
 
       context.define_method "#{name}!" do |*args, **opts|
         state_machine.can_transition!(name, current_state_name)
-        transition = event.transitions.fetch(current_state_name)
+        transition = event.event_transitions.fetch(current_state_name)
 
         empty_callbacks = { before: [], after: [] }
         callbacks = event.callbacks[transition.from] ||= empty_callbacks
@@ -135,7 +135,7 @@ module NxtStateMachine
 
     def can_transition?(event, from)
       event = events[event]
-      event && event.transitions.key?(from)
+      event && event.event_transitions.key?(from)
     end
 
     def can_transition!(event, from)

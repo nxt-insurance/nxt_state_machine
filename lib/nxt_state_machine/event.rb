@@ -3,14 +3,14 @@ module NxtStateMachine
     def initialize(name, state_machine:, &block)
       @state_machine = state_machine
       @name = name
-      @transitions = Registry.new("#{name} event transitions")
+      @event_transitions = Registry.new("#{name} event transitions")
       @callbacks = {}
       configure(&block)
 
       ensure_event_has_transitions
     end
 
-    attr_reader :name, :state_machine, :transitions, :callbacks
+    attr_reader :name, :state_machine, :event_transitions, :callbacks
 
     delegate :any_state, :all_states, :all_states_without, to: :state_machine
 
@@ -18,13 +18,15 @@ module NxtStateMachine
       instance_exec(&block)
     end
 
-    def transition(from:, to:, &block)
+    def transitions(from:, to:, &block)
       Array(from).each do |from_state|
         transition = Transition.new(name, from: from_state, to: to, state_machine: state_machine, &block)
         state_machine.transitions << transition
-        transitions[from_state] = transition
+        event_transitions[from_state] = transition
       end
     end
+
+    alias_method :transition, :transitions
 
     def before_transition(from:, run: nil, &block)
       add_callbacks(from, :before, run, block)
@@ -45,7 +47,7 @@ module NxtStateMachine
     end
 
     def ensure_event_has_transitions
-      return if transitions.size > 0
+      return if event_transitions.size > 0
 
       raise NxtStateMachine::Errors::EventWithoutTransitions, "No transitions for event :#{name} defined"
     end
