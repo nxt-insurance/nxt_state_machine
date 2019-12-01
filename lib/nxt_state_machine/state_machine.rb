@@ -47,17 +47,19 @@ module NxtStateMachine
 
     alias_method :transition_with!, :set_state_with!
 
-    def state(name, **opts)
+    def state(*names, **opts)
       defaults = { initial: false }
       opts.reverse_merge!(defaults)
 
-      if opts.fetch(:initial) && initial_state.present?
-        raise NxtStateMachine::Errors::InitialStateAlreadySet, ":#{initial_state.name} was already set as the initial state"
-      else
-        state = State.new(name, opts)
-        states[name] = state
-        self.initial_state = state if opts.fetch(:initial)
-        state
+      Array(names).map do |name|
+        if opts.fetch(:initial) && initial_state.present?
+          raise NxtStateMachine::Errors::InitialStateAlreadySet, ":#{initial_state.name} was already set as the initial state"
+        else
+          state = State.new(name, opts)
+          states[name] = state
+          self.initial_state = state if opts.fetch(:initial)
+          state
+        end
       end
     end
 

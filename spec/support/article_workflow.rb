@@ -50,18 +50,10 @@ class ArticleWorkflow
     end
 
     event :approve do
-      before_transition from: %i[written submitted deleted], run: :call_me_back
+      # before_transition from: %i[written submitted deleted], run: :call_me_back
 
       transition from: %i[written submitted deleted], to: :approved do |headline:|
         article.headline = headline
-      end
-
-      after_transition from: :submitted do
-        puts '------------------'
-        puts '------------------'
-        puts '------------------'
-        puts '------------------'
-        puts '------------------'
       end
     end
 
@@ -78,13 +70,5 @@ class ArticleWorkflow
         article.deleted_at = Time.current
       end
     end
-  end
-
-  def call_me_back
-    puts '***********'
-    puts '***********'
-    puts '***********'
-    puts '***********'
-    puts '***********'
   end
 end

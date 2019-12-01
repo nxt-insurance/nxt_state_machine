@@ -7,7 +7,11 @@ module NxtStateMachine
 
         state_machine.get_state_with do
           @record ||= scope ? send(scope) : self
-          @record.assign_attributes(state => initial_state.name) if @record.new_record?
+
+          if @record.send(state).nil? && @record.new_record?
+            @record.assign_attributes(state => initial_state.name)
+          end
+
           @record.send(state)
         end
 
@@ -30,6 +34,9 @@ module NxtStateMachine
               @record.assign_attributes(state => from)
             end
           end
+        rescue StandardError
+          @record.assign_attributes(state => from)
+          raise
         end
 
         state_machine.set_state_with! do |from, to, transition, callbacks|
@@ -41,14 +48,12 @@ module NxtStateMachine
             transition.call
             @record.assign_attributes(state => to)
 
-            begin
-              @record.save!
-              callbacks[:after].each { |callback| callback.run(self) }
-            rescue ::ActiveRecord::RecordInvalid, ActiveRecord::Rollback => e
-              @record.assign_attributes(state => from)
-              raise
-            end
+            @record.save!
+            callbacks[:after].each { |callback| callback.run(self) }
           end
+        rescue StandardError
+          @record.assign_attributes(state => from)
+          raise
         end
       end
     end
