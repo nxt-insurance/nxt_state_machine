@@ -51,9 +51,9 @@ RSpec.describe NxtStateMachine::ActiveRecord do
       end
     end
 
-    context '#<event>' do
+    describe '#<event>' do
       context 'when the record is new' do
-        context 'when the record is invalid' do
+        context 'when the record is valid' do
           subject do
             state_machine_class.new(content: 'Please make it happen', received_at: Time.current)
           end
@@ -72,6 +72,7 @@ RSpec.describe NxtStateMachine::ActiveRecord do
             expect { subject.process(Time.current) }.to_not change { subject.status }
             expect { subject.process!(Time.current) }.to raise_error(ActiveRecord::RecordInvalid)
             expect(subject.status).to eq('received')
+            expect(subject.new_record?).to be_truthy
           end
         end
       end
@@ -85,6 +86,7 @@ RSpec.describe NxtStateMachine::ActiveRecord do
           it do
             expect(subject.status).to eq('received')
             expect { subject.process(Time.current) }.to change { subject.reload.status }.from('received').to('processed')
+            expect(subject.new_record?).to be_falsey
             expect { subject.accept!(Time.current) }.to change { subject.reload.status }.from('processed').to('accepted')
           end
         end
@@ -104,8 +106,7 @@ RSpec.describe NxtStateMachine::ActiveRecord do
       end
     end
 
-    context 'callbacks' do
-
+    describe 'callbacks' do
       context 'when there is an error' do
         context 'in a before callback' do
           let(:state_machine_class) do
@@ -268,44 +269,235 @@ RSpec.describe NxtStateMachine::ActiveRecord do
       end
     end
 
-    let(:application) { Application.new }
-
     subject do
       state_machine_class.new(application)
     end
 
-    context '#<event>' do
+    describe '.new' do
+      context 'when the state was not yet set' do
+        let(:application) { Application.new }
+
+        it 'sets the initial state' do
+          expect(subject.application.status).to eq('received')
+          expect(subject.application).to be_new_record
+        end
+      end
+
+      context 'when the state was already set' do
+        let(:application) { Application.new(status: 'processed') }
+
+        it 'does not change the state' do
+          expect(subject.application.status).to eq('processed')
+          expect(subject.application).to be_new_record
+        end
+      end
+    end
+
+    describe '#<event>' do
       context 'when the record is a new record' do
         context 'when the record is valid' do
+          let(:application) { Application.new(content: 'Please make it happen', received_at: Time.current) }
+
           it do
-            binding.pry
+            expect { subject.process(Time.current) }.to change { subject.application.status }.from('received').to('processed')
+            expect(subject.application).to be_persisted
           end
         end
 
         context 'when the record is invalid' do
+          let(:application) { Application.new(content: nil, received_at: Time.current) }
+
           it do
-            binding.pry
+            expect { subject.process(Time.current) }.to_not change { subject.application.status }
+            expect(subject.application).to be_new_record
+
+            expect { subject.process!(Time.current) }.to raise_error ActiveRecord::RecordInvalid
+            expect(subject.application).to be_new_record
+            expect(subject.application.status).to eq('received')
           end
         end
       end
 
       context 'when the record was loaded from the database' do
+        let(:application) { Application.create!(content: 'Please make it happen', received_at: Time.current, status: 'received') }
+
         context 'when the record is valid' do
           it do
-            binding.pry
+            expect { subject.process(Time.current) }.to change { subject.application.status }.from('received').to('processed')
+            expect(subject.application).to be_persisted
+            expect { subject.accept!(Time.current) }.to change { subject.application.status }.from('processed').to('accepted')
+            expect(subject.application.reload.status).to eq('accepted')
           end
         end
 
         context 'when the record is invalid' do
+          before do
+            application.content = nil
+          end
+
           it do
-            binding.pry
+            expect { subject.process(Time.current) }.to_not change { subject.application.status }
+            expect { subject.process!(Time.current) }.to raise_error ActiveRecord::RecordInvalid
+            expect(subject.application.reload.status).to eq('received')
           end
         end
       end
     end
 
     context 'callbacks' do
+      context 'when there is an error' do
+        let(:application) { Application.new(content: 'Please make it happen', received_at: Time.current) }
 
+        context 'in a before callback' do
+          let(:state_machine_class) do
+            Class.new do
+              include NxtStateMachine::ActiveRecord
+
+              def initialize(application)
+                @application = application
+              end
+
+              attr_reader :application
+
+              active_record_state_machine(state: :status, scope: :application) do
+                state :received, initial: true
+                state :processed
+                state :accepted
+                state :rejected
+
+                event :process do
+                  before_transition from: :received do
+                    raise ZeroDivisionError, "Error in before_callback"
+                  end
+
+                  transition from: :received, to: :processed do |processed_at|
+                    application.processed_at = processed_at
+                  end
+                end
+
+                event :accept do
+                  transition from: :processed, to: :accepted do |accepted_at|
+                    application.accepted_at = accepted_at
+                  end
+                end
+              end
+            end
+          end
+
+          subject do
+            state_machine_class.new(application)
+          end
+
+          it 'does not change the state' do
+            expect { subject.process(Time.current) }.to raise_error ZeroDivisionError
+            expect(subject.application).to be_new_record
+            expect(subject.application.status).to eq('received')
+
+            expect { subject.process!(Time.current) }.to raise_error ZeroDivisionError
+            expect(subject.application).to be_new_record
+            expect(subject.application.status).to eq('received')
+          end
+        end
+
+        context 'during the transition' do
+          let(:state_machine_class) do
+            Class.new do
+              include NxtStateMachine::ActiveRecord
+
+              def initialize(application)
+                @application = application
+              end
+
+              attr_reader :application
+
+              active_record_state_machine(state: :status, scope: :application) do
+                state :received, initial: true
+                state :processed
+                state :accepted
+                state :rejected
+
+                event :process do
+                  transition from: :received, to: :processed do |processed_at|
+                    application.processed_at = processed_at
+                    raise ZeroDivisionError, "oh oh"
+                  end
+                end
+
+                event :accept do
+                  transition from: :processed, to: :accepted do |accepted_at|
+                    application.accepted_at = accepted_at
+                  end
+                end
+              end
+            end
+          end
+
+          subject do
+            state_machine_class.new(application)
+          end
+
+          it 'does not change the state' do
+            expect { subject.process(Time.current) }.to raise_error ZeroDivisionError
+            expect(subject.application).to be_new_record
+            expect(subject.application.status).to eq('received')
+
+            expect { subject.process!(Time.current) }.to raise_error ZeroDivisionError
+            expect(subject.application).to be_new_record
+            expect(subject.application.status).to eq('received')
+          end
+        end
+
+        context 'in an after callback' do
+          let(:state_machine_class) do
+            Class.new do
+              include NxtStateMachine::ActiveRecord
+
+              def initialize(application)
+                @application = application
+              end
+
+              attr_reader :application
+
+              active_record_state_machine(state: :status, scope: :application) do
+                state :received, initial: true
+                state :processed
+                state :accepted
+                state :rejected
+
+                event :process do
+                  transition from: :received, to: :processed do |processed_at|
+                    application.processed_at = processed_at
+                  end
+
+                  after_transition from: :received do
+                    raise ZeroDivisionError, "oh oh"
+                  end
+                end
+
+                event :accept do
+                  transition from: :processed, to: :accepted do |accepted_at|
+                    application.accepted_at = accepted_at
+                  end
+                end
+              end
+            end
+          end
+
+          subject do
+            state_machine_class.new(application)
+          end
+
+          it 'does not change the state' do
+            expect { subject.process(Time.current) }.to raise_error ZeroDivisionError
+            expect(subject.application).to be_new_record
+            expect(subject.application.status).to eq('received')
+
+            expect { subject.process!(Time.current) }.to raise_error ZeroDivisionError
+            expect(subject.application).to be_new_record
+            expect(subject.application.status).to eq('received')
+          end
+        end
+      end
     end
   end
 end

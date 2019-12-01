@@ -11,6 +11,7 @@ end
 
 class Application < ActiveRecord::Base
   validates :content, presence: true
+  validates :status, presence: true
   validates :received_at, presence: true
   validates :processed_at, presence: true, if: -> { status == 'processed' }
   validates :rejected_at, presence: true, if: -> { status == 'rejected' }
