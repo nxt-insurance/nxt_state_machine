@@ -1,5 +1,11 @@
 # NxtStateMachine
 
+## TODO
+
+- Allow events with the same name to coexist!
+- Implement :halt_transaction
+- Implement :around_transition callback
+
 ```ruby
 
 class ApplicationWorkflow

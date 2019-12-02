@@ -32,6 +32,8 @@ module NxtStateMachine
             else
               # reset state
               @record.assign_attributes(state => from)
+              # TODO: We probably also have to rollback the transaction here
+              # Probably it's best to implement :halt_transaction and use that.
             end
           end
         rescue StandardError
