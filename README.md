@@ -2,7 +2,7 @@
 
 ## TODO
 
-- Allow events with the same name to coexist!
+- Test that events with the same name can coexist but are unique!
 - Implement :halt_transaction
 - Implement :around_transition callback
 
