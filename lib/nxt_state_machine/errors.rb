@@ -1,6 +1,5 @@
 module NxtStateMachine
   module Errors
-    Error = Class.new(StandardError)
     EventAlreadyRegistered = Class.new(Error)
     StateAlreadyRegistered = Class.new(Error)
     TransitionAlreadyRegistered = Class.new(Error)

@@ -1,6 +1,8 @@
 require 'active_support/all'
 require "nxt_state_machine/version"
+require "nxt_state_machine/errors/error"
 require "nxt_state_machine/errors"
+require "nxt_state_machine/errors/transition_halted"
 require "nxt_state_machine/registry"
 require "nxt_state_machine/transitions_store"
 require "nxt_state_machine/state"

@@ -32,13 +32,17 @@ module NxtStateMachine
             else
               # reset state
               @record.assign_attributes(state => from)
-              # TODO: We probably also have to rollback the transaction here
-              # Probably it's best to implement :halt_transaction and use that.
+              halt_transaction
             end
           end
-        rescue StandardError
+        rescue StandardError => error
           @record.assign_attributes(state => from)
-          raise
+
+          if error.is_a?(NxtStateMachine::Errors::TransitionHalted)
+            false
+          else
+            raise
+          end
         end
 
         state_machine.set_state_with! do |from, to, transition, callbacks|
@@ -60,8 +64,15 @@ module NxtStateMachine
       end
     end
 
+    module InstanceMethods
+      def halt_transaction(*args, **opts)
+        raise NxtStateMachine::Errors::TransitionHalted.new(*args, **opts)
+      end
+    end
+
     def self.included(base)
       base.include(NxtStateMachine)
+      base.include(InstanceMethods)
       base.extend(ClassMethods)
     end
   end

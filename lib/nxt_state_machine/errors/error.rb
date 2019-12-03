@@ -1,0 +1,1 @@
+Error = Class.new(StandardError)

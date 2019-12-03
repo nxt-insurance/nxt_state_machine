@@ -484,4 +484,111 @@ RSpec.describe NxtStateMachine::ActiveRecord do
       end
     end
   end
+
+  describe '#halt_transaction' do
+    let(:state_machine_class) do
+      Class.new do
+        include NxtStateMachine::ActiveRecord
+
+        def initialize(application)
+          @application = application
+        end
+
+        attr_reader :application
+
+        active_record_state_machine(state: :status, scope: :application) do
+          state :received, initial: true
+          state :processed, :accepted, :rejected
+
+          event :process do
+            before_transition from: any_state do
+              halt_transaction 'oh oh'
+            end
+            transitions from: any_state, to: :processed
+          end
+
+          event :accept do
+            transitions from: any_state, to: :accepted do
+              halt_transaction 'oh oh', info: 'might be useful'
+            end
+          end
+
+          event :reject do
+            transitions from: any_state, to: :rejected
+
+            after_transition from: any_state do
+              halt_transaction 'oh oh', info: 'might be useful'
+            end
+          end
+        end
+      end
+    end
+
+    let(:application) {
+      Application.new(
+        content: 'Please make it happen',
+        received_at: Time.current,
+        rejected_at: Time.current,
+        processed_at: Time.current
+      )
+    }
+
+    subject do
+      state_machine_class.new(application)
+    end
+
+    context 'before_transition callback' do
+      context '#<event>' do
+        it do
+          expect(subject.process).to be_falsey
+          expect { subject.process }.to_not change { subject.application.status }
+          expect(application).to be_new_record
+        end
+      end
+
+      context '#<event>!' do
+        it do
+          expect { subject.process! }.to raise_error NxtStateMachine::Errors::TransitionHalted
+          expect(subject.application.status).to eq('received')
+          expect(application).to be_new_record
+        end
+      end
+    end
+
+    context 'during the transition' do
+      context '#<event>' do
+        it do
+          expect(subject.accept).to be_falsey
+          expect { subject.accept }.to_not change { subject.application.status }
+          expect(application).to be_new_record
+        end
+      end
+
+      context '#<event>!' do
+        it do
+          expect { subject.accept! }.to raise_error NxtStateMachine::Errors::TransitionHalted
+          expect(subject.application.status).to eq('received')
+          expect(application).to be_new_record
+        end
+      end
+    end
+
+    context 'after_transition callback' do
+      context '#<event>' do
+        it do
+          expect(subject.reject).to be_falsey
+          expect { subject.reject }.to_not change { subject.application.status }
+          expect(application).to be_new_record
+        end
+      end
+
+      context '#<event>!' do
+        it do
+          expect { subject.reject! }.to raise_error NxtStateMachine::Errors::TransitionHalted
+          expect(subject.application.status).to eq('received')
+          expect(application).to be_new_record
+        end
+      end
+    end
+  end
 end
