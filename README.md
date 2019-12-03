@@ -5,6 +5,7 @@
 - Test that events with the same name can coexist but are unique!
 - Implement :around_transition callback (Would this also be around before, depend on order or not?)
 - Check if having multiple state machines in the same class is a big issue
+- Build NxtCallCenter for evaluating block with respect to their arity
 
 ```ruby
 class ArticleWorkflow
