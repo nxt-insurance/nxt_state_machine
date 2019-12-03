@@ -21,10 +21,15 @@ module NxtStateMachine
           @record.transaction do
             callbacks[:before].each { |callback| callback.run(self) }
 
-            transition.call
-            @record.assign_attributes(state => to)
+            result = nil
 
-            result = @record.save
+            proxy = Proc.new do
+              transition.call
+              @record.assign_attributes(state => to)
+              result = @record.save
+            end
+
+            proxy.call
 
             if result
               callbacks[:after].each { |callback| callback.run(self) }
@@ -51,10 +56,14 @@ module NxtStateMachine
           @record.transaction do
             callbacks[:before].each { |callback| callback.run(self) }
 
-            transition.call
-            @record.assign_attributes(state => to)
+            proxy = Proc.new do
+              transition.call
+              @record.assign_attributes(state => to)
+              @record.save!
+            end
 
-            @record.save!
+            proxy.call
+
             callbacks[:after].each { |callback| callback.run(self) }
           end
         rescue StandardError
