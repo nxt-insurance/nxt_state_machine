@@ -7,64 +7,64 @@
 - Check if having multiple state machines in the same class is a big issue
 
 ```ruby
+class ArticleWorkflow
+  include NxtStateMachine::ActiveRecord
 
-class ApplicationWorkflow
-  include NxtStateMachine
-  
-  def initialize(application)
-    @application = application
+  def initialize(article, **options)
+    @article = article
+    @options = options
   end
-  
-  # This could also be a method that comes from include NxtStateMachine and then captures "self" in order to
-  # execute the transitions in the scope of "self"  
-  # state_machine should be a config that can be called multiple times like in pipeline!
-  
-  state_machine(:application) do
-    set_state_with do |from, to, transition| 
-      # all blocks should be evaluated within the "self"
-      transition.call
-      @application.update(state: to)
-    end
-    
-    set_state_with! do |from, to| 
-      # all blocks should be evaluated within the "self"
-      @application.update!(state: to)
-    end
-    
-    before_transition from: any, to: :rejected do |**attributes|
-      # all blocks should be evaluated within the "self"
-      # we should allow to define attributes or not
-    end
-    
-    after_transition from: all, to: :rejected do
-          # all blocks should be evaluated within the "self"
-    end
-    
-    # draft -|---|- approve -|---|-> appr-|-oved -|---- - -
-  
+
+  attr_accessor :article
+
+  active_record_state_machine(scope: :article, state: :status) do
     state :draft, initial: true
-    state :review_pending
-    state :approved do |state|
-      state.guard do
-        halt if 1 == 2  
-      end
-    end
-    
+    state :written
+    state :submitted
+    state :approved
+    state :published
     state :rejected
-    
-    event :request_review do
-      transition from: :draft, to: :draft do |**attributes|
-        @application.attributes = attributes  
-      end
-    
-      # transitions from: :draft, to: :draft
-      # transitions from: :review_pending, to: :review_pending
-    
-      
-      # reject if ...
+    state :deleted
+
+    event :write do
+      transition from: %i[draft written deleted], to: :written
     end
-    
-    event :approve, from: :review_pending, to: :approved # without block just updates the state
+
+    event :submit do
+      transition from: %i[written rejected deleted], to: :submitted
+    end
+
+    event :approve do
+      before_transition from: %i[written submitted deleted], run: :call_me_back
+
+      transition from: %i[written submitted deleted], to: :approved do |headline:|
+        article.headline = headline
+      end
+
+      after_transition from: %i[written submitted deleted], run: :call_me_back
+
+      # around_transition from: any_state do
+      #  
+      # end
+    end
+
+    event :publish do
+      before_transition from: any_state do
+        halt_transition if Time.current < Date.yesterday
+      end
+
+      transition from: :approved, to: :published
+    end
+
+    event :reject do
+      transition from: %i[draft submitted deleted], to: :rejected
+    end
+
+    event :delete do
+      transition from: any_state, to: :deleted do
+        article.deleted_at = Time.current
+      end
+    end
   end
 end
 

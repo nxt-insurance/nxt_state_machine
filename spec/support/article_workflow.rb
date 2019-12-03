@@ -1,5 +1,5 @@
 class ArticleWorkflow
-  include NxtStateMachine
+  include NxtStateMachine::ActiveRecord
 
   def initialize(article, **options)
     @article = article
@@ -8,31 +8,7 @@ class ArticleWorkflow
 
   attr_accessor :article
 
-  state_machine do
-    get_state_with do
-      article.status = initial_state.name if article.new_record?
-      article.status
-    end
-
-    set_state_with do |from, to, transition, callbacks|
-      article.transaction do
-        callbacks[:before].each { |callback| callback.run(self) }
-
-        transition.call
-        article.status = to
-
-        if article.save
-          callbacks[:after].each { |callback| callback.run(self) }
-        end
-      end
-    end
-
-    set_state_with! do |from, to, transition|
-      transition.call
-      article.status = to
-      article.save!
-    end
-
+  active_record_state_machine(scope: :article, state: :status) do
     state :draft, initial: true
     state :written
     state :submitted
