@@ -3,8 +3,7 @@
 ## TODO
 
 - Test that events with the same name can coexist but are unique!
-- Implement :halt_transaction
-- Implement :around_transition callback
+- Implement :around_transition callback (Would this also be around before, depend on order or not?)
 - Check if having multiple state machines in the same class is a big issue
 
 ```ruby
