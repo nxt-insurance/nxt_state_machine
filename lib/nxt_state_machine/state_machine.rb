@@ -91,15 +91,19 @@ module NxtStateMachine
             callback.run(self)
           end
 
-          transition.execute(self, state_machine.set_state_with, nil, *args, **opts)
+          # TODO: Does this even work with an arity of 3? --> test please!!!
+          # TODO: Proxy and around callback
+          result = transition.execute(self, state_machine.set_state_with, nil, *args, **opts)
 
           callbacks[:after].each do |callback|
             callback.run(self)
           end
+
+          result
         elsif state_machine.set_state_with.arity == 4
           transition.execute(self, state_machine.set_state_with, callbacks, *args, **opts)
         else
-          raise StandardError, 'Block must at least have an arity of 3' # TODO: Make this a proper error
+          raise StandardError, 'set_state_with must at least have an arity of 3' # TODO: Make this a proper error
         end
       end
 

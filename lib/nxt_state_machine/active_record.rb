@@ -40,7 +40,7 @@ module NxtStateMachine
               halt_transaction
             end
           end
-        rescue StandardError => error
+        rescue StandardError => error # TODO: we should probably only rescue from known exceptions (AR, TransitionHalted)
           @record.assign_attributes(state => from)
 
           if error.is_a?(NxtStateMachine::Errors::TransitionHalted)

@@ -10,7 +10,11 @@ module NxtStateMachine
       args = args.take(arity)
 
       if context
-        context.instance_exec(*args, &callee)
+        if callee.is_a?(Symbol)
+          context.send(callee, *args)
+        else
+          context.instance_exec(*args, &callee)
+        end
       else
         callee.call(*args)
       end
