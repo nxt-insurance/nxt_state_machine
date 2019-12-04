@@ -93,7 +93,13 @@ module NxtStateMachine
 
           # TODO: Does this even work with an arity of 3? --> test please!!!
           # TODO: Proxy and around callback
-          result = transition.execute(self, state_machine.set_state_with, nil, *args, **opts)
+          result = false
+
+          proxy = Proc.new do
+            result = transition.execute(self, state_machine.set_state_with, nil, *args, **opts)
+          end
+
+          proxy.call
 
           callbacks[:after].each do |callback|
             callback.run(self)
@@ -120,11 +126,19 @@ module NxtStateMachine
             callback.run(self)
           end
 
-          transition.execute(self, state_machine.set_state_with, nil, *args, **opts)
+          result = nil
+
+          proxy = Proc.new do
+            result = transition.execute(self, state_machine.set_state_with, nil, *args, **opts)
+          end
+
+          proxy.call
 
           callbacks[:after].each do |callback|
             callback.run(self)
           end
+
+          result
         elsif state_machine.set_state_with.arity == 4
           transition.execute(self, state_machine.set_state_with!, callbacks, *args, **opts)
         else
