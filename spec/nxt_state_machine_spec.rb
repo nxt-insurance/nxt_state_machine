@@ -18,7 +18,7 @@ RSpec.describe NxtStateMachine do
       around do |example|
         before = subject.state_machine.get_state_with
         subject.state_machine.instance_variable_set(:@get_state_with, nil)
-        example.run
+        example.call
         subject.state_machine.instance_variable_set(:@get_state_with, before)
       end
 
@@ -35,7 +35,7 @@ RSpec.describe NxtStateMachine do
       around do |example|
         before = subject.state_machine.set_state_with
         subject.state_machine.instance_variable_set(:@set_state_with, nil)
-        example.run
+        example.call
         subject.state_machine.instance_variable_set(:@set_state_with, before)
       end
 
@@ -52,7 +52,7 @@ RSpec.describe NxtStateMachine do
       around do |example|
         before = subject.state_machine.set_state_with!
         subject.state_machine.instance_variable_set(:@set_state_with_bang, nil)
-        example.run
+        example.call
         subject.state_machine.instance_variable_set(:@set_state_with_bang, before)
       end
 

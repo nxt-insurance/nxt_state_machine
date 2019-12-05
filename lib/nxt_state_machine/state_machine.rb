@@ -90,7 +90,7 @@ module NxtStateMachine
 
         if set_state_with_arity == 3
           callbacks[:before].each do |callback|
-            callback.run(self)
+            callback.call(self)
           end
 
           # TODO: Does this even work with an arity of 3? --> test please!!!
@@ -104,7 +104,7 @@ module NxtStateMachine
           proxy.call
 
           callbacks[:after].each do |callback|
-            callback.run(self)
+            callback.call(self)
           end
 
           result
@@ -128,7 +128,7 @@ module NxtStateMachine
 
         if set_state_with_arity == 3
           callbacks[:before].each do |callback|
-            callback.run(self)
+            callback.call(self)
           end
 
           result = nil
@@ -140,7 +140,7 @@ module NxtStateMachine
           proxy.call
 
           callbacks[:after].each do |callback|
-            callback.run(self)
+            callback.call(self)
           end
 
           result

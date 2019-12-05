@@ -21,7 +21,7 @@ module NxtStateMachine
           @record ||= scope ? send(scope) : self
 
           @record.transaction do
-            callbacks[:before].each { |callback| callback.run(self) }
+            callbacks[:before].each { |callback| callback.call(self) }
 
             result = nil
 
@@ -34,7 +34,7 @@ module NxtStateMachine
             proxy.call
 
             if result
-              callbacks[:after].each { |callback| callback.run(self) }
+              callbacks[:after].each { |callback| callback.call(self) }
               result
             else
               # reset state
@@ -56,7 +56,7 @@ module NxtStateMachine
           @record ||= scope ? send(scope) : self
 
           @record.transaction do
-            callbacks[:before].each { |callback| callback.run(self) }
+            callbacks[:before].each { |callback| callback.call(self) }
 
             result = nil
 
@@ -68,7 +68,7 @@ module NxtStateMachine
 
             proxy.call
 
-            callbacks[:after].each { |callback| callback.run(self) }
+            callbacks[:after].each { |callback| callback.call(self) }
 
             result
           end

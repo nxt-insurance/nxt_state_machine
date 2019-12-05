@@ -4,7 +4,7 @@ module NxtStateMachine
       @method_or_block = method_or_block
     end
 
-    def run(context, *args)
+    def call(context, *args)
       if method_or_block.is_a?(Symbol)
         context.send(method_or_block)
       elsif method_or_block.respond_to?(:call)

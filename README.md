@@ -39,13 +39,13 @@ class ArticleWorkflow
     end
 
     event :approve do
-      before_transition from: %i[written submitted deleted], run: :call_me_back
+      before_transition from: %i[written submitted deleted], call: :call_me_back
 
       transition from: %i[written submitted deleted], to: :approved do |headline:|
         article.headline = headline
       end
 
-      after_transition from: %i[written submitted deleted], run: :call_me_back
+      after_transition from: %i[written submitted deleted], call: :call_me_back
 
       # around_transition from: any_state do
       #  
