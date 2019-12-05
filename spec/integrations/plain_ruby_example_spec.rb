@@ -1,0 +1,75 @@
+RSpec.describe NxtStateMachine do
+  context 'when used with a simple state attribute' do
+    let(:state_machine_class) do
+      Class.new do
+        include NxtStateMachine
+
+        def initialize(state)
+          @state = state
+          @string = []
+        end
+
+        attr_accessor :state, :string
+
+        state_machine do
+          get_state_with { self.state }
+
+          state_setter = Proc.new do |from, to, transition|
+            transition.call
+            self.state = to
+          end
+
+          set_state_with(&state_setter)
+          set_state_with!(&state_setter)
+
+          state :received, initial: true
+          state :processed, :accepted, :rejected
+
+          event :process do
+            before_transition from: any_state do
+              acc_string 'before transition'
+            end
+
+            transitions from: :received, to: :processed do
+              acc_string 'during transition'
+            end
+
+            after_transition from: any_state do
+              acc_string 'after transition'
+            end
+          end
+        end
+
+        def acc_string(substring)
+          string << substring
+        end
+      end
+    end
+
+    subject do
+      state_machine_class.new('received')
+    end
+
+    context 'with default callbacks' do
+      context '<event>' do
+        it 'executes the callbacks in the correct order' do
+          expect {
+            subject.process
+          }.to change {
+            subject.string
+          }.from(be_empty).to(["before transition", "during transition", "after transition"])
+        end
+      end
+
+      context '<event>!' do
+        it 'executes the callbacks in the correct order' do
+          expect {
+            subject.process!
+          }.to change {
+            subject.string
+          }.from(be_empty).to(["before transition", "during transition", "after transition"])
+        end
+      end
+    end
+  end
+end
