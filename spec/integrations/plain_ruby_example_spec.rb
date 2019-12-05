@@ -12,15 +12,9 @@ RSpec.describe NxtStateMachine do
         attr_accessor :state, :string
 
         state_machine do
-          get_state_with { self.state }
-
-          state_setter = Proc.new do |from, to, transition|
-            transition.call
-            self.state = to
-          end
-
-          set_state_with(&state_setter)
-          set_state_with!(&state_setter)
+          get_state_with :state
+          set_state_with :set_state
+          set_state_with! :set_state
 
           state :received, initial: true
           state :processed, :accepted, :rejected
@@ -38,6 +32,11 @@ RSpec.describe NxtStateMachine do
               acc_string 'after transition'
             end
           end
+        end
+
+        def set_state(from, to, transition)
+          transition.call
+          self.state = to
         end
 
         def acc_string(substring)
