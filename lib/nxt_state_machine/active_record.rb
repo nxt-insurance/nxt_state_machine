@@ -58,15 +58,19 @@ module NxtStateMachine
           @record.transaction do
             callbacks[:before].each { |callback| callback.run(self) }
 
+            result = nil
+
             proxy = Proc.new do
               transition.call
               @record.assign_attributes(state => to)
-              @record.save!
+              result = @record.save!
             end
 
             proxy.call
 
             callbacks[:after].each { |callback| callback.run(self) }
+
+            result
           end
         rescue StandardError
           @record.assign_attributes(state => from)
