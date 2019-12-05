@@ -21,15 +21,15 @@ RSpec.describe NxtStateMachine do
 
           event :process do
             before_transition from: any_state do
-              acc_string 'before transition'
+              append_string 'before transition'
             end
 
             transitions from: :received, to: :processed do
-              acc_string 'during transition'
+              append_string 'during transition'
             end
 
             after_transition from: any_state do
-              acc_string 'after transition'
+              append_string 'after transition'
             end
           end
         end
@@ -39,7 +39,7 @@ RSpec.describe NxtStateMachine do
           self.state = to
         end
 
-        def acc_string(substring)
+        def append_string(substring)
           string << substring
         end
       end
