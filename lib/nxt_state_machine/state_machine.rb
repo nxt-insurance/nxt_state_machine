@@ -32,10 +32,12 @@ module NxtStateMachine
     end
 
     def get_state_with(&block)
+      # TODO: This should also be called with call center in order to allow methods instead of blocks
       @get_state_with ||= block || raise_missing_configuration_error(:get_state_with)
     end
 
     def set_state_with(&block)
+      # TODO: This should also be called with call center in order to allow methods instead of blocks
       @set_state_with ||= block || raise_missing_configuration_error(:set_state_with)
     end
 
