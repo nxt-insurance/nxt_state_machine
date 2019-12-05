@@ -53,7 +53,7 @@ module NxtStateMachine
 
       Array(names).map do |name|
         if opts.fetch(:initial) && initial_state.present?
-          raise NxtStateMachine::Errors::InitialStateAlreadySet, ":#{initial_state.name} was already set as the initial state"
+          raise NxtStateMachine::Errors::InitialStateAlreadyDefined, ":#{initial_state.name} was already defined as the initial state"
         else
           state = State.new(name, opts)
           states[name] = state
