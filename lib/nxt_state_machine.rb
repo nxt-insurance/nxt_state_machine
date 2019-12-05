@@ -4,6 +4,7 @@ require "nxt_state_machine/errors/error"
 require "nxt_state_machine/errors"
 require "nxt_state_machine/errors/transition_halted"
 require "nxt_state_machine/registry"
+require "nxt_state_machine/call_center"
 require "nxt_state_machine/transitions_store"
 require "nxt_state_machine/state"
 require "nxt_state_machine/event"
@@ -38,7 +39,7 @@ module NxtStateMachine
     end
 
     def current_state_name
-      instance_exec(&state_machine.get_state_with)
+      CallCenter.new(state_machine.get_state_with).with_context(self).call
     end
 
     def current_state
