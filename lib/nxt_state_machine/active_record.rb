@@ -3,6 +3,8 @@ module NxtStateMachine
 
     module ClassMethods
       def active_record_state_machine(state:, scope: nil, &block)
+        # TODO: Why do we pass state and scope to the state_machine here?
+        # Is it even aware of that, or does it just end up in options for no reason?
         state_machine(state: state, scope: scope, &block)
 
         state_machine.get_state_with do
