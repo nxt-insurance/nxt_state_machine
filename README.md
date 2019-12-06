@@ -3,7 +3,7 @@
 ## TODO
 
 - Test that events with the same name can coexist but are unique!
-- Implement :around_transition callback chain
+- Test :around_transition callback chain for all integrations
 - Check if having multiple state machines in the same class is a big issue
 - Reevaluate the response of the transition? What would you expect?
 

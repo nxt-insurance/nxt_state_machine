@@ -28,6 +28,18 @@ RSpec.describe NxtStateMachine do
               append_result 'during transition'
             end
 
+            around_transition from: :received do |block|
+              append_result 'around enter 1'
+              block.call
+              append_result 'around exit 1'
+            end
+
+            around_transition from: :received do |block|
+              append_result 'around enter 2'
+              block.call
+              append_result 'around exit 2'
+            end
+
             after_transition from: any_state do
               append_result 'after transition'
             end
@@ -71,7 +83,9 @@ RSpec.describe NxtStateMachine do
             subject.process
           }.to change {
             subject.result
-          }.from(be_empty).to(["before transition", "during transition", "after transition"])
+          }.from(be_empty).to(
+            ["before transition", "around enter 1", "around enter 2", "during transition", "around exit 2", "around exit 1", "after transition"]
+          )
         end
       end
 
@@ -81,7 +95,9 @@ RSpec.describe NxtStateMachine do
             subject.process!
           }.to change {
             subject.result
-          }.from(be_empty).to(["before transition", "during transition", "after transition"])
+          }.from(be_empty).toto(
+            ["before transition", "around enter 1", "around enter 2", "during transition", "around exit 2", "around exit 1", "after transition"]
+          )
         end
       end
     end
