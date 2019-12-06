@@ -40,6 +40,8 @@ RSpec.describe NxtStateMachine do
         end
 
         def skip_callbacks_and_set_state(context, transition, callbacks)
+          # we accept callbacks so that they are nor handled before
+          # then we do nothing with them, thus they are skipped
           transition.call
           self.state = transition.to
         end
@@ -89,6 +91,7 @@ RSpec.describe NxtStateMachine do
       let(:set_state_with_bang) { :run_callbacks_and_set_state }
 
       before do
+        # reset the set_state methods
         subject.state_machine.instance_variable_set(:@set_state_with, nil)
         subject.state_machine.set_state_with(set_state_with)
 

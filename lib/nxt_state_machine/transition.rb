@@ -6,12 +6,15 @@ module NxtStateMachine
       @to = to
       @state_machine = state_machine
       @block = block
+
+      # TODO: Should we also check here that this is unique and was not defined yet?!
       ensure_states_exist
     end
 
     attr_reader :name, :from, :to, :block, :state_machine
 
     def execute(context, set_state_with, callbacks = nil, *args, **opts)
+      # This makes the block available on the transition and can be executed through :call later below
       self.executor = Proc.new do
         if block
           context.instance_exec(*args, **opts, &block)

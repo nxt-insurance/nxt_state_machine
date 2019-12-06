@@ -2,8 +2,6 @@
 
 ## TODO
 
-- Use key word arguments for :set_state_with do |context, transition|
-    --> Means we would not need to pass in context when we do not need it anyway!
 - Test that events with the same name can coexist but are unique!
 - Implement :around_transition callback chain
 - Check if having multiple state machines in the same class is a big issue
