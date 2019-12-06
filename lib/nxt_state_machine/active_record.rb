@@ -25,24 +25,10 @@ module NxtStateMachine
 
             result = nil
 
-            proxy = Proc.new do
+            TransitionProxy.new(self, callbacks[:around]).call do
               transition.call
               @record.assign_attributes(state => transition.to)
               result = @record.save
-            end
-
-            # TODO: Would be better if we could build the chain before and then pass down the context
-            # on execution!
-            if callbacks[:around].any?
-              around_callbacks = callbacks[:around].map { |c| Callable.new(c).with_context(self) }
-
-              around_callback_chain = around_callbacks.reverse.inject(proxy) do |previous, callback|
-                -> { callback.call(previous) }
-              end
-
-              around_callback_chain.call
-            else
-              proxy.call
             end
 
             if result

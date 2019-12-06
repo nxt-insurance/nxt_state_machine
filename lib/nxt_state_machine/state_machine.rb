@@ -102,20 +102,8 @@ module NxtStateMachine
           # TODO: Proxy and around callback
           result = false
 
-          proxy = Proc.new do
+          TransitionProxy.new(self, callbacks[:around]).call do
             result = transition.execute(self, state_machine.set_state_with, nil, *args, **opts)
-          end
-
-          if callbacks[:around].any?
-            around_callbacks = callbacks[:around].map { |c| Callable.new(c).with_context(self) }
-
-            around_callback_chain = around_callbacks.reverse.inject(proxy) do |previous, callback|
-              -> { callback.call(previous) }
-            end
-
-            around_callback_chain.call
-          else
-            proxy.call
           end
 
           callbacks[:after].each do |callback|
@@ -148,20 +136,8 @@ module NxtStateMachine
 
           result = nil
 
-          proxy = Proc.new do
+          TransitionProxy.new(self, callbacks[:around]).call do
             result = transition.execute(self, state_machine.set_state_with, nil, *args, **opts)
-          end
-
-          if callbacks[:around].any?
-            around_callbacks = callbacks[:around].map { |c| Callable.new(c).with_context(self) }
-
-            around_callback_chain = around_callbacks.reverse.inject(proxy) do |previous, callback|
-              -> { callback.call(previous) }
-            end
-
-            around_callback_chain.call
-          else
-            proxy.call
           end
 
           callbacks[:after].each do |callback|

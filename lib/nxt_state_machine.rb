@@ -17,6 +17,7 @@ require "nxt_state_machine/transitions_store"
 require "nxt_state_machine/state"
 require "nxt_state_machine/event"
 require "nxt_state_machine/transition"
+require "nxt_state_machine/transition_proxy"
 require "nxt_state_machine/state_machine"
 require "nxt_state_machine/active_record"
 
