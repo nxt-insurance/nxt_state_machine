@@ -44,9 +44,13 @@ class ArticleWorkflow
 
       after_transition from: %i[written submitted deleted], call: :call_me_back
 
-      # around_transition from: any_state do
-      #  
-      # end
+      around_transition from: any_state do |block|
+        # Note that around transition callbacks get passed a proc 
+        # Thus you have to do `block.call` instead of yield
+        puts 'around transition enter' 
+        block.call  
+        puts 'around transition exit'
+      end
     end
 
     event :publish do
