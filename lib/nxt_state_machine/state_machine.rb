@@ -106,7 +106,17 @@ module NxtStateMachine
             result = transition.execute(self, state_machine.set_state_with, nil, *args, **opts)
           end
 
-          proxy.call
+          if callbacks[:around].any?
+            around_callbacks = callbacks[:around].map { |c| Callable.new(c).with_context(context) }
+
+            around_callback_chain = around_callbacks.reverse.inject(proxy) do |previous, callback|
+              -> { callback.call(previous) }
+            end
+
+            around_callback_chain.call
+          else
+            proxy.call
+          end
 
           callbacks[:after].each do |callback|
             Callable.new(callback).with_context(self).call
@@ -142,7 +152,17 @@ module NxtStateMachine
             result = transition.execute(self, state_machine.set_state_with, nil, *args, **opts)
           end
 
-          proxy.call
+          if callbacks[:around].any?
+            around_callbacks = callbacks[:around].map { |c| Callable.new(c).with_context(context) }
+
+            around_callback_chain = around_callbacks.reverse.inject(proxy) do |previous, callback|
+              -> { callback.call(previous) }
+            end
+
+            around_callback_chain.call
+          else
+            proxy.call
+          end
 
           callbacks[:after].each do |callback|
             Callable.new(callback).with_context(self).call

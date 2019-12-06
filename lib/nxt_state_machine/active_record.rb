@@ -31,7 +31,8 @@ module NxtStateMachine
               result = @record.save
             end
 
-            # Can we build the callback chain before?
+            # TODO: Would be better if we could build the chain before and then pass down the context
+            # on execution!
             if callbacks[:around].any?
               around_callbacks = callbacks[:around].map { |c| Callable.new(c).with_context(context) }
 
