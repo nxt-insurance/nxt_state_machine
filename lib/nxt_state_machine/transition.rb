@@ -11,10 +11,10 @@ module NxtStateMachine
       ensure_states_exist
     end
 
-    attr_reader :name, :from, :to, :block, :state_machine
+    attr_reader :name, :from, :to
 
     def execute(context, set_state_with, callbacks = nil, *args, **opts)
-      # ThisExposes the transition block on the transition itself so it can be executed through :call later below
+      # This exposes the transition block on the transition itself so it can be executed through :call later below
       self.executor = Proc.new do
         if block
           context.instance_exec(*args, **opts, &block)
@@ -30,6 +30,7 @@ module NxtStateMachine
 
     private
 
+    attr_reader :block, :state_machine
     attr_accessor :executor
 
     def ensure_states_exist
