@@ -34,20 +34,20 @@ RSpec.describe NxtStateMachine do
           end
         end
 
-        def set_state(context, from, to, transition)
+        def set_state(context, transition)
           transition.call
-          self.state = to
+          self.state = transition.to
         end
 
-        def skip_callbacks_and_set_state(context, from, to, transition, callbacks)
+        def skip_callbacks_and_set_state(context, transition, callbacks)
           transition.call
-          self.state = to
+          self.state = transition.to
         end
 
-        def run_callbacks_and_set_state(context, from, to, transition, callbacks)
+        def run_callbacks_and_set_state(context, transition, callbacks)
           callbacks[:before].each { |c| context.instance_exec(&c) }
           transition.call
-          result = self.state = to
+          result = self.state = transition.to
           callbacks[:after].each { |c| context.instance_exec(&c) }
           result
         end

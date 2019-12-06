@@ -91,9 +91,9 @@ module NxtStateMachine
 
         set_state_with_arity = state_machine.set_state_with.with_context(self).arity
 
-        # In case of arity == 3 we handle callbacks, in case of arity == 4 we leave it to the caller
+        # In case of arity == 2 we handle callbacks, in case of arity == 3 we leave it to the caller
         # and do not wrap them in callables as this would be unexpected
-        if set_state_with_arity == 4
+        if set_state_with_arity == 2
           callbacks[:before].each do |callback|
             Callable.new(callback).with_context(self).call
           end
@@ -113,10 +113,10 @@ module NxtStateMachine
           end
 
           result
-        elsif set_state_with_arity == 5
+        elsif set_state_with_arity == 3
           transition.execute(self, state_machine.set_state_with, callbacks, *args, **opts)
         else
-          raise StandardError, 'set_state_with must at least have an arity of 3' # TODO: Make this a proper error
+          raise StandardError, 'set_state_with must at least have an arity of 2' # TODO: Make this a proper error
         end
       end
 
@@ -131,7 +131,7 @@ module NxtStateMachine
         # TODO: Probably should rather be callable object instead of call center
         set_state_with_arity = state_machine.set_state_with!.with_context(self).arity
 
-        if set_state_with_arity == 4
+        if set_state_with_arity == 2
           callbacks[:before].each do |callback|
             Callable.new(callback).with_context(self).call
           end
@@ -149,10 +149,10 @@ module NxtStateMachine
           end
 
           result
-        elsif set_state_with_arity == 5
+        elsif set_state_with_arity == 3
           transition.execute(self, state_machine.set_state_with!, callbacks, *args, **opts)
         else
-          raise StandardError, 'Block must at least have an arity of 3' # TODO: Make this a proper error
+          raise StandardError, 'Block must at least have an arity of 2' # TODO: Make this a proper error
         end
       end
 

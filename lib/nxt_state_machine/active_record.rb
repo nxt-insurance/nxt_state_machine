@@ -17,7 +17,7 @@ module NxtStateMachine
           @record.send(state)
         end
 
-        state_machine.set_state_with do |context, from, to, transition, callbacks|
+        state_machine.set_state_with do |context, transition, callbacks|
           @record ||= scope ? send(scope) : self
 
           @record.transaction do
@@ -27,7 +27,7 @@ module NxtStateMachine
 
             proxy = Proc.new do
               transition.call
-              @record.assign_attributes(state => to)
+              @record.assign_attributes(state => transition.to)
               result = @record.save
             end
 
@@ -38,12 +38,12 @@ module NxtStateMachine
               result
             else
               # reset state
-              @record.assign_attributes(state => from)
+              @record.assign_attributes(state => transition.from)
               halt_transaction
             end
           end
         rescue StandardError => error
-          @record.assign_attributes(state => from)
+          @record.assign_attributes(state => transition.from)
 
           if error.is_a?(NxtStateMachine::Errors::TransitionHalted)
             false
@@ -52,7 +52,7 @@ module NxtStateMachine
           end
         end
 
-        state_machine.set_state_with! do |context, from, to, transition, callbacks|
+        state_machine.set_state_with! do |context, transition, callbacks|
           @record ||= scope ? send(scope) : self
 
           @record.transaction do
@@ -62,7 +62,7 @@ module NxtStateMachine
 
             proxy = Proc.new do
               transition.call
-              @record.assign_attributes(state => to)
+              @record.assign_attributes(state => transition.to)
               result = @record.save!
             end
 
@@ -73,7 +73,7 @@ module NxtStateMachine
             result
           end
         rescue StandardError
-          @record.assign_attributes(state => from)
+          @record.assign_attributes(state => transition.from)
           raise
         end
       end
