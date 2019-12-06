@@ -14,14 +14,14 @@ module NxtStateMachine
     attr_reader :name, :from, :to, :block, :state_machine
 
     def execute(context, set_state_with, callbacks = nil, *args, **opts)
-      # This makes the block available on the transition and can be executed through :call later below
+      # ThisExposes the transition block on the transition itself so it can be executed through :call later below
       self.executor = Proc.new do
         if block
           context.instance_exec(*args, **opts, &block)
         end
       end
 
-      set_state_with.with_context(context).call(context, self, callbacks)
+      set_state_with.with_context(context).call(self, context, callbacks)
     end
 
     def call

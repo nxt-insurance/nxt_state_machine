@@ -17,7 +17,7 @@ module NxtStateMachine
           @record.send(state)
         end
 
-        state_machine.set_state_with do |context, transition, callbacks|
+        state_machine.set_state_with do |transition, context, callbacks|
           @record ||= scope ? send(scope) : self
 
           @record.transaction do
@@ -52,7 +52,7 @@ module NxtStateMachine
           end
         end
 
-        state_machine.set_state_with! do |context, transition, callbacks|
+        state_machine.set_state_with! do |transition, context, callbacks|
           @record ||= scope ? send(scope) : self
 
           @record.transaction do
