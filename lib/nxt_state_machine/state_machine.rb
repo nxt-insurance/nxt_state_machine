@@ -85,7 +85,7 @@ module NxtStateMachine
         state_machine.can_transition!(name, current_state_name)
         transition = event.event_transitions.fetch(current_state_name)
 
-        empty_callbacks = { before: [], after: [] }
+        empty_callbacks = { before: [], after: [], around: [] }
         callbacks = event.callbacks[transition.from] ||= empty_callbacks
         callbacks = empty_callbacks.deep_merge(callbacks)
 
@@ -124,7 +124,7 @@ module NxtStateMachine
         state_machine.can_transition!(name, current_state_name)
         transition = event.event_transitions.fetch(current_state_name)
 
-        empty_callbacks = { before: [], after: [] }
+        empty_callbacks = { before: [], after: [], around: [] }
         callbacks = event.callbacks[transition.from] ||= empty_callbacks
         callbacks = empty_callbacks.deep_merge(callbacks)
 

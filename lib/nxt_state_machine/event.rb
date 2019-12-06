@@ -36,6 +36,10 @@ module NxtStateMachine
       add_callbacks(from, :after, run, block)
     end
 
+    def around_transition(from:, run: nil, &block)
+      add_callbacks(from, :around, run, block)
+    end
+
     def add_callbacks(from, kind, method, block)
       method_or_block = method || block
 

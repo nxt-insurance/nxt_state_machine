@@ -482,6 +482,75 @@ RSpec.describe NxtStateMachine::ActiveRecord do
           end
         end
       end
+
+      context 'around callbacks' do
+        let(:state_machine_class) do
+          Class.new do
+            include NxtStateMachine::ActiveRecord
+
+            def initialize(application)
+              @application = application
+              @result = []
+            end
+
+            attr_reader :application, :result
+
+            active_record_state_machine(state: :status, scope: :application) do
+              state :received, initial: true
+              state :processed
+
+              event :process do
+                transitions from: any_state, to: :processed do |processed_at:|
+                  self.application.processed_at = Time.current
+                end
+
+                around_transition from: any_state do |block|
+                  append_result('first before')
+                  block.call
+                  append_result('first after')
+                end
+
+                around_transition from: any_state do |block|
+                  append_result('second before')
+                  block.call
+                  append_result('second after')
+                end
+              end
+            end
+
+            def append_result(tmp)
+              result << tmp
+            end
+          end
+        end
+
+        subject do
+          state_machine_class.new(application)
+        end
+
+        let(:application) {
+          Application.new(
+            content: 'Please make it happen',
+            received_at: Time.current
+          )
+        }
+
+        context '#<event>' do
+          it 'executes the callbacks in the correct order' do
+            expect {
+              subject.process(processed_at: Time.current)
+            }.to change { subject.result }.from(be_empty).to(["first before", "second before", "second after", "first after"])
+          end
+        end
+
+        context '#<event>!' do
+          it 'executes the callbacks in the correct order' do
+            expect {
+              subject.process!(processed_at: Time.current)
+            }.to change { subject.result }.from(be_empty).to(["first before", "second before", "second after", "first after"])
+          end
+        end
+      end
     end
   end
 

@@ -31,7 +31,18 @@ module NxtStateMachine
               result = @record.save
             end
 
-            proxy.call
+            # Can we build the callback chain before?
+            if callbacks[:around].any?
+              around_callbacks = callbacks[:around].map { |c| Callable.new(c).with_context(context) }
+
+              around_callback_chain = around_callbacks.reverse.inject(proxy) do |previous, callback|
+                -> { callback.call(previous) }
+              end
+
+              around_callback_chain.call
+            else
+              proxy.call
+            end
 
             if result
               callbacks[:after].each { |callback| Callable.new(callback).with_context(self).call }
@@ -66,7 +77,17 @@ module NxtStateMachine
               result = @record.save!
             end
 
-            proxy.call
+            if callbacks[:around].any?
+              around_callbacks = callbacks[:around].map { |c| Callable.new(c).with_context(context) }
+
+              around_callback_chain = around_callbacks.reverse.inject(proxy) do |previous, callback|
+                -> { callback.call(previous) }
+              end
+
+              around_callback_chain.call
+            else
+              proxy.call
+            end
 
             callbacks[:after].each { |callback| Callable.new(callback).with_context(self).call }
 
