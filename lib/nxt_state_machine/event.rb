@@ -42,7 +42,10 @@ module NxtStateMachine
       Array(from).each do |from_state|
         callbacks[from_state] ||= { }
         callbacks[from_state][kind] ||= []
-        callbacks[from_state][kind] << NxtStateMachine::Callback.new(method_or_block)
+
+        if method_or_block
+          callbacks[from_state][kind] << method_or_block
+        end
       end
     end
 

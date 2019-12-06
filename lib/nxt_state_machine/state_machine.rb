@@ -32,17 +32,20 @@ module NxtStateMachine
     end
 
     def get_state_with(method = nil, &block)
-      @get_state_with ||= (method || block) || raise_missing_configuration_error(:get_state_with)
+      method_or_block = (method || block)
+      @get_state_with ||= method_or_block && Callable.new(method_or_block) || raise_missing_configuration_error(:get_state_with)
     end
 
     def set_state_with(method = nil, &block)
-      @set_state_with ||= (method || block) || raise_missing_configuration_error(:set_state_with)
+      method_or_block = (method || block)
+      @set_state_with ||= method_or_block && Callable.new(method_or_block) || raise_missing_configuration_error(:set_state_with)
     end
 
     alias_method :transition_with, :set_state_with
 
     def set_state_with!(method = nil, &block)
-      @set_state_with_bang ||= (method || block) || raise_missing_configuration_error(:set_state_with!)
+      method_or_block = (method || block)
+      @set_state_with_bang ||= method_or_block && Callable.new(method_or_block) || raise_missing_configuration_error(:set_state_with!)
     end
 
     alias_method :transition_with!, :set_state_with!
@@ -86,11 +89,13 @@ module NxtStateMachine
         callbacks = event.callbacks[transition.from] ||= empty_callbacks
         callbacks = empty_callbacks.deep_merge(callbacks)
 
-        set_state_with_arity = CallCenter.new(state_machine.set_state_with).with_context(self).arity
+        set_state_with_arity = state_machine.set_state_with.with_context(self).arity
 
-        if set_state_with_arity == 3
+        # In case of arity == 3 we handle callbacks, in case of arity == 4 we leave it to the caller
+        # and do not wrap them in callables as this would be unexpected
+        if set_state_with_arity == 4
           callbacks[:before].each do |callback|
-            callback.call(self)
+            Callable.new(callback).with_context(self).call
           end
 
           # TODO: Does this even work with an arity of 3? --> test please!!!
@@ -104,11 +109,11 @@ module NxtStateMachine
           proxy.call
 
           callbacks[:after].each do |callback|
-            callback.call(self)
+            Callable.new(callback).with_context(self).call
           end
 
           result
-        elsif set_state_with_arity == 4
+        elsif set_state_with_arity == 5
           transition.execute(self, state_machine.set_state_with, callbacks, *args, **opts)
         else
           raise StandardError, 'set_state_with must at least have an arity of 3' # TODO: Make this a proper error
@@ -124,11 +129,11 @@ module NxtStateMachine
         callbacks = empty_callbacks.deep_merge(callbacks)
 
         # TODO: Probably should rather be callable object instead of call center
-        set_state_with_arity = CallCenter.new(state_machine.set_state_with!).with_context(self).arity
+        set_state_with_arity = state_machine.set_state_with!.with_context(self).arity
 
-        if set_state_with_arity == 3
+        if set_state_with_arity == 4
           callbacks[:before].each do |callback|
-            callback.call(self)
+            Callable.new(callback).with_context(self).call
           end
 
           result = nil
@@ -140,11 +145,11 @@ module NxtStateMachine
           proxy.call
 
           callbacks[:after].each do |callback|
-            callback.call(self)
+            Callable.new(callback).with_context(self).call
           end
 
           result
-        elsif set_state_with_arity == 4
+        elsif set_state_with_arity == 5
           transition.execute(self, state_machine.set_state_with!, callbacks, *args, **opts)
         else
           raise StandardError, 'Block must at least have an arity of 3' # TODO: Make this a proper error

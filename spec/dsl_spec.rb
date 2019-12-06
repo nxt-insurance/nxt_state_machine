@@ -18,7 +18,7 @@ RSpec.describe NxtStateMachine do
 
             state_machine do
               get_state_with { self.state ||= :draft }
-              set_state_with do |from, to, transition|
+              set_state_with do |context, from, to, transition|
                 transition.call
                 self.state = to
               end
@@ -183,7 +183,7 @@ RSpec.describe NxtStateMachine do
         state_machine do
           get_state_with { self.state ||= :draft }
 
-          set_state_with do |from, to, transition|
+          set_state_with do |context, from, to, transition|
             transition.call
             self.state = to
           end

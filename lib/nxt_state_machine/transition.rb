@@ -18,7 +18,7 @@ module NxtStateMachine
         end
       end
 
-      CallCenter.new(set_state_with).with_context(context).call(from, to, transition, callbacks)
+      set_state_with.with_context(context).call(context, from, to, transition, callbacks)
     end
 
     private
