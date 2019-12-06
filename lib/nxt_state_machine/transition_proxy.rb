@@ -20,5 +20,5 @@ class TransitionProxy
     end
   end
 
-  attr_reader :around_callback_chain, :proxy, :context, :around_callbacks
+  attr_reader :proxy, :context, :around_callbacks
 end
