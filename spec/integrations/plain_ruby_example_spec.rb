@@ -45,6 +45,8 @@ RSpec.describe NxtStateMachine do
             block.call
             append_result 'around exit 2'
           end
+
+          around_transition from: any_state, to: all_states, run: :say_hello
         end
 
         def set_state(transition, context)
@@ -70,6 +72,12 @@ RSpec.describe NxtStateMachine do
         def append_result(tmp)
           result << tmp
         end
+
+        def say_hello(block)
+          append_result('hello')
+          block.call
+          append_result('good bye')
+        end
       end
     end
 
@@ -85,7 +93,17 @@ RSpec.describe NxtStateMachine do
           }.to change {
             subject.result
           }.from(be_empty).to(
-            ["before transition", "around enter 1", "around enter 2", "during transition", "around exit 2", "around exit 1", "after transition"]
+            [
+              "before transition",
+              "around enter 1",
+              "around enter 2",
+              "hello",
+              "during transition",
+              "good bye",
+              "around exit 2",
+              "around exit 1",
+              "after transition"
+            ]
           )
         end
       end
@@ -97,7 +115,17 @@ RSpec.describe NxtStateMachine do
           }.to change {
             subject.result
           }.from(be_empty).to(
-            ["before transition", "around enter 1", "around enter 2", "during transition", "around exit 2", "around exit 1", "after transition"]
+            [
+              "before transition",
+              "around enter 1",
+              "around enter 2",
+              "hello",
+              "during transition",
+              "good bye",
+              "around exit 2",
+              "around exit 1",
+              "after transition"
+            ]
           )
         end
       end

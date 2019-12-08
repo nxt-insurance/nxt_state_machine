@@ -1,9 +1,6 @@
 # NxtStateMachine
 
 ## TODO
-- Make adding callbacks available to the state machine itself and not just to events!
-    => Refactor: Would be better if this was on the state machine in general. 
-    => Should not be on event at all!!!
 - Test that events with the same name can coexist but are unique!
 - Test :around_transition callback chain for all integrations
 - Check if having multiple state machines in the same class is a big issue
