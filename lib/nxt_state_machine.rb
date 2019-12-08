@@ -55,6 +55,10 @@ module NxtStateMachine
       state_machine.states.fetch(current_state_name)
     end
 
+    def halt_transition(*args, **opts)
+      raise NxtStateMachine::Errors::TransitionHalted.new(*args, **opts)
+    end
+
     delegate :initial_state, :states, to: :state_machine
   end
 

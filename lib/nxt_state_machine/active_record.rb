@@ -1,6 +1,5 @@
 module NxtStateMachine
   module ActiveRecord
-
     module ClassMethods
       def active_record_state_machine(state:, scope: nil, &block)
         # TODO: Why do we pass state and scope to the state_machine here?
@@ -74,15 +73,8 @@ module NxtStateMachine
       end
     end
 
-    module InstanceMethods
-      def halt_transition(*args, **opts)
-        raise NxtStateMachine::Errors::TransitionHalted.new(*args, **opts)
-      end
-    end
-
     def self.included(base)
       base.include(NxtStateMachine)
-      base.include(InstanceMethods)
       base.extend(ClassMethods)
     end
   end
