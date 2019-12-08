@@ -10,7 +10,9 @@
 - Check if having multiple state machines in the same class is a big issue
 - Reevaluate the return value of the transition? What would you expect?
 - Add method to walk a path ? => Could this be done with the pipeline?!
-- Make private what should not be public. 
+- What about :on_error callbacks? => Do we need to implement this?  
+- Halt transition probably also make sense for non active record default adapter
+- Default implementation should also return proper values and reset the state in case of errors 
 
 ```ruby
 class ArticleWorkflow
