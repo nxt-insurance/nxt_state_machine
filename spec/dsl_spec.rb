@@ -170,6 +170,56 @@ RSpec.describe NxtStateMachine do
     end
   end
 
+  context 'transitions' do
+    subject do
+      Class.new do
+        include NxtStateMachine
+
+        state_machine do
+          state :draft, :finalized, :approved
+
+          event :approve do
+            transition from: :draft, to: :approved
+            transition from: :finalized, to: :approved
+          end
+
+          event :finalize do
+            transition from: :approved, to: :finalized
+            transition from: :finalized, to: :finalized
+          end
+        end
+      end
+    end
+
+    describe '#transitions' do
+      it 'returns all transitions' do
+        expect(subject.state_machine.transitions.count).to eq(4)
+
+        expect(
+          subject.state_machine.transitions.map { |t| "#{t.from} => #{t.to}"}
+        ).to match_array(
+      ["approved => finalized", "draft => approved", "finalized => approved", "finalized => finalized"]
+        )
+      end
+    end
+
+    describe '#all_transitions_from_to' do
+      it 'returns all matching transitions' do
+        expect(
+          subject.state_machine.all_transitions_from_to(from: :finalized).map { |t| "#{t.from} => #{t.to}"}
+        ).to match_array(["finalized => approved", "finalized => finalized"])
+
+        expect(
+          subject.state_machine.all_transitions_from_to(from: :approved).map { |t| "#{t.from} => #{t.to}"}
+        ).to match_array(["approved => finalized"])
+
+        expect(
+          subject.state_machine.all_transitions_from_to(from: :draft).map { |t| "#{t.from} => #{t.to}"}
+        ).to match_array(["draft => approved"])
+      end
+    end
+  end
+
   describe '.set_state_with' do
     subject do
       workflow.class_eval do

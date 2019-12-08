@@ -28,7 +28,13 @@ module NxtStateMachine
       executor.call
     end
 
+    def transitions_from_to?(from_state, to_state)
+      from.in?(Array(from_state)) && to.in?(Array(to_state))
+    end
+
     private
+
+    delegate :all_states, to: :state_machine
 
     attr_reader :block, :state_machine
     attr_accessor :executor

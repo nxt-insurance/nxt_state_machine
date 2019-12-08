@@ -8,6 +8,7 @@
 - Check if having multiple state machines in the same class is a big issue
 - Reevaluate the return value of the transition? What would you expect?
 - Add method to walk a path ?
+- Make private what should not be public. 
 
 ```ruby
 class ArticleWorkflow

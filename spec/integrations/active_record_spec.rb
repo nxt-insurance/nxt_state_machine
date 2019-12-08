@@ -34,6 +34,7 @@ RSpec.describe NxtStateMachine::ActiveRecord do
         end
 
         it 'sets the initial state' do
+          binding.pry
           expect(subject.status).to eq('received')
         end
       end
