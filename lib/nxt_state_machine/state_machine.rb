@@ -6,7 +6,7 @@ module NxtStateMachine
 
       @states = Registry.new(
         :states,
-        on_key_error: lambda do |name|
+        on_key_occupied: lambda do |name|
           raise NxtStateMachine::Errors::StateAlreadyRegistered,
                 "An state with the name '#{name}' was already registered!"
         end
@@ -16,7 +16,7 @@ module NxtStateMachine
 
       @events = Registry.new(
         :events,
-        on_key_error: lambda do |name|
+        on_key_occupied: lambda do |name|
           raise NxtStateMachine::Errors::EventAlreadyRegistered,
                 "An event with the name '#{name}' was already registered!"
         end
@@ -93,9 +93,7 @@ module NxtStateMachine
         state_machine.can_transition!(name, current_state_name)
         transition = event.event_transitions.fetch(current_state_name)
 
-        empty_callbacks = { before: [], after: [], around: [] }
         callbacks = event.callbacks_for_transition(transition)
-        # callbacks = empty_callbacks.deep_merge(callbacks)
 
         set_state_with_arity = state_machine.set_state_with.with_context(self).arity
 
@@ -106,8 +104,6 @@ module NxtStateMachine
             Callable.new(callback).with_context(self).call
           end
 
-          # TODO: Does this even work with an arity of 3? --> test please!!!
-          # TODO: Proxy and around callback
           result = false
 
           TransitionProxy.new(self, callbacks[:around]).call do
@@ -122,7 +118,7 @@ module NxtStateMachine
         elsif set_state_with_arity == 3
           transition.execute(self, state_machine.set_state_with, callbacks, *args, **opts)
         else
-          raise StandardError, 'set_state_with must at least have an arity of 2' # TODO: Make this a proper error
+          raise ArgumentError, "state_machine.set_state_with can take 2 or 3 arguments"
         end
       end
 
@@ -130,11 +126,7 @@ module NxtStateMachine
         state_machine.can_transition!(name, current_state_name)
         transition = event.event_transitions.fetch(current_state_name)
 
-        # empty_callbacks = { before: [], after: [], around: [] }
         callbacks = event.callbacks_for_transition(transition)
-        # callbacks = empty_callbacks.deep_merge(callbacks)
-
-        # TODO: Probably should rather be callable object instead of call center
         set_state_with_arity = state_machine.set_state_with!.with_context(self).arity
 
         if set_state_with_arity == 2
@@ -156,7 +148,7 @@ module NxtStateMachine
         elsif set_state_with_arity == 3
           transition.execute(self, state_machine.set_state_with!, callbacks, *args, **opts)
         else
-          raise StandardError, 'Block must at least have an arity of 2' # TODO: Make this a proper error
+          raise ArgumentError, "state_machine.set_state_with! can take 2 or 3 arguments"
         end
       end
 
