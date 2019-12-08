@@ -3,6 +3,7 @@
 ## TODO
 - Test that events with the same name can coexist but are unique!
 - Test :around_transition callback chain for all integrations
+- What about inheritance? => What would be the expected behaviour? (dup vs. no dup)
 - Check if having multiple state machines in the same class is a big issue
 - Reevaluate the return value of the transition? What would you expect?
 - Add method to walk a path ? => Could this be done with the pipeline?!
