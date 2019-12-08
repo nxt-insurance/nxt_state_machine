@@ -571,14 +571,14 @@ RSpec.describe NxtStateMachine::ActiveRecord do
 
           event :process do
             before_transition from: any_state, to: :processed do
-              halt_transaction 'oh oh'
+              halt_transition 'oh oh'
             end
             transitions from: any_state, to: :processed
           end
 
           event :accept do
             transitions from: any_state, to: :accepted do
-              halt_transaction 'oh oh', info: 'might be useful'
+              halt_transition 'oh oh', info: 'might be useful'
             end
           end
 
@@ -586,7 +586,7 @@ RSpec.describe NxtStateMachine::ActiveRecord do
             transitions from: any_state, to: :rejected
 
             after_transition from: any_state, to: :rejected do
-              halt_transaction 'oh oh', info: 'might be useful'
+              halt_transition 'oh oh', info: 'might be useful'
             end
           end
         end

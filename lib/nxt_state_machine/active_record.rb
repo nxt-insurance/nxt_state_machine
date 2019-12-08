@@ -37,7 +37,7 @@ module NxtStateMachine
             else
               # reset state
               @record.assign_attributes(state => transition.from)
-              halt_transaction
+              halt_transition
             end
           end
         rescue StandardError => error
@@ -76,7 +76,7 @@ module NxtStateMachine
     end
 
     module InstanceMethods
-      def halt_transaction(*args, **opts)
+      def halt_transition(*args, **opts)
         raise NxtStateMachine::Errors::TransitionHalted.new(*args, **opts)
       end
     end

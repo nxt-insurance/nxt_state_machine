@@ -10,13 +10,15 @@ module NxtStateMachine
       ensure_event_has_transitions
     end
 
-    attr_reader :name, :state_machine, :event_transitions, :callbacks
+    attr_reader :name, :state_machine, :event_transitions
 
-    delegate :any_state, :all_states, :all_states_without, to: :state_machine
-
-    def configure(&block)
-      instance_exec(&block)
-    end
+    delegate :before_transition,
+             :after_transition,
+             :around_transition,
+             :any_state,
+             :all_states,
+             :all_states_without,
+             to: :state_machine
 
     def transitions(from:, to:, &block)
       Array(from).each do |from_state|
@@ -28,7 +30,11 @@ module NxtStateMachine
 
     alias_method :transition, :transitions
 
-    delegate :before_transition, :after_transition, :around_transition, to: :state_machine
+    private
+
+    def configure(&block)
+      instance_exec(&block)
+    end
 
     def ensure_event_has_transitions
       return if event_transitions.size > 0

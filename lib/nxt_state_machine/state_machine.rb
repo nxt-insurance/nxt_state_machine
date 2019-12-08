@@ -6,7 +6,7 @@ module NxtStateMachine
 
       @states = Registry.new(
         :states,
-        on_key_occupied: lambda do |name|
+        on_key_occupied: Proc.new do |name|
           raise NxtStateMachine::Errors::StateAlreadyRegistered,
                 "An state with the name '#{name}' was already registered!"
         end
@@ -16,7 +16,7 @@ module NxtStateMachine
 
       @events = Registry.new(
         :events,
-        on_key_occupied: lambda do |name|
+        on_key_occupied: Proc.new do |name|
           raise NxtStateMachine::Errors::EventAlreadyRegistered,
                 "An event with the name '#{name}' was already registered!"
         end
@@ -29,10 +29,6 @@ module NxtStateMachine
 
     attr_reader :context, :states, :transitions, :events, :options, :callbacks
     attr_accessor :initial_state
-
-    def configure(&block)
-      instance_exec(&block)
-    end
 
     def get_state_with(method = nil, &block)
       method_or_block = (method || block)
@@ -73,7 +69,7 @@ module NxtStateMachine
       @transitions ||= events.values.flat_map(&:event_transitions)
     end
 
-    # TODO: This is not even usedd so far?!
+    # TODO: This is not even used so far?!
     def all_transitions_from_to(from: all_states, to: all_states)
       transitions.select { |transition| transition.transitions_from_to?(from, to) }
     end
@@ -181,6 +177,12 @@ module NxtStateMachine
     def around_transition(from:, to:, run: nil, &block)
       callbacks.register(from, to, :around, run, block)
     end
+
+    def configure(&block)
+      instance_exec(&block)
+    end
+
+    private
 
     def raise_missing_configuration_error(method)
       raise NxtStateMachine::Errors::MissingConfiguration, "Configuration method :#{method} was not defined"
