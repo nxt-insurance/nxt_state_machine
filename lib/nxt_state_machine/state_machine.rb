@@ -129,6 +129,7 @@ module NxtStateMachine
         set_state_with_arity = state_machine.set_state_with!.with_context(self).arity
 
         if set_state_with_arity == 2
+          # TODO run_callbacks(transition, :before)
           callbacks[:before].each do |callback|
             Callable.new(callback).with_context(self).call
           end
