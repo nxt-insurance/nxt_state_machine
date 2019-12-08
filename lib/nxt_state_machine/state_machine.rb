@@ -27,7 +27,8 @@ module NxtStateMachine
       @initial_state = nil
     end
 
-    attr_accessor :context, :states, :transitions, :initial_state, :events, :options, :callbacks
+    attr_reader :context, :states, :transitions, :events, :options, :callbacks
+    attr_accessor :initial_state
 
     def configure(&block)
       instance_exec(&block)
@@ -72,6 +73,7 @@ module NxtStateMachine
       @transitions ||= events.values.flat_map(&:event_transitions)
     end
 
+    # TODO: This is not even usedd so far?!
     def all_transitions_from_to(from: all_states, to: all_states)
       transitions.select { |transition| transition.transitions_from_to?(from, to) }
     end

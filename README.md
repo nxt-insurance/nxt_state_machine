@@ -5,7 +5,7 @@
 - Test :around_transition callback chain for all integrations
 - Check if having multiple state machines in the same class is a big issue
 - Reevaluate the return value of the transition? What would you expect?
-- Add method to walk a path ?
+- Add method to walk a path ? => Could this be done with the pipeline?!
 - Make private what should not be public. 
 
 ```ruby
