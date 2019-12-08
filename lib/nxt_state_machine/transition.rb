@@ -13,6 +13,8 @@ module NxtStateMachine
 
     attr_reader :name, :from, :to
 
+    # Probably would make sense if we could also define the event name to be passed in
+    # => This way we could differentiate what event triggered the callback!!!
     def execute(context, set_state_with, callbacks = nil, *args, **opts)
       # This exposes the transition block on the transition itself so it can be executed through :call later below
       self.executor = Proc.new do
