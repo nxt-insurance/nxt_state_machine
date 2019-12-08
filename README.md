@@ -1,9 +1,6 @@
 # NxtStateMachine
 
 ## TODO
-
-- Implement proper NxtConfigurable
-    => What should be features?
 - Make adding callbacks available to the state machine itself and not just to events!
     => Refactor: Would be better if this was on the state machine in general. 
     => Should not be on event at all!!!
