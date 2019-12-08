@@ -36,7 +36,6 @@ module NxtStateMachine
               result
             else
               # reset state
-              @record.assign_attributes(state => transition.from)
               halt_transition
             end
           end
