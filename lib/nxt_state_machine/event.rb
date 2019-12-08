@@ -4,7 +4,7 @@ module NxtStateMachine
       @state_machine = state_machine
       @name = name
       @event_transitions = Registry.new("#{name} event transitions")
-      @callbacks = ActiveSupport::HashWithIndifferentAccess.new
+
       configure(&block)
 
       ensure_event_has_transitions
@@ -28,48 +28,7 @@ module NxtStateMachine
 
     alias_method :transition, :transitions
 
-    def before_transition(from:, to:, run: nil, &block)
-      add_callbacks(from, to, :before, run, block)
-    end
-
-    def after_transition(from:, to:, run: nil, &block)
-      add_callbacks(from, to, :after, run, block)
-    end
-
-    def around_transition(from:, to:, run: nil, &block)
-      add_callbacks(from, to, :around, run, block)
-    end
-
-    def add_callbacks(from, to, kind, method, block)
-      method_or_block = method || block
-
-      Array(from).each do |from_state|
-        callbacks[from_state] ||= ActiveSupport::HashWithIndifferentAccess.new
-        callbacks[from_state][to] ||= ActiveSupport::HashWithIndifferentAccess.new
-        callbacks[from_state][to][kind] ||= []
-
-        if method_or_block
-          callbacks[from_state][to][kind] << method_or_block
-        end
-      end
-    end
-
-    def callbacks_for_transition(transition, kind = nil)
-      @callbacks_for_transition ||= ActiveSupport::HashWithIndifferentAccess.new
-
-      all_callbacks = @callbacks_for_transition[transition.id] ||= begin
-        empty_callbacks = { before: [], after: [], around: [] }.with_indifferent_access
-        # TODO: This is bullshit
-        callbacks[transition.from] ||= ActiveSupport::HashWithIndifferentAccess.new
-        callbacks[transition.from][transition.to] ||= ActiveSupport::HashWithIndifferentAccess.new
-        all_callbacks = callbacks.fetch(transition.from).fetch(transition.to)
-        empty_callbacks.deep_merge(all_callbacks)
-      end
-
-      return all_callbacks unless kind
-
-      all_callbacks.fetch(kind)
-    end
+    delegate :before_transition, :after_transition, :around_transition, to: :state_machine
 
     def ensure_event_has_transitions
       return if event_transitions.size > 0

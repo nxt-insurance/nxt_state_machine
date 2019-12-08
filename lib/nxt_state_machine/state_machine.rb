@@ -22,10 +22,12 @@ module NxtStateMachine
         end
       )
 
+      @callbacks = CallbackRegistry.new
+
       @initial_state = nil
     end
 
-    attr_accessor :context, :states, :transitions, :initial_state, :events, :options
+    attr_accessor :context, :states, :transitions, :initial_state, :events, :options, :callbacks
 
     def configure(&block)
       instance_exec(&block)
@@ -93,8 +95,7 @@ module NxtStateMachine
         state_machine.can_transition!(name, current_state_name)
         transition = event.event_transitions.fetch(current_state_name)
 
-        callbacks = event.callbacks_for_transition(transition)
-
+        callbacks = state_machine.callbacks.resolve(transition)
         set_state_with_arity = state_machine.set_state_with.with_context(self).arity
 
         # In case of arity == 2 we handle callbacks, in case of arity == 3 we leave it to the caller
@@ -126,7 +127,7 @@ module NxtStateMachine
         state_machine.can_transition!(name, current_state_name)
         transition = event.event_transitions.fetch(current_state_name)
 
-        callbacks = event.callbacks_for_transition(transition)
+        callbacks = state_machine.callbacks.resolve(transition)
         set_state_with_arity = state_machine.set_state_with!.with_context(self).arity
 
         if set_state_with_arity == 2
@@ -165,6 +166,18 @@ module NxtStateMachine
     def can_transition!(event, from)
       return true if can_transition?(event, from)
       raise NxtStateMachine::Errors::TransitionNotDefined, "No transition :#{event} for state :#{from} defined"
+    end
+
+    def before_transition(from:, to:, run: nil, &block)
+      callbacks.register(from, to, :before, run, block)
+    end
+
+    def after_transition(from:, to:, run: nil, &block)
+      callbacks.register(from, to, :after, run, block)
+    end
+
+    def around_transition(from:, to:, run: nil, &block)
+      callbacks.register(from, to, :around, run, block)
     end
 
     def raise_missing_configuration_error(method)

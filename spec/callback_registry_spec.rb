@@ -1,5 +1,5 @@
 RSpec.describe NxtStateMachine::CallbackRegistry do
-  subject { described_class.new('test') }
+  subject { described_class.new }
 
   it do
     expect(subject[:from]).to be_a(NxtStateMachine::Registry)

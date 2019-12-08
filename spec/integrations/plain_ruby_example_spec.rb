@@ -34,15 +34,16 @@ RSpec.describe NxtStateMachine do
               append_result 'around exit 1'
             end
 
-            around_transition from: :received, to: :processed do |block|
-              append_result 'around enter 2'
-              block.call
-              append_result 'around exit 2'
-            end
-
             after_transition from: any_state, to: :processed do
               append_result 'after transition'
             end
+          end
+
+          # We can also define callbacks directly within the state machine
+          around_transition from: any_state, to: all_states do |block|
+            append_result 'around enter 2'
+            block.call
+            append_result 'around exit 2'
           end
         end
 

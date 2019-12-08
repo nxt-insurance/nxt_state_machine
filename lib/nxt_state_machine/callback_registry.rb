@@ -1,9 +1,9 @@
 module NxtStateMachine
   # TODO: This is also shit since it does not complain about misspelled keys
   class CallbackRegistry < Registry
-    def initialize(name)
+    def initialize
       super(
-        "#{name}_callbacks",
+        "callbacks",
         on_key_missing: Proc.new do |callbacks, from|
           callbacks[from] = Registry.new(
             "#{name}_callbacks_#{from}",
@@ -25,7 +25,9 @@ module NxtStateMachine
       return unless method_or_block
 
       Array(from).each do |from_state|
-        self[from_state][to][kind] << method_or_block
+        Array(to).each do |to_state|
+          self[from_state][to_state][kind] << method_or_block
+        end
       end
     end
 
