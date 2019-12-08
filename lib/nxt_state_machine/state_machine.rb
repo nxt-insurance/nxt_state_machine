@@ -99,9 +99,7 @@ module NxtStateMachine
         # In case of arity == 2 we handle callbacks, in case of arity == 3 we leave it to the caller
         # and do not wrap them in callables as this would be unexpected
         if set_state_with_arity == 2
-          callbacks[:before].each do |callback|
-            Callable.new(callback).with_context(self).call
-          end
+          state_machine.run_before_callbacks(transition, self)
 
           result = false
 
@@ -109,9 +107,7 @@ module NxtStateMachine
             result = transition.execute(self, state_machine.set_state_with, nil, *args, **opts)
           end
 
-          callbacks[:after].each do |callback|
-            Callable.new(callback).with_context(self).call
-          end
+          state_machine.run_after_callbacks(transition, self)
 
           result
         elsif set_state_with_arity == 3
@@ -130,9 +126,7 @@ module NxtStateMachine
 
         if set_state_with_arity == 2
           # TODO run_callbacks(transition, :before)
-          callbacks[:before].each do |callback|
-            Callable.new(callback).with_context(self).call
-          end
+          state_machine.run_before_callbacks(transition, self)
 
           result = nil
 
@@ -140,13 +134,11 @@ module NxtStateMachine
             result = transition.execute(self, state_machine.set_state_with, nil, *args, **opts)
           end
 
-          callbacks[:after].each do |callback|
-            Callable.new(callback).with_context(self).call
-          end
+          state_machine.run_after_callbacks(transition, self)
 
           result
         elsif set_state_with_arity == 3
-          transition.execute(self, state_machine.set_state_with!, callbacks, *args, **opts)
+          transition.execute(self, state_machine.set_state_with!, state_machine.callbacks.resolve(transition), *args, **opts)
         else
           raise ArgumentError, "state_machine.set_state_with! can take 2 or 3 arguments"
         end
@@ -181,6 +173,22 @@ module NxtStateMachine
 
     def configure(&block)
       instance_exec(&block)
+    end
+
+    def run_before_callbacks(transition, context)
+      run_callbacks(transition, :before, context)
+    end
+
+    def run_after_callbacks(transition, context)
+      run_callbacks(transition, :after, context)
+    end
+
+    def run_callbacks(transition, kind, context)
+      current_callbacks = callbacks.resolve(transition)[kind]
+
+      current_callbacks.each do |callback|
+        Callable.new(callback).with_context(context).call
+      end
     end
 
     private
