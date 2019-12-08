@@ -21,18 +21,18 @@ module NxtStateMachine
           @record ||= scope ? send(scope) : self
 
           @record.transaction do
-            callbacks[:before].each { |callback| Callable.new(callback).with_context(self).call }
+            callbacks[:before].each { |callback| Callable.new(callback).with_context(context).call }
 
             result = nil
 
-            TransitionProxy.new(self, callbacks[:around]).call do
+            TransitionProxy.new(context, callbacks[:around]).call do
               transition.call
               @record.assign_attributes(state => transition.to)
               result = @record.save
             end
 
             if result
-              callbacks[:after].each { |callback| Callable.new(callback).with_context(self).call }
+              callbacks[:after].each { |callback| Callable.new(callback).with_context(context).call }
               result
             else
               # reset state
@@ -54,17 +54,17 @@ module NxtStateMachine
           @record ||= scope ? send(scope) : self
 
           @record.transaction do
-            callbacks[:before].each { |callback| Callable.new(callback).with_context(self).call }
+            callbacks[:before].each { |callback| Callable.new(callback).with_context(context).call }
 
             result = nil
 
-            TransitionProxy.new(self, callbacks[:around]).call do
+            TransitionProxy.new(context, callbacks[:around]).call do
               transition.call
               @record.assign_attributes(state => transition.to)
               result = @record.save!
             end
 
-            callbacks[:after].each { |callback| Callable.new(callback).with_context(self).call }
+            callbacks[:after].each { |callback| Callable.new(callback).with_context(context).call }
 
             result
           end
