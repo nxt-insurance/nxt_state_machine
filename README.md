@@ -2,7 +2,9 @@
 
 ## TODO
 
-- Make adding callbacks available to the state machine itslef and not just to events!
+- Make adding callbacks available to the state machine itself and not just to events!
+    => Refactor: Would be better if this was on the state machine in general. 
+    => Should not be on event at all!!!
 - Test that events with the same name can coexist but are unique!
 - Test :around_transition callback chain for all integrations
 - Check if having multiple state machines in the same class is a big issue
@@ -39,15 +41,15 @@ class ArticleWorkflow
     end
 
     event :approve do
-      before_transition from: %i[written submitted deleted], call: :call_me_back
+      before_transition from: %i[written submitted deleted], to: :approved, call: :call_me_back
 
       transition from: %i[written submitted deleted], to: :approved do |headline:|
         article.headline = headline
       end
 
-      after_transition from: %i[written submitted deleted], call: :call_me_back
+      after_transition from: %i[written submitted deleted], to: :approved, call: :call_me_back
 
-      around_transition from: any_state do |block|
+      around_transition from: any_state, to: :approved do |block|
         # Note that around transition callbacks get passed a proc 
         # Thus you have to do `block.call` instead of yield
         puts 'around transition enter' 
@@ -57,7 +59,7 @@ class ArticleWorkflow
     end
 
     event :publish do
-      before_transition from: any_state do
+      before_transition from: any_state, to: :published do
         halt_transition if Time.current < Date.yesterday
       end
 

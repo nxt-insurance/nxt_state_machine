@@ -94,8 +94,8 @@ module NxtStateMachine
         transition = event.event_transitions.fetch(current_state_name)
 
         empty_callbacks = { before: [], after: [], around: [] }
-        callbacks = event.callbacks[transition.from] ||= empty_callbacks
-        callbacks = empty_callbacks.deep_merge(callbacks)
+        callbacks = event.callbacks_for_transition(transition)
+        # callbacks = empty_callbacks.deep_merge(callbacks)
 
         set_state_with_arity = state_machine.set_state_with.with_context(self).arity
 
@@ -130,9 +130,9 @@ module NxtStateMachine
         state_machine.can_transition!(name, current_state_name)
         transition = event.event_transitions.fetch(current_state_name)
 
-        empty_callbacks = { before: [], after: [], around: [] }
-        callbacks = event.callbacks[transition.from] ||= empty_callbacks
-        callbacks = empty_callbacks.deep_merge(callbacks)
+        # empty_callbacks = { before: [], after: [], around: [] }
+        callbacks = event.callbacks_for_transition(transition)
+        # callbacks = empty_callbacks.deep_merge(callbacks)
 
         # TODO: Probably should rather be callable object instead of call center
         set_state_with_arity = state_machine.set_state_with!.with_context(self).arity

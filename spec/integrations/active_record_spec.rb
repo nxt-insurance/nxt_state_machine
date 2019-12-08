@@ -34,7 +34,6 @@ RSpec.describe NxtStateMachine::ActiveRecord do
         end
 
         it 'sets the initial state' do
-          binding.pry
           expect(subject.status).to eq('received')
         end
       end
@@ -121,7 +120,7 @@ RSpec.describe NxtStateMachine::ActiveRecord do
                 state :processed, :accepted, :rejected
 
                 event :process do
-                  before_transition from: :received do
+                  before_transition from: :received, to: :processed do
                     raise ZeroDivisionError, "Error in before_callback"
                   end
 
@@ -204,7 +203,7 @@ RSpec.describe NxtStateMachine::ActiveRecord do
                     self.processed_at = processed_at
                   end
 
-                  after_transition from: :received do
+                  after_transition from: :received, to: :processed do
                     raise ZeroDivisionError, "Error in before_callback"
                   end
                 end
@@ -355,7 +354,7 @@ RSpec.describe NxtStateMachine::ActiveRecord do
                 state :processed, :accepted, :rejected
 
                 event :process do
-                  before_transition from: :received do
+                  before_transition from: :received, to: :processed do
                     raise ZeroDivisionError, "Error in before_callback"
                   end
 
@@ -454,7 +453,7 @@ RSpec.describe NxtStateMachine::ActiveRecord do
                     application.processed_at = processed_at
                   end
 
-                  after_transition from: :received do
+                  after_transition from: :received, to: :processed do
                     raise ZeroDivisionError, "oh oh"
                   end
                 end
@@ -505,13 +504,13 @@ RSpec.describe NxtStateMachine::ActiveRecord do
                   self.application.processed_at = Time.current
                 end
 
-                around_transition from: any_state do |block|
+                around_transition from: any_state, to: :processed do |block|
                   append_result('first before')
                   block.call
                   append_result('first after')
                 end
 
-                around_transition from: any_state do |block|
+                around_transition from: any_state, to: :processed do |block|
                   append_result('second before')
                   block.call
                   append_result('second after')
@@ -571,7 +570,7 @@ RSpec.describe NxtStateMachine::ActiveRecord do
           state :processed, :accepted, :rejected
 
           event :process do
-            before_transition from: any_state do
+            before_transition from: any_state, to: :processed do
               halt_transaction 'oh oh'
             end
             transitions from: any_state, to: :processed
@@ -586,7 +585,7 @@ RSpec.describe NxtStateMachine::ActiveRecord do
           event :reject do
             transitions from: any_state, to: :rejected
 
-            after_transition from: any_state do
+            after_transition from: any_state, to: :rejected do
               halt_transaction 'oh oh', info: 'might be useful'
             end
           end

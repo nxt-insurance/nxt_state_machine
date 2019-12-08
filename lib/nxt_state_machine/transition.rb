@@ -32,6 +32,10 @@ module NxtStateMachine
       from.in?(Array(from_state)) && to.in?(Array(to_state))
     end
 
+    def id
+      @id ||= "#{from}_#{to}"
+    end
+
     private
 
     delegate :all_states, to: :state_machine
