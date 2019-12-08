@@ -7,7 +7,7 @@ module NxtStateMachine
       @state_machine = state_machine
       @block = block
 
-      # TODO: Should we also check here that this is unique and was not defined yet?!
+      # TODO: Write a spec that verifies thattransitions are unique
       ensure_states_exist
     end
 

@@ -4,6 +4,9 @@
 - Test that events with the same name can coexist but are unique!
 - Test :around_transition callback chain for all integrations
 - What about inheritance? => What would be the expected behaviour? (dup vs. no dup)
+    => Might also make sense to walk the ancestors chain and collect configure blocks
+    => This might be super flexible as we could apply these in amend / reset mode
+    => Probably would be best to have :amend_configuration and :reset_configuration methods on the state_machine 
 - Check if having multiple state machines in the same class is a big issue
 - Reevaluate the return value of the transition? What would you expect?
 - Add method to walk a path ? => Could this be done with the pipeline?!
