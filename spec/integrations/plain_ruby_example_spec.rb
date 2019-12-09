@@ -78,6 +78,16 @@ RSpec.describe NxtStateMachine do
           block.call
           append_result('good bye')
         end
+
+        def redefine_set_state_with(set_state_with)
+          state_machine.instance_variable_set(:@set_state_with, nil)
+          state_machine.set_state_with(set_state_with)
+        end
+
+        def redefine_set_state_with!(set_state_with_bang)
+          state_machine.instance_variable_set(:@set_state_with_bang, nil)
+          state_machine.set_state_with!(set_state_with_bang)
+        end
       end
     end
 
@@ -150,11 +160,9 @@ RSpec.describe NxtStateMachine do
 
       before do
         # reset the set_state methods
-        subject.state_machine.instance_variable_set(:@set_state_with, nil)
-        subject.state_machine.set_state_with(set_state_with)
+        subject.redefine_set_state_with(set_state_with)
 
-        subject.state_machine.instance_variable_set(:@set_state_with_bang, nil)
-        subject.state_machine.set_state_with!(set_state_with_bang)
+        subject.redefine_set_state_with!(set_state_with_bang)
       end
 
       context '<event>' do
