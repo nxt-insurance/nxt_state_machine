@@ -62,6 +62,7 @@ module NxtStateMachine
             # @record.assign_attributes(state => transition.to)
             # result = @record.save!
             # end
+
             TransitionProxy.new(context, callbacks[:around]).call do
               transition.call
               @record.assign_attributes(state => transition.to)

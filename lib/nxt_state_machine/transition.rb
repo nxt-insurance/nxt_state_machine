@@ -7,13 +7,13 @@ module NxtStateMachine
       @state_machine = state_machine
       @block = block
 
-      # TODO: Write a spec that verifies thattransitions are unique
+      # TODO: Write a spec that verifies that transitions are unique
       ensure_states_exist
     end
 
     attr_reader :name, :from, :to
 
-    # Probably would make sense if we could also define the event name to be passed in
+    # TODO: Probably would make sense if we could also define the event name to be passed in
     # => This way we could differentiate what event triggered the callback!!!
     def execute(context, set_state_with, callbacks = nil, *args, **opts)
       # This exposes the transition block on the transition itself so it can be executed through :call later below
