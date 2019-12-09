@@ -93,19 +93,19 @@ module NxtStateMachine
         state_machine.can_transition!(name, current_state_name)
         transition = event.event_transitions.fetch(current_state_name)
 
-        callbacks = state_machine.callbacks.resolve(transition)
         set_state_with_arity = state_machine.set_state_with.with_context(self).arity
 
         # In case of arity == 2 we handle callbacks, in case of arity == 3 we leave it to the caller
         # and do not wrap them in callables as this would be unexpected
-        if set_state_with_arity == 2
+        # TODO: Is there a better way to achieve this distinction between flow
+        if set_state_with_arity <= 2
           begin
             state_machine.run_before_callbacks(transition, self)
 
             result = false
 
             # Would be cool if this could be something like execute_transition
-            TransitionProxy.new(self, callbacks[:around]).call do
+            TransitionProxy.new(self, callbacks_for_transition(transition)[:around]).call do
               result = transition.execute(self, :set_state_with, nil, *args, **opts)
             end
 
@@ -125,9 +125,9 @@ module NxtStateMachine
             end
           end
         elsif set_state_with_arity == 3
-          transition.execute(self, :set_state_with, callbacks, *args, **opts)
+          transition.execute(self, :set_state_with, callbacks_for_transition(transition), *args, **opts)
         else
-          raise ArgumentError, "state_machine.set_state_with can take 2 or 3 arguments"
+          raise ArgumentError, "state_machine.set_state_with can take 1, 2 or 3 arguments"
         end
       end
 
@@ -135,10 +135,9 @@ module NxtStateMachine
         state_machine.can_transition!(name, current_state_name)
         transition = event.event_transitions.fetch(current_state_name)
 
-        callbacks = state_machine.callbacks.resolve(transition)
         set_state_with_arity = state_machine.set_state_with!.with_context(self).arity
 
-        if set_state_with_arity == 2
+        if set_state_with_arity <= 2
           # TODO Capture and re-raise errors
           # TODO halt_transition
           begin
@@ -146,7 +145,7 @@ module NxtStateMachine
 
             result = nil
 
-            TransitionProxy.new(self, callbacks[:around]).call do
+            TransitionProxy.new(self, callbacks_for_transition(transition)[:around]).call do
               result = transition.execute(self, :set_state_with, nil, *args, **opts)
             end
 
@@ -166,9 +165,9 @@ module NxtStateMachine
             end
           end
         elsif set_state_with_arity == 3
-          transition.execute(self, :set_state_with!, state_machine.callbacks.resolve(transition), *args, **opts)
+          transition.execute(self, :set_state_with!, callbacks_for_transition(transition), *args, **opts)
         else
-          raise ArgumentError, "state_machine.set_state_with! can take 2 or 3 arguments"
+          raise ArgumentError, "state_machine.set_state_with! can take 1, 2 or 3 arguments"
         end
       end
 

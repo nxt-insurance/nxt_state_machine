@@ -59,6 +59,10 @@ module NxtStateMachine
       raise NxtStateMachine::Errors::TransitionHalted.new(*args, **opts)
     end
 
+    def callbacks_for_transition(transition)
+      state_machine.callbacks.resolve(transition)
+    end
+
     delegate :initial_state, :states, to: :state_machine
   end
 

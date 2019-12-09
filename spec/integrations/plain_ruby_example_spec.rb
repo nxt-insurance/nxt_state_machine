@@ -49,7 +49,7 @@ RSpec.describe NxtStateMachine do
           around_transition from: any_state, to: all_states, run: :say_hello
         end
 
-        def set_state(transition, context)
+        def set_state(transition)
           transition.call
           self.state = transition.to
         end
@@ -87,6 +87,15 @@ RSpec.describe NxtStateMachine do
 
     context 'with default callbacks' do
       context '<event>' do
+        context '#set_state' do
+          context 'when there is no error' do
+            it 'sets the state' do
+              expect(subject.process).to be_truthy
+              expect(subject.state).to eq(:processed)
+            end
+          end
+        end
+
         context 'callbacks' do
           it 'executes the callbacks in the correct order' do
             expect {
