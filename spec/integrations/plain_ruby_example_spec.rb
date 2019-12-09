@@ -87,46 +87,50 @@ RSpec.describe NxtStateMachine do
 
     context 'with default callbacks' do
       context '<event>' do
-        it 'executes the callbacks in the correct order' do
-          expect {
-            subject.process
-          }.to change {
-            subject.result
-          }.from(be_empty).to(
-            [
-              "before transition",
-              "around enter 1",
-              "around enter 2",
-              "hello",
-              "during transition",
-              "good bye",
-              "around exit 2",
-              "around exit 1",
-              "after transition"
-            ]
-          )
+        context 'callbacks' do
+          it 'executes the callbacks in the correct order' do
+            expect {
+              subject.process
+            }.to change {
+              subject.result
+            }.from(be_empty).to(
+              [
+                "before transition",
+                "around enter 1",
+                "around enter 2",
+                "hello",
+                "during transition",
+                "good bye",
+                "around exit 2",
+                "around exit 1",
+                "after transition"
+              ]
+            )
+          end
         end
       end
 
       context '<event>!' do
-        it 'executes the callbacks in the correct order' do
-          expect {
-            subject.process!
-          }.to change {
-            subject.result
-          }.from(be_empty).to(
-            [
-              "before transition",
-              "around enter 1",
-              "around enter 2",
-              "hello",
-              "during transition",
-              "good bye",
-              "around exit 2",
-              "around exit 1",
-              "after transition"
-            ]
-          )
+        context 'callbacks' do
+          it 'executes the callbacks in the correct order' do
+            expect {
+              subject.process!
+            }.to change {
+              subject.result
+            }.from(be_empty).to(
+              [
+                "before transition",
+                "around enter 1",
+                "around enter 2",
+                "hello",
+                "during transition",
+                "good bye",
+                "around exit 2",
+                "around exit 1",
+                "after transition"
+              ]
+            )
+          end
         end
       end
     end
@@ -145,22 +149,26 @@ RSpec.describe NxtStateMachine do
       end
 
       context '<event>' do
-        it 'leaves it up  to the caller to execute callbacks' do
-          expect {
-            subject.process
-          }.to change {
-            subject.result
-          }.from(be_empty).to(["during transition"])
+        context 'callbacks' do
+          it 'leaves it up to the caller to execute callbacks' do
+            expect {
+              subject.process
+            }.to change {
+              subject.result
+            }.from(be_empty).to(["during transition"])
+          end
         end
       end
 
       context '<event>!' do
-        it 'leaves it up  to the caller to execute callbacks' do
-          expect {
-            subject.process!
-          }.to change {
-            subject.result
-          }.from(be_empty).to(["before transition", "during transition", "after transition"])
+        context 'callbacks' do
+          it 'leaves it up  to the caller to execute callbacks' do
+            expect {
+              subject.process!
+            }.to change {
+              subject.result
+            }.from(be_empty).to(["before transition", "during transition", "after transition"])
+          end
         end
       end
     end
