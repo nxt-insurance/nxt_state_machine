@@ -19,7 +19,7 @@ module NxtStateMachine
           @record ||= scope ? send(scope) : self
 
           @record.transaction do
-            state_machine.run_before_callbacks(transition, self)
+            state_machine.run_before_callbacks(transition, context)
 
             result = nil
 
@@ -30,7 +30,7 @@ module NxtStateMachine
             end
 
             if result
-              state_machine.run_after_callbacks(transition, self)
+              state_machine.run_after_callbacks(transition, context)
               result
             else
               # reset state
@@ -51,7 +51,7 @@ module NxtStateMachine
           @record ||= scope ? send(scope) : self
 
           @record.transaction do
-            state_machine.run_before_callbacks(transition, self)
+            state_machine.run_before_callbacks(transition, context)
 
             result = nil
 
@@ -61,7 +61,7 @@ module NxtStateMachine
               result = @record.save!
             end
 
-            state_machine.run_after_callbacks(transition, self)
+            state_machine.run_after_callbacks(transition, context)
 
             result
           end
