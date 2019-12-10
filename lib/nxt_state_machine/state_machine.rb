@@ -106,7 +106,7 @@ module NxtStateMachine
 
             # Would be cool if this could be something like execute_transition
             TransitionProxy.new(self, callbacks_for_transition(transition)[:around]).call do
-              result = transition.execute(self, :set_state_with, nil, *args, **opts)
+              result = transition.execute_with(self, :set_state_with, nil, *args, **opts)
             end
 
             if result
@@ -125,7 +125,7 @@ module NxtStateMachine
             end
           end
         elsif set_state_with_arity == 3
-          transition.execute(self, :set_state_with, callbacks_for_transition(transition), *args, **opts)
+          transition.execute_with(self, :set_state_with, callbacks_for_transition(transition), *args, **opts)
         else
           raise ArgumentError, "state_machine.set_state_with can take 1, 2 or 3 arguments"
         end
@@ -146,7 +146,7 @@ module NxtStateMachine
             result = nil
 
             TransitionProxy.new(self, callbacks_for_transition(transition)[:around]).call do
-              result = transition.execute(self, :set_state_with, nil, *args, **opts)
+              result = transition.execute_with(self, :set_state_with, nil, *args, **opts)
             end
 
             if result
@@ -165,7 +165,7 @@ module NxtStateMachine
             end
           end
         elsif set_state_with_arity == 3
-          transition.execute(self, :set_state_with!, callbacks_for_transition(transition), *args, **opts)
+          transition.execute_with(self, :set_state_with!, callbacks_for_transition(transition), *args, **opts)
         else
           raise ArgumentError, "state_machine.set_state_with! can take 1, 2 or 3 arguments"
         end
