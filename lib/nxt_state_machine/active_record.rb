@@ -51,10 +51,12 @@ module NxtStateMachine
           @record ||= scope ? send(scope) : self
 
           @record.transaction do
+            # transition.run_before_callbacks
             state_machine.run_before_callbacks(transition, context)
 
             result = nil
 
+            # transition.execute do ... end
             state_machine.execute_transition(transition, context) do
               transition.call
               @record.assign_attributes(state => transition.to)
