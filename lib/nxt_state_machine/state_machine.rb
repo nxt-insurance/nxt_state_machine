@@ -85,6 +85,7 @@ module NxtStateMachine
       events[name] = event
 
       # we might also put this in a module for easy overwriting
+      # TODO: This is the context of the state machine, which is not the instance but the class itself!
       context.define_method name do |*args, **opts|
         state_machine.can_transition!(name, current_state_name)
         transition = event.event_transitions.fetch(current_state_name)
