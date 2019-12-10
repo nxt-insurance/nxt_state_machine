@@ -17,7 +17,7 @@ module NxtStateMachine
     # => This way we could differentiate what event triggered the callback!!!
     def execute_with(context, set_state_with_method, callbacks = nil, *args, **opts)
       # TODO: We should probably rename this to trigger_callbacks or something
-      # This exposes the transition block on the transition itself so it can be executed through :call later below
+      # This exposes the transition block on the transition itself so it can be executed through transition.call later in :set_state_with
       self.executor = Proc.new do
         if block
           context.instance_exec(*args, **opts, &block)
@@ -31,13 +31,13 @@ module NxtStateMachine
       executor.call
     end
 
-    def revert(set_state_with_method)
+    def revert(set_state_with_method, context)
       Transition.new(
         "reverting => #{name}",
         from: to,
         to: from,
         state_machine: state_machine
-      ).execute_with(context, state_machine.send(set_state_with_method), nil).call
+      ).execute_with(context, set_state_with_method, nil)
     end
 
     def transitions_from_to?(from_state, to_state)

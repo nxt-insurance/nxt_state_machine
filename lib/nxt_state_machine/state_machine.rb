@@ -40,14 +40,10 @@ module NxtStateMachine
       @set_state_with ||= method_or_block && Callable.new(method_or_block) || raise_missing_configuration_error(:set_state_with)
     end
 
-    alias_method :transition_with, :set_state_with
-
     def set_state_with!(method = nil, &block)
       method_or_block = (method || block)
       @set_state_with_bang ||= method_or_block && Callable.new(method_or_block) || raise_missing_configuration_error(:set_state_with!)
     end
-
-    alias_method :transition_with!, :set_state_with!
 
     def state(*names, **opts)
       defaults = { initial: false }
@@ -98,15 +94,18 @@ module NxtStateMachine
         # In case of arity == 2 we handle callbacks, in case of arity == 3 we leave it to the caller
         # and do not wrap them in callables as this would be unexpected
         # TODO: Is there a better way to achieve this distinction between flow
+        # TODO: Splitting by arity does not make much sense anymore!!! --> transition_with might make more sense
+        # Probably it's best if we do not implement default at all! --> Better to make attr_accessor integrations
         if set_state_with_arity <= 2
           begin
             state_machine.run_before_callbacks(transition, self)
 
             result = false
+            context = self
 
             # Would be cool if this could be something like execute_transition
-            TransitionProxy.new(self, callbacks_for_transition(transition)[:around]).call do
-              result = transition.execute_with(self, :set_state_with, nil, *args, **opts)
+            state_machine.execute_transition(transition, context) do
+              result = transition.execute_with(context, :set_state_with, nil, *args, **opts)
             end
 
             if result
@@ -116,7 +115,7 @@ module NxtStateMachine
               halt_transition
             end
           rescue StandardError => error
-            transition.revert(:set_state_with)
+            transition.revert(:set_state_with, self)
 
             if error.is_a?(NxtStateMachine::Errors::TransitionHalted)
               false
@@ -144,9 +143,10 @@ module NxtStateMachine
             state_machine.run_before_callbacks(transition, self)
 
             result = nil
+            context = self
 
-            TransitionProxy.new(self, callbacks_for_transition(transition)[:around]).call do
-              result = transition.execute_with(self, :set_state_with, nil, *args, **opts)
+            state_machine.execute_transition(transition, context) do
+              result = transition.execute_with(context, :set_state_with, nil, *args, **opts)
             end
 
             if result
@@ -156,7 +156,7 @@ module NxtStateMachine
               halt_transition
             end
           rescue StandardError => error
-            transition.revert(:set_state_with!)
+            transition.revert(:set_state_with!, self)
 
             if error.is_a?(NxtStateMachine::Errors::TransitionHalted)
               false
@@ -216,6 +216,10 @@ module NxtStateMachine
       current_callbacks.each do |callback|
         Callable.new(callback).with_context(context).call
       end
+    end
+
+    def execute_transition(transition, context, &block)
+      TransitionProxy.new(context, callbacks.resolve(transition)[:around]).call(&block)
     end
 
     private

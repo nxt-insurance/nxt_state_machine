@@ -2,8 +2,7 @@ module NxtStateMachine
   module ActiveRecord
     module ClassMethods
       def active_record_state_machine(state:, scope: nil, &block)
-        # TODO: Why do we pass state and scope to the state_machine here?
-        # Is it even aware of that, or does it just end up in options for no reason?
+        # TODO: Was this simply to add options that can be used in integrations?
         state_machine(state: state, scope: scope, &block)
 
         state_machine.get_state_with do
@@ -24,7 +23,7 @@ module NxtStateMachine
 
             result = nil
 
-            TransitionProxy.new(context, callbacks[:around]).call do
+            state_machine.execute_transition(transition, context) do
               transition.call
               @record.assign_attributes(state => transition.to)
               result = @record.save
@@ -56,14 +55,7 @@ module NxtStateMachine
 
             result = nil
 
-            # TODO: Create the transition proxy in execute_transition
-            # execute_transition(context) do
-            # transition.call
-            # @record.assign_attributes(state => transition.to)
-            # result = @record.save!
-            # end
-
-            TransitionProxy.new(context, callbacks[:around]).call do
+            state_machine.execute_transition(transition, context) do
               transition.call
               @record.assign_attributes(state => transition.to)
               result = @record.save!
