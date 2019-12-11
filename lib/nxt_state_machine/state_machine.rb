@@ -104,7 +104,6 @@ module NxtStateMachine
             result = false
             context = self
 
-            # Would be cool if this could be something like execute_transition
             state_machine.execute_transition(transition, context) do
               result = transition.execute_with(context, :set_state_with, nil, *args, **opts)
             end

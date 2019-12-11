@@ -18,6 +18,7 @@ module NxtStateMachine
     # => This way we could differentiate what event triggered the callback!!!
 
     # TODO: Prepare?
+    # What if we would return a new object here: executable_transition - or transitions would be transition templates or so
     def execute_with(context, set_state_with_method, callbacks = nil, *args, **opts)
       # TODO: We should probably rename this to trigger_callbacks or something
       # This exposes the transition block on the transition itself so it can be executed through transition.apply_block later in :set_state_with

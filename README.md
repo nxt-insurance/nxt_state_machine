@@ -1,7 +1,7 @@
 # NxtStateMachine
 
 ## TODO
-- Add run_callbacks method in order to refactor ar adapter and default adapter
+- Get rid of default callback order and make all methods available on transition
 - Test that events with the same name can coexist but are unique!
 - Test :around_transition callback chain for all integrations
 - What about inheritance? => What would be the expected behaviour? (dup vs. no dup)
@@ -14,6 +14,7 @@
 - What about :on_error callbacks? => Do we need to implement this?  
 - Halt transition probably also make sense for non active record default adapter
 - Default implementation should also return proper values and reset the state in case of errors
+- Write implementations for Hash, AttrAccessor
 
 ```ruby
 class ArticleWorkflow
