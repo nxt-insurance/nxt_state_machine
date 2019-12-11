@@ -50,20 +50,20 @@ RSpec.describe NxtStateMachine do
         end
 
         def set_state(transition)
-          transition.call
+          transition.apply_block
           self.state = transition.to
         end
 
         def skip_callbacks_and_set_state(transition, context, callbacks)
           # we accept callbacks so that they are nor handled before
           # then we do nothing with them, thus they are skipped
-          transition.call
+          transition.apply_block
           self.state = transition.to
         end
 
         def run_callbacks_and_set_state(transition, context, callbacks)
           callbacks[:before].each { |c| context.instance_exec(&c) }
-          transition.call
+          transition.apply_block
           result = self.state = transition.to
           callbacks[:after].each { |c| context.instance_exec(&c) }
           result

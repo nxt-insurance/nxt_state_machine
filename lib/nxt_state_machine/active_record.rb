@@ -19,18 +19,18 @@ module NxtStateMachine
           @record ||= scope ? send(scope) : self
 
           @record.transaction do
-            state_machine.run_before_callbacks(transition, context)
+            transition.run_before_callbacks
 
             result = nil
 
-            state_machine.execute_transition(transition, context) do
-              transition.call
+            transition.execute do
+              transition.apply_block
               @record.assign_attributes(state => transition.to)
               result = @record.save
             end
 
             if result
-              state_machine.run_after_callbacks(transition, context)
+              transition.run_after_callbacks
               result
             else
               # reset state
@@ -51,19 +51,17 @@ module NxtStateMachine
           @record ||= scope ? send(scope) : self
 
           @record.transaction do
-            # transition.run_before_callbacks
-            state_machine.run_before_callbacks(transition, context)
+            transition.run_before_callbacks
 
             result = nil
 
-            # transition.execute do ... end
-            state_machine.execute_transition(transition, context) do
-              transition.call
+            transition.execute do
+              transition.apply_block
               @record.assign_attributes(state => transition.to)
               result = @record.save!
             end
 
-            state_machine.run_after_callbacks(transition, context)
+            transition.run_after_callbacks
 
             result
           end
