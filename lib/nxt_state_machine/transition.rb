@@ -19,8 +19,7 @@ module NxtStateMachine
 
     # TODO: Prepare?
     # What if we would return a new object here: executable_transition - or transitions would be transition templates or so
-    def execute_with(context, set_state_with_method, callbacks = nil, *args, **opts)
-      # TODO: We should probably rename this to trigger_callbacks or something
+    def execute_with(context, set_state_with_method, *args, **opts)
       # This exposes the transition block on the transition itself so it can be executed through transition.apply_block later in :set_state_with
       self.block_proxy = Proc.new do
         if block
@@ -30,7 +29,8 @@ module NxtStateMachine
 
       self.context = context
 
-      state_machine.send(set_state_with_method).with_context(context).call(self, context, callbacks)
+      # TODO: Pass in the event name that triggered the transition
+      state_machine.send(set_state_with_method).with_context(context).call(self)
     end
 
     def apply_block
@@ -47,15 +47,6 @@ module NxtStateMachine
 
     def run_after_callbacks
       state_machine.run_after_callbacks(self, context)
-    end
-
-    def revert(set_state_with_method, context)
-      Transition.new(
-        "reverting => #{name}",
-        from: to,
-        to: from,
-        state_machine: state_machine
-      ).execute_with(context, set_state_with_method, nil)
     end
 
     def transitions_from_to?(from_state, to_state)

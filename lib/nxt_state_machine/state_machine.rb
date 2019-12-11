@@ -89,86 +89,13 @@ module NxtStateMachine
       context.define_method name do |*args, **opts|
         state_machine.can_transition!(name, current_state_name)
         transition = event.event_transitions.fetch(current_state_name)
-
-        set_state_with_arity = state_machine.set_state_with.with_context(self).arity
-
-        # In case of arity == 2 we handle callbacks, in case of arity == 3 we leave it to the caller
-        # and do not wrap them in callables as this would be unexpected
-        # TODO: Is there a better way to achieve this distinction between flow
-        # TODO: Splitting by arity does not make much sense anymore!!! --> transition_with might make more sense
-        # Probably it's best if we do not implement default at all! --> Better to make attr_accessor integrations
-        if set_state_with_arity <= 2
-          begin
-            state_machine.run_before_callbacks(transition, self)
-
-            result = false
-            context = self
-
-            state_machine.execute_transition(transition, context) do
-              result = transition.execute_with(context, :set_state_with, nil, *args, **opts)
-            end
-
-            if result
-              state_machine.run_after_callbacks(transition, self)
-              result
-            else
-              halt_transition
-            end
-          rescue StandardError => error
-            transition.revert(:set_state_with, self)
-
-            if error.is_a?(NxtStateMachine::Errors::TransitionHalted)
-              false
-            else
-              raise
-            end
-          end
-        elsif set_state_with_arity == 3
-          transition.execute_with(self, :set_state_with, callbacks_for_transition(transition), *args, **opts)
-        else
-          raise ArgumentError, "state_machine.set_state_with can take 1, 2 or 3 arguments"
-        end
+        transition.execute_with(self, :set_state_with, *args, **opts)
       end
 
       context.define_method "#{name}!" do |*args, **opts|
         state_machine.can_transition!(name, current_state_name)
         transition = event.event_transitions.fetch(current_state_name)
-
-        set_state_with_arity = state_machine.set_state_with!.with_context(self).arity
-
-        if set_state_with_arity <= 2
-          # TODO Capture and re-raise errors
-          # TODO halt_transition
-          begin
-            state_machine.run_before_callbacks(transition, self)
-
-            result = nil
-            context = self
-
-            state_machine.execute_transition(transition, context) do
-              result = transition.execute_with(context, :set_state_with, nil, *args, **opts)
-            end
-
-            if result
-              state_machine.run_after_callbacks(transition, self)
-              result
-            else
-              halt_transition
-            end
-          rescue StandardError => error
-            transition.revert(:set_state_with!, self)
-
-            if error.is_a?(NxtStateMachine::Errors::TransitionHalted)
-              false
-            else
-              raise
-            end
-          end
-        elsif set_state_with_arity == 3
-          transition.execute_with(self, :set_state_with!, callbacks_for_transition(transition), *args, **opts)
-        else
-          raise ArgumentError, "state_machine.set_state_with! can take 1, 2 or 3 arguments"
-        end
+        transition.execute_with(self, :set_state_with!, *args, **opts)
       end
 
       context.define_method "can_#{name}?" do

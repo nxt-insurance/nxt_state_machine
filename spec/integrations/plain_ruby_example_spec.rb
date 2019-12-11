@@ -1,5 +1,5 @@
 RSpec.describe NxtStateMachine do
-  context 'when used with a simple state attribute' do
+  context 'custom integration' do
     let(:state_machine_class) do
       Class.new do
         include NxtStateMachine
@@ -50,23 +50,14 @@ RSpec.describe NxtStateMachine do
         end
 
         def set_state(transition)
-          transition.apply_block
-          self.state = transition.to
-        end
+          transition.run_before_callbacks
 
-        def skip_callbacks_and_set_state(transition, context, callbacks)
-          # we accept callbacks so that they are nor handled before
-          # then we do nothing with them, thus they are skipped
-          transition.apply_block
-          self.state = transition.to
-        end
+          result = transition.execute do
+            transition.apply_block
+            self.state = transition.to
+          end
 
-        def run_callbacks_and_set_state(transition, context, callbacks)
-          callbacks[:before].each { |c| context.instance_exec(&c) }
-          transition.apply_block
-          result = self.state = transition.to
-          callbacks[:after].each { |c| context.instance_exec(&c) }
-          result
+          result && transition.run_after_callbacks && result
         end
 
         def append_result(tmp)
@@ -78,16 +69,6 @@ RSpec.describe NxtStateMachine do
           block.call
           append_result('good bye')
         end
-
-        def redefine_set_state_with(set_state_with)
-          state_machine.instance_variable_set(:@set_state_with, nil)
-          state_machine.set_state_with(set_state_with)
-        end
-
-        def redefine_set_state_with!(set_state_with_bang)
-          state_machine.instance_variable_set(:@set_state_with_bang, nil)
-          state_machine.set_state_with!(set_state_with_bang)
-        end
       end
     end
 
@@ -95,99 +76,68 @@ RSpec.describe NxtStateMachine do
       state_machine_class.new('received')
     end
 
-    context 'with default callbacks' do
-      context '<event>' do
-        context '#set_state' do
-          context 'when there is no error' do
-            it 'sets the state' do
-              expect(subject.process).to be_truthy
-              expect(subject.state).to eq(:processed)
-            end
-          end
-        end
-
-        context 'callbacks' do
-          it 'executes the callbacks in the correct order' do
-            expect {
-              subject.process
-            }.to change {
-              subject.result
-            }.from(be_empty).to(
-              [
-                "before transition",
-                "around enter 1",
-                "around enter 2",
-                "hello",
-                "during transition",
-                "good bye",
-                "around exit 2",
-                "around exit 1",
-                "after transition"
-              ]
-            )
+    context '<event>' do
+      context '#set_state' do
+        context 'when there is no error' do
+          it 'sets the state' do
+            expect(subject.process).to be_truthy
+            expect(subject.state).to eq(:processed)
           end
         end
       end
 
-      context '<event>!' do
-        context 'callbacks' do
-          it 'executes the callbacks in the correct order' do
-            expect {
-              subject.process!
-            }.to change {
-              subject.result
-            }.from(be_empty).to(
-              [
-                "before transition",
-                "around enter 1",
-                "around enter 2",
-                "hello",
-                "during transition",
-                "good bye",
-                "around exit 2",
-                "around exit 1",
-                "after transition"
-              ]
-            )
-          end
+      context 'callbacks' do
+        it 'executes the callbacks in the correct order' do
+          expect {
+            subject.process
+          }.to change {
+            subject.result
+          }.from(be_empty).to(
+            [
+              "before transition",
+              "around enter 1",
+              "around enter 2",
+              "hello",
+              "during transition",
+              "good bye",
+              "around exit 2",
+              "around exit 1",
+              "after transition"
+            ]
+          )
         end
       end
     end
 
-    context 'when caller expects callbacks to be passed' do
-      let(:set_state_with) { :skip_callbacks_and_set_state }
-      let(:set_state_with_bang) { :run_callbacks_and_set_state }
-
-      before do
-        # reset the set_state methods
-        subject.redefine_set_state_with(set_state_with)
-
-        subject.redefine_set_state_with!(set_state_with_bang)
-      end
-
-      context '<event>' do
-        context 'callbacks' do
-          it 'leaves it up to the caller to execute callbacks' do
-            expect {
-              subject.process
-            }.to change {
-              subject.result
-            }.from(be_empty).to(["during transition"])
-          end
+    context '<event>!' do
+      context 'when there is no error' do
+        it 'sets the state' do
+          expect(subject.process!).to be_truthy
+          expect(subject.state).to eq(:processed)
         end
       end
 
-      context '<event>!' do
-        context 'callbacks' do
-          it 'leaves it up  to the caller to execute callbacks' do
-            expect {
-              subject.process!
-            }.to change {
-              subject.result
-            }.from(be_empty).to(["before transition", "during transition", "after transition"])
-          end
-        end
+      context 'callbacks' do
+        it 'executes the callbacks in the correct order' do
+          expect {
+            subject.process!
+          }.to change {
+            subject.result
+          }.from(be_empty).to(
+            [
+              "before transition",
+              "around enter 1",
+              "around enter 2",
+              "hello",
+              "during transition",
+              "good bye",
+              "around exit 2",
+              "around exit 1",
+              "after transition"
+            ]
+          )
       end
     end
+  end
   end
 end
