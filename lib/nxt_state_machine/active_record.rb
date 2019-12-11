@@ -21,12 +21,10 @@ module NxtStateMachine
           @record.transaction do
             transition.run_before_callbacks
 
-            result = nil
-
-            transition.execute do
+            result = transition.execute do
               transition.apply_block
               @record.assign_attributes(state => transition.to)
-              result = @record.save
+              @record.save
             end
 
             if result
@@ -53,12 +51,10 @@ module NxtStateMachine
           @record.transaction do
             transition.run_before_callbacks
 
-            result = nil
-
-            transition.execute do
+            result = transition.execute do
               transition.apply_block
               @record.assign_attributes(state => transition.to)
-              result = @record.save!
+              @record.save!
             end
 
             transition.run_after_callbacks
