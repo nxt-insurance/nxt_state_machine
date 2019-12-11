@@ -11,7 +11,7 @@ RSpec.describe NxtStateMachine do
 
         attr_accessor :state, :result
 
-        state_machine do
+        define_state_machine do
           get_state_with :state
           set_state_with :set_state
           set_state_with! :set_state

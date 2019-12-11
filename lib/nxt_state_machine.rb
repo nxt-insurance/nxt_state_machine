@@ -24,9 +24,13 @@ require "nxt_state_machine/active_record"
 
 module NxtStateMachine
   module ClassMethods
-    def state_machine(**opts, &block)
+    def define_state_machine(**opts, &block)
       @state_machine ||= StateMachine.new(self, opts)
       @state_machine.configure(&block) if block_given?
+      @state_machine
+    end
+
+    def state_machine
       @state_machine
     end
 
