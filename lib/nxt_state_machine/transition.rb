@@ -38,7 +38,7 @@ module NxtStateMachine
     end
 
     def execute(&block)
-      TransitionProxy.new(context, state_machine.callbacks.resolve(self)[:around]).call(&block)
+      TransitionProxy.new(state_machine,self, context).call(&block)
     end
 
     def run_before_callbacks
@@ -57,12 +57,15 @@ module NxtStateMachine
       @id ||= "#{from}_#{to}"
     end
 
+    attr_reader :block_proxy
+
     private
 
     delegate :all_states, to: :state_machine
 
     attr_reader :block, :state_machine
-    attr_accessor :block_proxy, :context
+    attr_accessor :context
+    attr_writer :block_proxy
 
     def ensure_states_exist
       raise NxtStateMachine::Errors::UnknownStateError, "No state with :#{from} registered" unless state_machine.states.key?(from)

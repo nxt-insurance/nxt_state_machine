@@ -1,11 +1,20 @@
 module NxtStateMachine
   class TransitionProxy
-    def initialize(context, around_callbacks = [])
+    def initialize(state_machine, transition, context)
+      @transition = transition
+      @state_machine = state_machine
       @context = context
-      @around_callbacks = around_callbacks
     end
 
-    def call(&proxy)
+    def call(&block)
+      proxy = if block.arity == 1
+        Proc.new do
+          block.call(transition.block_proxy)
+        end
+      else
+        block
+      end
+
       if around_callbacks.any?
         around_callback_chain(proxy).call
       else
@@ -21,7 +30,11 @@ module NxtStateMachine
       end
     end
 
-    attr_reader :proxy, :context, :around_callbacks
+    def around_callbacks
+      @around_callbacks ||= state_machine.callbacks.resolve(transition)[:around]
+    end
+
+    attr_reader :proxy, :transition, :state_machine, :context
   end
 end
 

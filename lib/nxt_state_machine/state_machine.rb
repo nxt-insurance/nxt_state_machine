@@ -145,10 +145,6 @@ module NxtStateMachine
       end
     end
 
-    def execute_transition(transition, context, &block)
-      TransitionProxy.new(context, callbacks.resolve(transition)[:around]).call(&block)
-    end
-
     private
 
     def raise_missing_configuration_error(method)

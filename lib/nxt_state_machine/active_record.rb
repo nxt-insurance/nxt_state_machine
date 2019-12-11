@@ -1,9 +1,9 @@
 module NxtStateMachine
   module ActiveRecord
     module ClassMethods
-      def state_machine(state: :state, scope: nil, &block)
+      def state_machine(state: :state, scope: nil, &config)
         @state_machine ||= begin
-          state_machine = define_state_machine(state: state, scope: scope, &block)
+          state_machine = define_state_machine(state: state, scope: scope, &config)
 
           state_machine.get_state_with do
             @record ||= scope ? send(scope) : self
@@ -21,8 +21,8 @@ module NxtStateMachine
             @record.transaction do
               transition.run_before_callbacks
 
-              result = transition.execute do
-                transition.apply_block
+              result = transition.execute do |block|
+                block.call
                 @record.assign_attributes(state => transition.to)
                 @record.save
               end
@@ -31,7 +31,7 @@ module NxtStateMachine
                 transition.run_after_callbacks
                 result
               else
-                # reset state
+                # abort transaction and reset state
                 halt_transition
               end
             end
@@ -51,8 +51,8 @@ module NxtStateMachine
             @record.transaction do
               transition.run_before_callbacks
 
-              result = transition.execute do
-                transition.apply_block
+              result = transition.execute do |block|
+                block.call
                 @record.assign_attributes(state => transition.to)
                 @record.save!
               end
