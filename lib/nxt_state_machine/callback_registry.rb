@@ -37,7 +37,8 @@ module NxtStateMachine
       all_callbacks = @resolve[transition.id] ||= self[transition.from][transition.to]
       return all_callbacks unless kind
 
-      # We should check if kind is in [:before, :after, :around]
+      allowed_kinds = %i[before after]
+      raise ArgumentError, "#{kind} must be in #{allowed_kinds}" unless kind.in?(allowed_kinds)
 
       all_callbacks[kind]
     end
