@@ -86,13 +86,13 @@ module NxtStateMachine
       class_context.define_method name do |*args, **opts|
         state_machine.can_transition!(name, current_state_name)
         transition = event.event_transitions.fetch(current_state_name)
-        transition.execute_with(self, :set_state_with, *args, **opts)
+        transition.execute_with(name, self, :set_state_with, *args, **opts)
       end
 
       class_context.define_method "#{name}!" do |*args, **opts|
         state_machine.can_transition!(name, current_state_name)
         transition = event.event_transitions.fetch(current_state_name)
-        transition.execute_with(self, :set_state_with!, *args, **opts)
+        transition.execute_with("#{name}!", self, :set_state_with!, *args, **opts)
       end
 
       class_context.define_method "can_#{name}?" do

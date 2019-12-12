@@ -7,6 +7,7 @@ module NxtStateMachine
       @state_machine = state_machine
       @block = block
       @context = nil
+      @event = nil
 
       # TODO: Write a spec that verifies that transitions are unique
       ensure_states_exist
@@ -19,7 +20,7 @@ module NxtStateMachine
 
     # TODO: Prepare?
     # What if we would return a new object here: executable_transition - or transitions would be transition templates or so
-    def execute_with(context, set_state_with_method, *args, **opts)
+    def execute_with(event, context, set_state_with_method, *args, **opts)
       # This exposes the transition block on the transition itself so it can be executed through transition.apply_block later in :set_state_with
       self.block_proxy = Proc.new do
         if block
@@ -28,8 +29,8 @@ module NxtStateMachine
       end
 
       self.context = context
+      self.event = event
 
-      # TODO: Pass in the event name that triggered the transition
       state_machine.send(set_state_with_method).with_context(context).call(self)
     end
 
@@ -59,7 +60,7 @@ module NxtStateMachine
       @id ||= "#{from}_#{to}"
     end
 
-    attr_reader :block_proxy
+    attr_reader :block_proxy, :event
 
     private
 
@@ -67,7 +68,7 @@ module NxtStateMachine
 
     attr_reader :block, :state_machine
     attr_accessor :context
-    attr_writer :block_proxy
+    attr_writer :block_proxy, :event
 
     def ensure_states_exist
       raise NxtStateMachine::Errors::UnknownStateError, "No state with :#{from} registered" unless state_machine.states.key?(from)
