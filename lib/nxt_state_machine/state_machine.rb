@@ -1,7 +1,7 @@
 module NxtStateMachine
   class StateMachine
-    def initialize(context, **opts)
-      @context = context
+    def initialize(class_context, **opts)
+      @class_context = class_context
       @options = opts
 
       @states = Registry.new(
@@ -27,7 +27,7 @@ module NxtStateMachine
       @initial_state = nil
     end
 
-    attr_reader :context, :states, :transitions, :events, :options, :callbacks
+    attr_reader :class_context, :states, :transitions, :events, :options, :callbacks
     attr_accessor :initial_state
 
     def get_state_with(method = nil, &block)
@@ -86,19 +86,19 @@ module NxtStateMachine
 
       # we might also put this in a module for easy overwriting
       # TODO: This is the context of the state machine, which is not the instance but the class itself!
-      context.define_method name do |*args, **opts|
+      class_context.define_method name do |*args, **opts|
         state_machine.can_transition!(name, current_state_name)
         transition = event.event_transitions.fetch(current_state_name)
         transition.execute_with(self, :set_state_with, *args, **opts)
       end
 
-      context.define_method "#{name}!" do |*args, **opts|
+      class_context.define_method "#{name}!" do |*args, **opts|
         state_machine.can_transition!(name, current_state_name)
         transition = event.event_transitions.fetch(current_state_name)
         transition.execute_with(self, :set_state_with!, *args, **opts)
       end
 
-      context.define_method "can_#{name}?" do
+      class_context.define_method "can_#{name}?" do
         state_machine.can_transition?(name, current_state_name)
       end
     end

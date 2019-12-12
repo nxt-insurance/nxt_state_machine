@@ -20,17 +20,14 @@ require "nxt_state_machine/event"
 require "nxt_state_machine/transition"
 require "nxt_state_machine/transition_proxy"
 require "nxt_state_machine/state_machine"
-require "nxt_state_machine/active_record"
+require "nxt_state_machine/integrations/active_record"
+require "nxt_state_machine/integrations/attr_accessor"
 
 module NxtStateMachine
   module ClassMethods
-    def define_state_machine(**opts, &block)
+    def state_machine(**opts, &block)
       @state_machine ||= StateMachine.new(self, opts)
       @state_machine.configure(&block) if block_given?
-      @state_machine
-    end
-
-    def state_machine
       @state_machine
     end
 
@@ -41,7 +38,7 @@ module NxtStateMachine
         super(*args, &block)
       end
 
-      instance.current_state_name
+      instance.current_state_name if state_machine.initial_state.present?
       instance
     end
   end

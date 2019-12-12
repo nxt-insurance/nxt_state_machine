@@ -41,6 +41,8 @@ module NxtStateMachine
       TransitionProxy.new(state_machine,self, context).call(&block)
     end
 
+    alias_method :with_around_callbacks, :execute
+
     def run_before_callbacks
       state_machine.run_before_callbacks(self, context)
     end

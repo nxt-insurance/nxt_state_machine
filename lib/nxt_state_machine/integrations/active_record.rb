@@ -3,9 +3,9 @@ module NxtStateMachine
     module ClassMethods
       def state_machine(state: :state, scope: nil, &config)
         @state_machine ||= begin
-          state_machine = define_state_machine(state: state, scope: scope, &config)
+          machine = super(state: state, scope: scope, &config)
 
-          state_machine.get_state_with do
+          machine.get_state_with do
             @record ||= scope ? send(scope) : self
 
             if @record.send(state).nil? && @record.new_record?
@@ -15,7 +15,7 @@ module NxtStateMachine
             @record.send(state)
           end
 
-          state_machine.set_state_with do |transition|
+          machine.set_state_with do |transition|
             @record ||= scope ? send(scope) : self
 
             @record.transaction do
@@ -45,7 +45,7 @@ module NxtStateMachine
             end
           end
 
-          state_machine.set_state_with! do |transition|
+          machine.set_state_with! do |transition|
             @record ||= scope ? send(scope) : self
 
             @record.transaction do
@@ -66,7 +66,7 @@ module NxtStateMachine
             raise
           end
 
-          state_machine
+          machine
         end
       end
     end

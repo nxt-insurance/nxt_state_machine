@@ -16,7 +16,7 @@ RSpec.describe NxtStateMachine do
 
             attr_accessor :state
 
-            define_state_machine do
+            state_machine do
               get_state_with { self.state ||= :draft }
               set_state_with do |transition, context|
                 transition.apply_block
@@ -47,7 +47,7 @@ RSpec.describe NxtStateMachine do
 
       context 'but there were no transitions defined for the event' do
         subject do
-          workflow.define_state_machine do
+          workflow.state_machine do
             state :draft
             state :approved
 
@@ -71,7 +71,7 @@ RSpec.describe NxtStateMachine do
         Class.new do
           include NxtStateMachine
 
-          define_state_machine do
+          state_machine do
             state :draft
             state :finalized
             state :approved
@@ -102,7 +102,7 @@ RSpec.describe NxtStateMachine do
         Class.new do
           include NxtStateMachine
 
-          define_state_machine do
+          state_machine do
             state :draft, pre_published: true
             state :approved, pre_published: true
             state :published, pre_published: false
@@ -122,7 +122,7 @@ RSpec.describe NxtStateMachine do
         Class.new do
           include NxtStateMachine
 
-          define_state_machine do
+          state_machine do
             state :draft
             state :draft
             state :approved
@@ -145,7 +145,7 @@ RSpec.describe NxtStateMachine do
         Class.new do
           include NxtStateMachine
 
-          define_state_machine do
+          state_machine do
             state :draft
             state :finalized
             state :approved
@@ -175,7 +175,7 @@ RSpec.describe NxtStateMachine do
       Class.new do
         include NxtStateMachine
 
-        define_state_machine do
+        state_machine do
           state :draft, :finalized, :approved
 
           event :approve do
@@ -230,7 +230,7 @@ RSpec.describe NxtStateMachine do
 
         attr_accessor :state, :approved_at
 
-        define_state_machine do
+        state_machine do
           get_state_with { self.state ||= :draft }
 
           set_state_with do |transition, context|
@@ -238,7 +238,7 @@ RSpec.describe NxtStateMachine do
             self.state = transition.to
           end
 
-          state :draft
+          state :draft, initial: true
           state :approved
 
           event :approve do
