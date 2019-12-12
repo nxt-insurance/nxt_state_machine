@@ -65,7 +65,6 @@ module NxtStateMachine
       @transitions ||= events.values.flat_map(&:event_transitions)
     end
 
-    # TODO: This is not even used so far?!
     def all_transitions_from_to(from: all_states, to: all_states)
       transitions.select { |transition| transition.transitions_from_to?(from, to) }
     end
