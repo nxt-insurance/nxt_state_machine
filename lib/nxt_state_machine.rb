@@ -25,10 +25,15 @@ require "nxt_state_machine/integrations/attr_accessor"
 
 module NxtStateMachine
   module ClassMethods
-    def state_machine(**opts, &block)
-      @state_machine ||= StateMachine.new(self, opts)
-      @state_machine.configure(&block) if block_given?
-      @state_machine
+    def state_machine(name = :default, **opts, &block)
+      @state_machines ||= Registry.new(:state_machines)
+      @state_machines[name] ||= StateMachine.new(name, self, opts)
+      @state_machines[name].configure(&block) if block_given?
+      @state_machines[name]
+    end
+
+    def state_machines
+      @state_machines
     end
 
     def new(*args, **opts, &block)
@@ -38,30 +43,34 @@ module NxtStateMachine
         super(*args, &block)
       end
 
-      instance.current_state_name if state_machine.initial_state.present?
+      # set each initial state for all machines
+      state_machines.each do |name, state_machine|
+        instance.current_state_name(name) if state_machine.initial_state.present?
+      end
+
       instance
     end
   end
 
   module InstanceMethods
-    def state_machine
-      @state_machine ||= self.class.state_machine
+    def state_machines
+      @state_machines ||= self.class.state_machines
     end
 
-    def current_state_name
-      state_machine.get_state_with.with_context(self).call
+    def state_machine(name = :default)
+      @state_machine ||= self.class.state_machines[name]
     end
 
-    def current_state
-      state_machine.states.fetch(current_state_name)
+    def current_state_name(name = :default)
+      state_machines[name].current_state_name(self)
+    end
+
+    def current_state(name = :default)
+      state_machines[name].states.fetch(current_state_name(name))
     end
 
     def halt_transition(*args, **opts)
       raise NxtStateMachine::Errors::TransitionHalted.new(*args, **opts)
-    end
-
-    def callbacks_for_transition(transition)
-      state_machine.callbacks.resolve(transition)
     end
 
     delegate :initial_state, :states, to: :state_machine

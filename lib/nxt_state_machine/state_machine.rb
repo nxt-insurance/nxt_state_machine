@@ -1,24 +1,26 @@
 module NxtStateMachine
   class StateMachine
-    def initialize(class_context, **opts)
+    def initialize(name, class_context, **opts)
+      @name = name
       @class_context = class_context
       @options = opts
 
       @states = Registry.new(
         :states,
-        on_key_occupied: Proc.new do |name|
+        on_key_occupied: Proc.new do |key|
           raise NxtStateMachine::Errors::StateAlreadyRegistered,
-                "An state with the name '#{name}' was already registered!"
+                "An state with the name '#{key}' was already registered!"
         end
       )
 
       @transitions = TransitionsStore.new
 
+      # TODO: Event registry should be global in order to have globally unique events
       @events = Registry.new(
         :events,
-        on_key_occupied: Proc.new do |name|
+        on_key_occupied: Proc.new do |key|
           raise NxtStateMachine::Errors::EventAlreadyRegistered,
-                "An event with the name '#{name}' was already registered!"
+                "An event with the name '#{key}' was already registered!"
         end
       )
 
@@ -27,7 +29,7 @@ module NxtStateMachine
       @initial_state = nil
     end
 
-    attr_reader :class_context, :states, :transitions, :events, :options, :callbacks
+    attr_reader :class_context, :states, :transitions, :events, :options, :callbacks, :name
     attr_accessor :initial_state
 
     def get_state_with(method = nil, &block)
@@ -84,19 +86,19 @@ module NxtStateMachine
       events[name] = event
 
       class_context.define_method name do |*args, **opts|
-        state_machine.can_transition!(name, current_state_name)
-        transition = event.event_transitions.fetch(current_state_name)
+        state_machine.can_transition!(name, state_machine.current_state_name(self))
+        transition = event.event_transitions.fetch(state_machine.current_state_name(self))
         transition.execute_with(name, self, :set_state_with, *args, **opts)
       end
 
       class_context.define_method "#{name}!" do |*args, **opts|
-        state_machine.can_transition!(name, current_state_name)
-        transition = event.event_transitions.fetch(current_state_name)
+        state_machine.can_transition!(name, state_machine.current_state_name(self))
+        transition = event.event_transitions.fetch(state_machine.current_state_name(self))
         transition.execute_with("#{name}!", self, :set_state_with!, *args, **opts)
       end
 
       class_context.define_method "can_#{name}?" do
-        state_machine.can_transition?(name, current_state_name)
+        state_machine.can_transition?(name, state_machine.current_state_name(self))
       end
     end
 
@@ -140,6 +142,10 @@ module NxtStateMachine
       current_callbacks.each do |callback|
         Callable.new(callback).with_context(context).call
       end
+    end
+
+    def current_state_name(context)
+      get_state_with.with_context(context).call
     end
 
     private
