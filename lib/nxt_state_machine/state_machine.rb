@@ -1,6 +1,6 @@
 module NxtStateMachine
   class StateMachine
-    def initialize(name, class_context, **opts)
+    def initialize(name, class_context, event_registry, **opts)
       @name = name
       @class_context = class_context
       @options = opts
@@ -15,14 +15,7 @@ module NxtStateMachine
 
       @transitions = TransitionsStore.new
 
-      # TODO: Event registry should be global in order to have globally unique events
-      @events = Registry.new(
-        :events,
-        on_key_occupied: Proc.new do |key|
-          raise NxtStateMachine::Errors::EventAlreadyRegistered,
-                "An event with the name '#{key}' was already registered!"
-        end
-      )
+      @events = event_registry
 
       @callbacks = CallbackRegistry.new
 

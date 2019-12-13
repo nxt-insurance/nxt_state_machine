@@ -14,6 +14,7 @@ require "nxt_state_machine/errors/transition_halted"
 require "nxt_state_machine/registry"
 require "nxt_state_machine/callable"
 require "nxt_state_machine/callback_registry"
+require "nxt_state_machine/event_registry"
 require "nxt_state_machine/transitions_store"
 require "nxt_state_machine/state"
 require "nxt_state_machine/event"
@@ -27,7 +28,7 @@ module NxtStateMachine
   module ClassMethods
     def state_machine(name = :default, **opts, &block)
       @state_machines ||= Registry.new(:state_machines)
-      @state_machines[name] ||= StateMachine.new(name, self, opts)
+      @state_machines[name] ||= StateMachine.new(name, self, event_registry, opts)
       @state_machines[name].configure(&block) if block_given?
       @state_machines[name]
     end
@@ -49,6 +50,12 @@ module NxtStateMachine
       end
 
       instance
+    end
+
+    private
+
+    def event_registry
+      @event_registry ||= EventRegistry.new
     end
   end
 
