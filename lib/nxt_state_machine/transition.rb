@@ -46,8 +46,6 @@ module NxtStateMachine
 
     def run_before_callbacks
       state_machine.run_before_callbacks(self, context)
-      # TODO: Is this the best place to execute this?
-      state_machine.can_transition!(event.gsub('!', ''), state_machine.current_state_name(context))
     end
 
     def run_after_callbacks
