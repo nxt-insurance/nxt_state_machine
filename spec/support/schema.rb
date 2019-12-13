@@ -21,4 +21,18 @@ ActiveRecord::Schema.define do
 
     t.timestamps
   end
+
+  create_table :workflows, :force => true do |t|
+    t.string :status
+    t.string :comment, default: ''
+
+    t.timestamps
+  end
+
+  create_table :error_workflows, :force => true do |t|
+    t.string :status
+    t.string :comment, default: ''
+
+    t.timestamps
+  end
 end

@@ -28,9 +28,7 @@ module NxtStateMachine
   module ClassMethods
     def state_machine(name = :default, **opts, &block)
       @state_machines ||= Registry.new(:state_machines)
-      @state_machines[name] ||= StateMachine.new(name, self, event_registry, opts)
-      @state_machines[name].configure(&block) if block_given?
-      @state_machines[name]
+      @state_machines[name] ||= StateMachine.new(name, self, event_registry, opts).configure(&block)
     end
 
     def state_machines

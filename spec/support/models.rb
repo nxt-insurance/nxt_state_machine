@@ -18,6 +18,14 @@ class Application < ActiveRecord::Base
   validates :accepted_at, presence: true, if: -> { status == 'accepted' }
 end
 
+class Workflow < ActiveRecord::Base
+  validates :status, presence: true
+end
+
+class ErrorWorkflow < ActiveRecord::Base
+  validates :status, presence: true
+end
+
 class ApplicationWithStateMachine < Application
   include NxtStateMachine::ActiveRecord
 end
