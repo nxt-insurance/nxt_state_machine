@@ -43,8 +43,8 @@ module NxtStateMachine
       end
 
       # set each initial state for all machines
-      state_machines.each do |name, state_machine|
-        instance.current_state_name(name) if state_machine.initial_state.present?
+      state_machines.each do |name, machine|
+        instance.current_state_name(name) if machine.initial_state.present?
       end
 
       instance

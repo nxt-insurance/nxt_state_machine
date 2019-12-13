@@ -4,8 +4,8 @@ RSpec.describe NxtStateMachine do
       include NxtStateMachine::ActiveRecord
 
       def initialize
-        @workflow = Workflow.new(status: :draft)
-        @error_workflow = ErrorWorkflow.new(status: :un_started)
+        @workflow = Workflow.new
+        @error_workflow = ErrorWorkflow.new
       end
 
       attr_accessor :workflow, :error_workflow
@@ -63,6 +63,11 @@ RSpec.describe NxtStateMachine do
 
   subject do
     state_machine_class.new
+  end
+
+  it 'sets the initial states' do
+    expect(subject.workflow.status).to eq('draft')
+    expect(subject.error_workflow.status).to eq('un_started')
   end
 
   it do

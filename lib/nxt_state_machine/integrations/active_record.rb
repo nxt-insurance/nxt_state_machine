@@ -11,7 +11,7 @@ module NxtStateMachine
 
             if records[name]
               if records[name].send(state).nil? && records[name].new_record?
-                records[name].assign_attributes(state => initial_state.name)
+                records[name].assign_attributes(state => machine.initial_state.name)
               end
 
               records[name].send(state)
@@ -81,9 +81,9 @@ module NxtStateMachine
     end
 
     def self.included(base)
+      base.include(InstanceMethods)
       base.include(NxtStateMachine)
       base.extend(ClassMethods)
-      base.include(InstanceMethods)
     end
   end
 end
