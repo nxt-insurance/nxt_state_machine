@@ -79,13 +79,15 @@ module NxtStateMachine
       events[name] = event
 
       class_context.define_method name do |*args, **opts|
-        event.state_machine.can_transition!(name, event.state_machine.current_state_name(self))
+        # TODO: Can we move this before the transition? - maybe in last callback
+        # event.state_machine.can_transition!(name, event.state_machine.current_state_name(self))
         transition = event.event_transitions.fetch(event.state_machine.current_state_name(self))
         transition.execute_with(name, self, :set_state_with, *args, **opts)
       end
 
       class_context.define_method "#{name}!" do |*args, **opts|
-        event.state_machine.can_transition!(name, event.state_machine.current_state_name(self))
+        # TODO: Can we move this before the transition? - maybe in last callback
+        # event.state_machine.can_transition!(name, event.state_machine.current_state_name(self))
         transition = event.event_transitions.fetch(event.state_machine.current_state_name(self))
         transition.execute_with("#{name}!", self, :set_state_with!, *args, **opts)
       end

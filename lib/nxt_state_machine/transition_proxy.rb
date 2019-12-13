@@ -1,6 +1,7 @@
 module NxtStateMachine
   class TransitionProxy
-    def initialize(state_machine, transition, context)
+    def initialize(event, state_machine, transition, context)
+      @event = event
       @transition = transition
       @state_machine = state_machine
       @context = context
@@ -34,7 +35,7 @@ module NxtStateMachine
       @around_callbacks ||= state_machine.callbacks.resolve(transition)[:around]
     end
 
-    attr_reader :proxy, :transition, :state_machine, :context
+    attr_reader :proxy, :transition, :state_machine, :context, :event
   end
 end
 

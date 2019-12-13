@@ -22,14 +22,14 @@ module NxtStateMachine
     # What if we would return a new object here: executable_transition - or transitions would be transition templates or so
     def execute_with(event, context, set_state_with_method, *args, **opts)
       # This exposes the transition block on the transition itself so it can be executed through transition.apply_block later in :set_state_with
+      self.context = context
+      self.event = event
+
       self.block_proxy = Proc.new do
         if block
           context.instance_exec(*args, **opts, &block)
         end
       end
-
-      self.context = context
-      self.event = event
 
       state_machine.send(set_state_with_method).with_context(context).call(self)
     end
@@ -39,13 +39,15 @@ module NxtStateMachine
     end
 
     def execute(&block)
-      TransitionProxy.new(state_machine,self, context).call(&block)
+      TransitionProxy.new(event, state_machine,self, context).call(&block)
     end
 
     alias_method :with_around_callbacks, :execute
 
     def run_before_callbacks
       state_machine.run_before_callbacks(self, context)
+      # TODO: Is this the best place to execute this?
+      state_machine.can_transition!(event.gsub('!', ''), state_machine.current_state_name(context))
     end
 
     def run_after_callbacks

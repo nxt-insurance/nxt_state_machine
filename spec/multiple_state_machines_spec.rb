@@ -4,8 +4,8 @@ RSpec.describe NxtStateMachine do
       include NxtStateMachine::ActiveRecord
 
       def initialize
-        @workflow = Workflow.create!(status: :draft)
-        @error_workflow = nil # ErrorWorkflow.create!(status: :un_started)
+        @workflow = Workflow.new(status: :draft)
+        @error_workflow = ErrorWorkflow.new(status: :un_started)
       end
 
       attr_accessor :workflow, :error_workflow
@@ -33,9 +33,7 @@ RSpec.describe NxtStateMachine do
         end
 
         event :reset do
-          transitions from: :errored, to: :draft do |comment:|
-            resolve_error(comment: comment)
-          end
+          transitions from: :errored, to: :draft
         end
       end
 
@@ -45,8 +43,6 @@ RSpec.describe NxtStateMachine do
 
         event :start_error_workflow do
           transitions from: :un_started, to: :started do |comment:|
-            self.error_workflow = ErrorWorkflow.new
-
             comments = error_workflow.comment.split(' - ')
             comments << comment
             error_workflow.comment = comments.join(' - ')
@@ -58,6 +54,7 @@ RSpec.describe NxtStateMachine do
             comments = error_workflow.comment.split(' - ')
             comments << comment
             error_workflow.comment = comments.join(' - ')
+            reset!
           end
         end
       end
@@ -71,10 +68,11 @@ RSpec.describe NxtStateMachine do
   it do
     subject.process!(comment: 'processing')
     expect(subject.workflow.status).to eq('processing')
-
-    binding.pry
-
     subject.error!(comment: 'error!')
     expect(subject.workflow.status).to eq('errored')
+    expect(subject.error_workflow.status).to eq('started')
+    subject.resolve_error!(comment: 'error resolved!')
+    expect(subject.error_workflow.status).to eq('resolved')
+    expect(subject.workflow.status).to eq('draft')
   end
 end
