@@ -81,7 +81,7 @@ RSpec.describe NxtStateMachine do
         context 'when there is no error' do
           it 'sets the state' do
             expect(subject.process).to be_truthy
-            expect(subject.state).to eq(:processed)
+            expect(subject.state).to eq('processed')
           end
         end
       end
@@ -113,7 +113,7 @@ RSpec.describe NxtStateMachine do
       context 'when there is no error' do
         it 'sets the state' do
           expect(subject.process!).to be_truthy
-          expect(subject.state).to eq(:processed)
+          expect(subject.state).to eq('processed')
         end
       end
 

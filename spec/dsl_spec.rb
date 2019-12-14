@@ -231,7 +231,7 @@ RSpec.describe NxtStateMachine do
         attr_accessor :state, :approved_at
 
         state_machine do
-          get_state_with { self.state ||= :draft }
+          get_state_with { self.state ||= 'draft' }
 
           set_state_with do |transition, context|
             transition.apply_block
@@ -257,7 +257,7 @@ RSpec.describe NxtStateMachine do
 
       expect {
         subject.approve(approved_at: now)
-      }.to change { subject.state }.from(:draft).to(:approved)
+      }.to change { subject.state }.from('draft').to('approved')
 
       expect(subject.approved_at).to eq(now)
     end

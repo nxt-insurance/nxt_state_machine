@@ -37,17 +37,17 @@ RSpec.describe NxtStateMachine::AttrAccessor do
         end
 
         it 'sets the initial state' do
-          expect(subject.status).to eq(:received)
+          expect(subject.status).to eq('received')
         end
       end
 
       context 'when the state was already set' do
         subject do
-          state_machine_class.new(status: :processed)
+          state_machine_class.new(status: 'processed')
         end
 
         it 'does not change the state' do
-          expect(subject.status).to eq(:processed)
+          expect(subject.status).to eq('processed')
         end
       end
 
@@ -85,20 +85,20 @@ RSpec.describe NxtStateMachine::AttrAccessor do
         end
 
         it 'executes the transition' do
-          expect { subject.process(processed_at: 'now') }.to change { subject.status }.from(:received).to(:processed)
+          expect { subject.process(processed_at: 'now') }.to change { subject.status }.from('received').to('processed')
           expect(subject.processed_at).to eq('now')
         end
       end
 
       context 'when there is an error' do
         subject do
-          state_machine_class.new(status: :processed)
+          state_machine_class.new(status: 'processed')
         end
 
         it 'does not set the state' do
           expect { subject.accept(accepted_at: 'now') }.to raise_error(ZeroDivisionError)
           expect(subject.accepted_at).to eq('now')
-          expect(subject.status).to eq(:processed)
+          expect(subject.status).to eq('processed')
         end
       end
     end
@@ -110,20 +110,20 @@ RSpec.describe NxtStateMachine::AttrAccessor do
         end
 
         it 'executes the transition' do
-          expect { subject.process!(processed_at: 'now') }.to change { subject.status }.from(:received).to(:processed)
+          expect { subject.process!(processed_at: 'now') }.to change { subject.status }.from('received').to('processed')
           expect(subject.processed_at).to eq('now')
         end
       end
 
       context 'when there is an error' do
         subject do
-          state_machine_class.new(status: :processed)
+          state_machine_class.new(status: 'processed')
         end
 
         it 'does not set the state' do
           expect { subject.accept!(accepted_at: 'now') }.to raise_error(ZeroDivisionError)
           expect(subject.accepted_at).to eq('now')
-          expect(subject.status).to eq(:processed)
+          expect(subject.status).to eq('processed')
         end
       end
     end

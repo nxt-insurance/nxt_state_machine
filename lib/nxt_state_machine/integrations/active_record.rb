@@ -4,30 +4,35 @@ module NxtStateMachine
       def state_machine(name = :default, state: :state, scope: nil, &config)
         @state_machines ||= Registry.new(:state_machines)
         @state_machines[name] ||= begin
-          machine = StateMachine.new(name, self, event_registry, { state: state, scope: scope }).configure(&config)
+          machine = StateMachine.new(
+            name,
+            self,
+            event_registry,
+            state: state, scope: scope
+          ).configure(&config)
 
           machine.get_state_with do
-            records[name] ||= scope ? send(scope) : self
+            state_machine_targets[name] ||= scope ? send(scope) : self
 
-            if records[name]
-              if records[name].send(state).nil? && records[name].new_record?
-                records[name].assign_attributes(state => machine.initial_state.name)
+            if state_machine_targets[name]
+              if state_machine_targets[name].send(state).nil? && state_machine_targets[name].new_record?
+                state_machine_targets[name].assign_attributes(state => machine.initial_state.to_s)
               end
 
-              records[name].send(state)
+              state_machine_targets[name].send(state)
             end
           end
 
           machine.set_state_with do |transition|
-            records[name] ||= scope ? send(scope) : self
+            state_machine_targets[name] ||= scope ? send(scope) : self
 
-            records[name].transaction do
+            state_machine_targets[name].transaction do
               transition.run_before_callbacks
 
               result = transition.execute do |block|
                 block.call
-                records[name].assign_attributes(state => transition.to)
-                records[name].save
+                state_machine_targets[name].assign_attributes(state => transition.to)
+                state_machine_targets[name].save
               end
 
               if result
@@ -39,7 +44,7 @@ module NxtStateMachine
               end
             end
           rescue StandardError => error
-            records[name].assign_attributes(state => transition.from)
+            state_machine_targets[name].assign_attributes(state => transition.from)
 
             if error.is_a?(NxtStateMachine::Errors::TransitionHalted)
               false
@@ -49,15 +54,15 @@ module NxtStateMachine
           end
 
           machine.set_state_with! do |transition|
-            records[name] ||= scope ? send(scope) : self
+            state_machine_targets[name] ||= scope ? send(scope) : self
 
-            records[name].transaction do
+            state_machine_targets[name].transaction do
               transition.run_before_callbacks
 
               result = transition.execute do |block|
                 block.call
-                records[name].assign_attributes(state => transition.to)
-                records[name].save!
+                state_machine_targets[name].assign_attributes(state => transition.to)
+                state_machine_targets[name].save!
               end
 
               transition.run_after_callbacks
@@ -65,7 +70,7 @@ module NxtStateMachine
               result
             end
           rescue StandardError
-            records[name].assign_attributes(state => transition.from)
+            state_machine_targets[name].assign_attributes(state => transition.from)
             raise
           end
 
@@ -75,8 +80,10 @@ module NxtStateMachine
     end
 
     module InstanceMethods
-      def records
-        @records ||= {}
+      private
+
+      def state_machine_targets
+        @state_machine_targets ||= {}
       end
     end
 
