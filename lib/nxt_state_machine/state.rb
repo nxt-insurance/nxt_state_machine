@@ -1,7 +1,7 @@
 module NxtStateMachine
   class State
     def initialize(name, **opts)
-      @name = name.to_s
+      @name = name
       @initial = opts.delete(:initial)
       @transitions = []
       @options = opts.with_indifferent_access

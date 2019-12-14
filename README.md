@@ -1,7 +1,7 @@
 # NxtStateMachine
 
 ## TODO
-- Should all states always be symbols or strings?
+- Add Transition.possible?! to transition
 - Get rid of default callback order and make all methods available on transition
 - Test that events with the same name can coexist but are unique!
 - Test :around_transition callback chain for all integrations

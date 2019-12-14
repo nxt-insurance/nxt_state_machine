@@ -2,8 +2,8 @@ module NxtStateMachine
   class Transition
     def initialize(name, from:, to:, state_machine:, &block)
       @name = name
-      @from = StateEnum.new(state_machine, from)
-      @to = StateEnum.new(state_machine, to)
+      @from = from
+      @to = to
       @state_machine = state_machine
       @block = block
       @context = nil
@@ -53,19 +53,11 @@ module NxtStateMachine
     end
 
     def transitions_from_to?(from_state, to_state)
-      from.in?(Array(from_state).map(&:to_s)) && to.in?(Array(to_state).map(&:to_s))
+      from.in?(Array(from_state)) && to.in?(Array(to_state))
     end
 
     def id
       @id ||= "#{from}_#{to}"
-    end
-
-    def from_state
-      @from_state ||= state_machine.states.fetch(from)
-    end
-
-    def to_state
-      @to_state ||= state_machine.states.fetch(to)
     end
 
     attr_reader :block_proxy, :event
