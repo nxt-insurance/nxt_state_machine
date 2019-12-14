@@ -79,16 +79,7 @@ module NxtStateMachine
       end
     end
 
-    module InstanceMethods
-      private
-
-      def state_machine_targets
-        @state_machine_targets ||= {}
-      end
-    end
-
     def self.included(base)
-      base.include(InstanceMethods)
       base.include(NxtStateMachine)
       base.extend(ClassMethods)
     end
