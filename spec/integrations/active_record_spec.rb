@@ -13,13 +13,13 @@ RSpec.describe NxtStateMachine::ActiveRecord do
           state :processed, :accepted, :rejected
 
           event :process do
-            transitions from: :received, to: :processed do |processed_at|
+            transitions from: :received, to: :processed do |t, processed_at|
               self.processed_at = processed_at
             end
           end
 
           event :accept do
-            transitions from: :processed, to: :accepted do |accepted_at|
+            transitions from: :processed, to: :accepted do |t, accepted_at|
               self.accepted_at = accepted_at
             end
           end
@@ -199,7 +199,7 @@ RSpec.describe NxtStateMachine::ActiveRecord do
                 state :processed, :accepted, :rejected
 
                 event :process do
-                  transition from: :received, to: :processed do |processed_at|
+                  transition from: :received, to: :processed do |t, processed_at|
                     self.processed_at = processed_at
                   end
 
@@ -245,13 +245,13 @@ RSpec.describe NxtStateMachine::ActiveRecord do
           state :processed, :accepted, :rejected
 
           event :process do
-            transition from: :received, to: :processed do |processed_at|
+            transition from: :received, to: :processed do |t, processed_at|
               application.processed_at = processed_at
             end
           end
 
           event :accept do
-            transition from: :processed, to: :accepted do |accepted_at|
+            transition from: :processed, to: :accepted do |t, accepted_at|
               application.accepted_at = accepted_at
             end
           end
@@ -449,7 +449,7 @@ RSpec.describe NxtStateMachine::ActiveRecord do
                 state :processed, :accepted, :rejected
 
                 event :process do
-                  transitions from: :received, to: :processed do |processed_at|
+                  transitions from: :received, to: :processed do |_, processed_at|
                     application.processed_at = processed_at
                   end
 
@@ -459,7 +459,7 @@ RSpec.describe NxtStateMachine::ActiveRecord do
                 end
 
                 event :accept do
-                  transitions from: :processed, to: :accepted do |accepted_at|
+                  transitions from: :processed, to: :accepted do |_, accepted_at|
                     application.accepted_at = accepted_at
                   end
                 end
@@ -504,7 +504,7 @@ RSpec.describe NxtStateMachine::ActiveRecord do
                   self.application.processed_at = Time.current
                 end
 
-                around_transition from: any_state, to: :processed do |block|
+                around_transition from: any_state, to: :processed do |block, transition|
                   append_result('first before')
                   block.call
                   append_result('first after')

@@ -28,7 +28,7 @@ class ArticleWorkflow
     event :approve do
       # before_transition from: %i[written submitted deleted], run: :call_me_back
 
-      transition from: %i[written submitted deleted], to: :approved do |headline:|
+      transition from: %i[written submitted deleted], to: :approved do |_, headline:|
         article.headline = headline
       end
     end

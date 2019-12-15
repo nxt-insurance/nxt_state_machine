@@ -29,7 +29,7 @@ module NxtStateMachine
 
     def around_callback_chain(proxy)
       around_callbacks.map { |c| Callable.new(c).with_context(context) }.reverse.inject(proxy) do |previous, callback|
-        -> { callback.call(previous) }
+        -> { callback.call(previous, transition) }
       end
     end
 

@@ -29,7 +29,7 @@ class ArticleWorkflow
 
   attr_accessor :article
 
-  active_record_state_machine(scope: :article, state: :status) do
+  state_machine(scope: :article, state: :status) do
     state :draft, initial: true
     state :written
     state :submitted
