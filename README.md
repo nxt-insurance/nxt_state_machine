@@ -1,6 +1,7 @@
 # NxtStateMachine
 
 ## TODO
+- Can we use Sets as Registry instead of hash?
 - Should all states always be symbols or strings?
 - Get rid of default callback order and make all methods available on transition
 - Test that events with the same name can coexist but are unique!
