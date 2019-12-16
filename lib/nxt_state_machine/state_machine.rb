@@ -9,7 +9,7 @@ module NxtStateMachine
         :states,
         on_key_occupied: Proc.new do |key|
           raise NxtStateMachine::Errors::StateAlreadyRegistered,
-                "An state with the name '#{key}' was already registered!"
+                "A state with the name '#{key}' was already registered!"
         end
       )
 
