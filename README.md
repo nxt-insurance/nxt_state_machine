@@ -1,21 +1,15 @@
 # NxtStateMachine
 
 ## TODO
-- Can we use Sets as Registry instead of hash?
-- Should all states always be symbols or strings?
-- Get rid of default callback order and make all methods available on transition
+- Implement :on_error callbacks  
 - Test that events with the same name can coexist but are unique!
 - Test :around_transition callback chain for all integrations
 - What about inheritance? => What would be the expected behaviour? (dup vs. no dup)
     => Might also make sense to walk the ancestors chain and collect configure blocks
     => This might be super flexible as we could apply these in amend / reset mode
     => Probably would be best to have :amend_configuration and :reset_configuration methods on the state_machine 
-- Check if having multiple state machines in the same class is a big issue
 - Reevaluate the return value of the transition? What would you expect?
 - Add method to walk a path ? => Could this be done with the pipeline?!
-- What about :on_error callbacks? => Do we need to implement this?  
-- Halt transition probably also make sense for non active record default adapter
-- Default implementation should also return proper values and reset the state in case of errors
 - Write implementations for Hash, AttrAccessor
 
 ```ruby

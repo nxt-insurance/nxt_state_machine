@@ -62,15 +62,6 @@ module NxtStateMachine
       @id ||= "#{from}_#{to}"
     end
 
-    # TODO: Would probably make sense to turn this around transition.from.state
-    def from_state
-      @from_state ||= state_machine.states.fetch(from)
-    end
-
-    def to_state
-      @to_state ||= state_machine.states.fetch(to)
-    end
-
     attr_reader :block_proxy, :event
 
     private
