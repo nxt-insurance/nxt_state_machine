@@ -17,7 +17,7 @@ module NxtStateMachine
              :around_transition,
              :any_state,
              :all_states,
-             :all_states_without,
+             :all_states_except,
              to: :state_machine
 
     def transitions(from:, to:, &block)

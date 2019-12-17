@@ -41,6 +41,7 @@ module NxtStateMachine
     end
 
     def state(*names, **opts)
+      # TODO: Add is_in_state? methods
       defaults = { initial: false }
       opts.reverse_merge!(defaults)
 
@@ -70,7 +71,7 @@ module NxtStateMachine
 
     alias_method :all_states, :any_state
 
-    def all_states_without(*excluded)
+    def all_states_except(*excluded)
       all_states - excluded
     end
 
