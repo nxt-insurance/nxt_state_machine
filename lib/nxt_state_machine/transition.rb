@@ -6,8 +6,6 @@ module NxtStateMachine
       @to = StateEnum.new(state_machine, to)
       @state_machine = state_machine
       @block = block
-      @context = nil
-      @event = nil
 
       # TODO: Write a spec that verifies that transitions are unique
       ensure_states_exist
@@ -41,6 +39,7 @@ module NxtStateMachine
     end
 
     def execute(&block)
+      # TODO error callback would apply here
       TransitionProxy.new(event, state_machine,self, context).call(&block)
     end
 

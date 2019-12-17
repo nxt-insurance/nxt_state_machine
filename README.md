@@ -56,6 +56,9 @@ class ArticleWorkflow
         block.call  
         puts 'around transition exit'
       end
+
+      on_error CustomError from: any_state, to: :approved do |error, transition|
+      end
     end
 
     event :publish do
@@ -74,6 +77,10 @@ class ArticleWorkflow
       transition from: any_state, to: :deleted do
         article.deleted_at = Time.current
       end
+    end
+    
+    on_error! CustomError from: any_state, to: :approved do |error, transition|
+      # TODO Bang method would be nice if on_error overlaps with others!
     end
   end
 end

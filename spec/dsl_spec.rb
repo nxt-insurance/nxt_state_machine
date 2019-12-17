@@ -134,7 +134,7 @@ RSpec.describe NxtStateMachine do
         expect {
           subject
         }.to raise_error NxtStateMachine::Errors::StateAlreadyRegistered,
-                         "An state with the name 'draft' was already registered!"
+                         "A state with the name 'draft' was already registered!"
       end
     end
   end
