@@ -10,6 +10,7 @@ RSpec.describe NxtStateMachine do
   describe '.new' do
     it 'sets the initial state' do
       expect(subject.article.status).to eq('draft')
+      expect(subject).to be_draft
     end
   end
 

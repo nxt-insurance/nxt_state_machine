@@ -35,6 +35,7 @@ RSpec.describe NxtStateMachine::ActiveRecord do
 
         it 'sets the initial state' do
           expect(subject.status).to eq('received')
+          expect(subject).to be_received
         end
       end
 
@@ -58,6 +59,7 @@ RSpec.describe NxtStateMachine::ActiveRecord do
 
           it do
             expect { subject.process(Time.current) }.to change { subject.status }.from('received').to('processed')
+            expect(subject).to be_processed
           end
         end
 
@@ -70,6 +72,7 @@ RSpec.describe NxtStateMachine::ActiveRecord do
             expect { subject.process(Time.current) }.to_not change { subject.status }
             expect { subject.process!(Time.current) }.to raise_error(ActiveRecord::RecordInvalid)
             expect(subject.status).to eq('received')
+            expect(subject).to be_received
             expect(subject.new_record?).to be_truthy
           end
         end
@@ -83,9 +86,12 @@ RSpec.describe NxtStateMachine::ActiveRecord do
 
           it do
             expect(subject.status).to eq('received')
+            expect(subject).to be_received
             expect { subject.process(Time.current) }.to change { subject.reload.status }.from('received').to('processed')
+            expect(subject).to be_processed
             expect(subject.new_record?).to be_falsey
             expect { subject.accept!(Time.current) }.to change { subject.reload.status }.from('processed').to('accepted')
+            expect(subject).to be_accepted
           end
         end
 
@@ -99,6 +105,7 @@ RSpec.describe NxtStateMachine::ActiveRecord do
             expect { subject.process(Time.current) }.to_not change { subject.status }
             expect { subject.process!(Time.current) }.to raise_error(ActiveRecord::RecordInvalid)
             expect(subject.reload.status).to eq('received')
+            expect(subject).to be_received
           end
         end
       end
@@ -139,10 +146,12 @@ RSpec.describe NxtStateMachine::ActiveRecord do
           it 'does not change the state' do
             expect { subject.process(Time.current) }.to raise_error ZeroDivisionError
             expect(subject.status).to eq('received')
+            expect(subject).to be_received
             expect(subject.new_record?).to be_truthy
 
             expect { subject.process!(Time.current) }.to raise_error ZeroDivisionError
             expect(subject.status).to eq('received')
+            expect(subject).to be_received
             expect(subject.new_record?).to be_truthy
           end
         end
@@ -178,10 +187,12 @@ RSpec.describe NxtStateMachine::ActiveRecord do
             expect { subject.process(Time.current) }.to raise_error ZeroDivisionError
             expect(subject.new_record?).to be_truthy
             expect(subject.status).to eq('received')
+            expect(subject).to be_received
 
             expect { subject.process!(Time.current) }.to raise_error ZeroDivisionError
             expect(subject.new_record?).to be_truthy
             expect(subject.status).to eq('received')
+            expect(subject).to be_received
           end
         end
 
@@ -219,10 +230,12 @@ RSpec.describe NxtStateMachine::ActiveRecord do
             expect { subject.process(Time.current) }.to raise_error ZeroDivisionError
             expect(subject.new_record?).to be_truthy
             expect(subject.status).to eq('received')
+            expect(subject).to be_received
 
             expect { subject.process!(Time.current) }.to raise_error ZeroDivisionError
             expect(subject.new_record?).to be_truthy
             expect(subject.status).to eq('received')
+            expect(subject).to be_received
           end
         end
       end
@@ -304,6 +317,7 @@ RSpec.describe NxtStateMachine::ActiveRecord do
             expect { subject.process!(Time.current) }.to raise_error ActiveRecord::RecordInvalid
             expect(subject.application).to be_new_record
             expect(subject.application.status).to eq('received')
+            expect(subject).to be_received
           end
         end
       end
@@ -317,6 +331,7 @@ RSpec.describe NxtStateMachine::ActiveRecord do
             expect(subject.application).to be_persisted
             expect { subject.accept!(Time.current) }.to change { subject.application.status }.from('processed').to('accepted')
             expect(subject.application.reload.status).to eq('accepted')
+            expect(subject).to be_accepted
           end
         end
 
@@ -329,6 +344,7 @@ RSpec.describe NxtStateMachine::ActiveRecord do
             expect { subject.process(Time.current) }.to_not change { subject.application.status }
             expect { subject.process!(Time.current) }.to raise_error ActiveRecord::RecordInvalid
             expect(subject.application.reload.status).to eq('received')
+            expect(subject).to be_received
           end
         end
       end
@@ -380,10 +396,12 @@ RSpec.describe NxtStateMachine::ActiveRecord do
             expect { subject.process(Time.current) }.to raise_error ZeroDivisionError
             expect(subject.application).to be_new_record
             expect(subject.application.status).to eq('received')
+            expect(subject).to be_received
 
             expect { subject.process!(Time.current) }.to raise_error ZeroDivisionError
             expect(subject.application).to be_new_record
             expect(subject.application.status).to eq('received')
+            expect(subject).to be_received
           end
         end
 
@@ -426,10 +444,12 @@ RSpec.describe NxtStateMachine::ActiveRecord do
             expect { subject.process(Time.current) }.to raise_error ZeroDivisionError
             expect(subject.application).to be_new_record
             expect(subject.application.status).to eq('received')
+            expect(subject).to be_received
 
             expect { subject.process!(Time.current) }.to raise_error ZeroDivisionError
             expect(subject.application).to be_new_record
             expect(subject.application.status).to eq('received')
+            expect(subject).to be_received
           end
         end
 
@@ -475,10 +495,12 @@ RSpec.describe NxtStateMachine::ActiveRecord do
             expect { subject.process(Time.current) }.to raise_error ZeroDivisionError
             expect(subject.application).to be_new_record
             expect(subject.application.status).to eq('received')
+            expect(subject).to be_received
 
             expect { subject.process!(Time.current) }.to raise_error ZeroDivisionError
             expect(subject.application).to be_new_record
             expect(subject.application.status).to eq('received')
+            expect(subject).to be_received
           end
         end
       end

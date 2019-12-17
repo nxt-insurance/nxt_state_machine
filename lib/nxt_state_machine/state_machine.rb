@@ -52,6 +52,12 @@ module NxtStateMachine
           state = State.new(name, opts)
           states[name] = state
           self.initial_state = state if opts.fetch(:initial)
+
+          class_context.define_method "#{name}?" do
+            # States internally are always strings
+            state_machine.current_state_name(self) == name.to_s
+          end
+
           state
         end
       end
