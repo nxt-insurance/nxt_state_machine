@@ -2,7 +2,17 @@
 
 ## TODO
 - Implement :on_error callbacks  
-- Test that events with the same name can coexist but are unique!
+- Namespace for multiple machines is kind of cool (Would namespace events, maybe state as well)
+- Allow blocks for states
+
+```ruby
+    state :parked do
+      def speed
+        0
+      end
+    end
+```
+
 - Test :around_transition callback chain for all integrations
 - What about inheritance? => What would be the expected behaviour? (dup vs. no dup)
     => Might also make sense to walk the ancestors chain and collect configure blocks

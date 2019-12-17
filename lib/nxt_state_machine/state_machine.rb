@@ -121,6 +121,11 @@ module NxtStateMachine
       callbacks.register(from, to, :after, run, block)
     end
 
+    def on_error(error = StandardError, from:, to:, run: nil, &block)
+      # TODO
+      # error_callback_registry.register(from, to, error, run, block)
+    end
+
     def around_transition(from:, to:, run: nil, &block)
       callbacks.register(from, to, :around, run, block)
     end
