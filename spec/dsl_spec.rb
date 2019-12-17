@@ -105,7 +105,11 @@ RSpec.describe NxtStateMachine do
           state_machine do
             state :draft, pre_published: true
             state :approved, pre_published: true
-            state :published, pre_published: false
+            state :published, pre_published: false do
+              def category
+                'crazy'
+              end
+            end
           end
         end
       end
@@ -114,6 +118,11 @@ RSpec.describe NxtStateMachine do
         expect(subject.state_machine.states.fetch(:draft).options[:pre_published]).to be_truthy
         expect(subject.state_machine.states.fetch(:approved).options['pre_published']).to be_truthy
         expect(subject.state_machine.states.fetch(:published).options[:pre_published]).to be_falsey
+      end
+
+      it 'is possible to add methods to states' do
+        state = subject.state_machine.states.fetch(:published)
+        expect(state.category).to eq('crazy')
       end
     end
 

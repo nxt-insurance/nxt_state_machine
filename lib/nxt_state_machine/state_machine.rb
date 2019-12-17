@@ -40,7 +40,7 @@ module NxtStateMachine
       @set_state_with_bang ||= method_or_block && Callable.new(method_or_block) || raise_missing_configuration_error(:set_state_with!)
     end
 
-    def state(*names, **opts)
+    def state(*names, **opts, &block)
       defaults = { initial: false }
       opts.reverse_merge!(defaults)
       machine = self
@@ -49,7 +49,7 @@ module NxtStateMachine
         if opts.fetch(:initial) && initial_state.present?
           raise NxtStateMachine::Errors::InitialStateAlreadyDefined, ":#{initial_state.name} was already defined as the initial state"
         else
-          state = State.new(name, opts)
+          state = new_state_class(&block).new(name, opts)
           states[name] = state
           self.initial_state = state if opts.fetch(:initial)
 
@@ -159,6 +159,14 @@ module NxtStateMachine
 
     def raise_missing_configuration_error(method)
       raise NxtStateMachine::Errors::MissingConfiguration, "Configuration method :#{method} was not defined"
+    end
+
+    def new_state_class(&block)
+      if block
+        Class.new(NxtStateMachine::State, &block)
+      else
+        NxtStateMachine::State
+      end
     end
   end
 end
