@@ -41,9 +41,9 @@ module NxtStateMachine
     end
 
     def state(*names, **opts)
-      # TODO: Add is_in_state? methods
       defaults = { initial: false }
       opts.reverse_merge!(defaults)
+      machine = self
 
       Array(names).map do |name|
         if opts.fetch(:initial) && initial_state.present?
@@ -55,7 +55,7 @@ module NxtStateMachine
 
           class_context.define_method "#{name}?" do
             # States internally are always strings
-            state_machine.current_state_name(self) == name.to_s
+            machine.current_state_name(self) == name.to_s
           end
 
           state
