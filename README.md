@@ -2,6 +2,7 @@
 
 ## TODO
 - Implement :on_error callbacks  
+- Change callback interface to accept a method as first argument instead of run?
 - Namespace for multiple machines is kind of cool (Would namespace events, maybe state as well)
 - Test :around_transition callback chain for all integrations
 - What about inheritance? => What would be the expected behaviour? (dup vs. no dup)
