@@ -2,6 +2,7 @@
 
 ## TODO
 - Implement :on_error callbacks  
+- Do not transform states to strings and inverse the interface to tansition.from.name?
 - Change callback interface to accept a method as first argument instead of run?
 - Namespace for multiple machines is kind of cool (Would namespace events, maybe state as well)
 - Test :around_transition callback chain for all integrations
