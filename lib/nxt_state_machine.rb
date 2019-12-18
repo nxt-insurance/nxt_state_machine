@@ -27,13 +27,17 @@ require "nxt_state_machine/integrations/attr_accessor"
 
 module NxtStateMachine
   module ClassMethods
-    def state_machine(name = :default, **opts, &block)
-      @state_machines ||= Registry.new(:state_machines)
-      @state_machines[name] ||= StateMachine.new(name, self, event_registry, opts).configure(&block)
+    def state_machine(name = :default, **opts, &config)
+      state_machines[name] ||= StateMachine.new(
+        name,
+        self,
+        event_registry,
+        **opts,
+      ).configure(&config)
     end
 
     def state_machines
-      @state_machines
+      @state_machines ||= Registry.new(:state_machines)
     end
 
     def new(*args, **opts, &block)
