@@ -1,24 +1,6 @@
 module NxtStateMachine
-  # TODO: This is also shit since it does not complain about misspelled keys
-  class CallbackRegistry < Registry
-    def initialize
-      super(
-        "callbacks",
-        on_key_missing: Proc.new do |callbacks, from|
-          callbacks[from] = Registry.new(
-            "#{name}_callbacks_#{from}",
-            on_key_missing: Proc.new do |from_registry, to|
-              from_registry[to] = Registry.new(
-                "#{name}_callbacks_#{from}_#{to}",
-                on_key_missing: Proc.new do |to_registry, callback_kind|
-                  to_registry[callback_kind] = []
-                end
-              )
-            end
-          )
-        end
-      )
-    end
+  class CallbackRegistry
+    include ::NxtRegistry
 
     def register(from, to, kind, method = nil, block = nil)
       method_or_block = method || block
@@ -26,21 +8,30 @@ module NxtStateMachine
 
       Array(from).each do |from_state|
         Array(to).each do |to_state|
-          self[from_state][to_state][kind] << method_or_block
+          callbacks.from(from_state.to_s).to(to_state.to_s).kind(kind.to_s) << method_or_block
         end
       end
     end
 
     def resolve(transition, kind = nil)
-      @resolve ||= ActiveSupport::HashWithIndifferentAccess.new
-
-      all_callbacks = @resolve[transition.id] ||= self[transition.from][transition.to]
+      all_callbacks = callbacks.from(transition.from.to_s).to(transition.to.to_s)
       return all_callbacks unless kind
 
-      allowed_kinds = %i[before after]
-      raise ArgumentError, "#{kind} must be in #{allowed_kinds}" unless kind.in?(allowed_kinds)
+      all_callbacks.kind(kind.to_s)
+    end
 
-      all_callbacks[kind]
+    private
+
+    def callbacks
+      @callbacks ||= begin
+        registry :from do
+          nested :to do
+            nested :kind, default: -> { [] } do
+              attrs :before, :after
+            end
+          end
+        end
+      end
     end
   end
 end

@@ -1,4 +1,10 @@
 PATH
+  remote: ../nxt_registry
+  specs:
+    nxt_registry (0.1.0)
+      activesupport
+
+PATH
   remote: .
   specs:
     nxt_state_machine (0.1.0)
@@ -54,6 +60,7 @@ PLATFORMS
 DEPENDENCIES
   activerecord
   bundler (~> 2.0)
+  nxt_registry!
   nxt_state_machine!
   pry
   rake (~> 10.0)

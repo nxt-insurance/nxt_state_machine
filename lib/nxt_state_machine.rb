@@ -1,4 +1,5 @@
 require 'active_support/all'
+require 'nxt_registry'
 require "nxt_state_machine/version"
 require "nxt_state_machine/errors/error"
 require "nxt_state_machine/errors/event_already_registered"
@@ -27,17 +28,22 @@ require "nxt_state_machine/integrations/attr_accessor"
 
 module NxtStateMachine
   module ClassMethods
+    include NxtRegistry
+
     def state_machine(name = :default, **opts, &config)
-      state_machines[name] ||= StateMachine.new(
+      state_machines[name] || state_machines.register(
         name,
-        self,
-        event_registry,
-        **opts,
-      ).configure(&config)
+        StateMachine.new(
+          name,
+          self,
+          event_registry,
+          **opts,
+        ).configure(&config)
+      )
     end
 
     def state_machines
-      @state_machines ||= Registry.new(:state_machines)
+      @state_machines ||= registry :state_machine
     end
 
     def new(*args, **opts, &block)

@@ -17,10 +17,8 @@ module NxtStateMachine
       end
 
       if around_callbacks.any?
-        # state_machine.can_transition!(event, state_machine.current_state_name(context))
         around_callback_chain(proxy).call
       else
-        # state_machine.can_transition!(event, state_machine.current_state_name(context))
         proxy.call
       end
     end
@@ -34,7 +32,7 @@ module NxtStateMachine
     end
 
     def around_callbacks
-      @around_callbacks ||= state_machine.callbacks.resolve(transition)[:around]
+      @around_callbacks ||= state_machine.callbacks.resolve(transition).kind('around')
     end
 
     attr_reader :proxy, :transition, :state_machine, :context, :event
