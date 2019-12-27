@@ -31,14 +31,9 @@ module NxtStateMachine
     include NxtRegistry
 
     def state_machine(name = :default, **opts, &config)
-      state_machines[name] || state_machines.register(
+      state_machines.resolve!(name) || state_machines.register(
         name,
-        StateMachine.new(
-          name,
-          self,
-          event_registry,
-          **opts,
-        ).configure(&config)
+        StateMachine.new(name,self, event_registry, **opts).configure(&config)
       )
     end
 
