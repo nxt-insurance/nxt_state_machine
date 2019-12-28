@@ -1,9 +1,11 @@
 module NxtStateMachine
   class Event
+    include NxtRegistry
+
     def initialize(name, state_machine:, &block)
       @state_machine = state_machine
       @name = name
-      @event_transitions = NxtRegistry::Registry.new("#{name} event transitions")
+      @event_transitions = registry("#{name} event transitions")
 
       configure(&block)
 

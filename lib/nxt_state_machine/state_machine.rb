@@ -5,13 +5,12 @@ module NxtStateMachine
       @class_context = class_context
       @options = opts
 
-      @states = NxtRegistry::Registry.new(
-        :states,
-        on_key_already_registered: Proc.new do |key|
+      @states = NxtRegistry::Registry.new(:states) do
+        on_key_already_registered do |key|
           raise NxtStateMachine::Errors::StateAlreadyRegistered,
                 "A state with the name '#{key}' was already registered!"
         end
-      )
+      end
 
       @transitions = TransitionsStore.new
 
