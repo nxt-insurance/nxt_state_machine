@@ -3,7 +3,7 @@ module NxtStateMachine
     def initialize(name, state_machine:, &block)
       @state_machine = state_machine
       @name = name
-      @event_transitions = Registry.new("#{name} event transitions")
+      @event_transitions = NxtRegistry::Registry.new("#{name} event transitions")
 
       configure(&block)
 
@@ -24,7 +24,7 @@ module NxtStateMachine
       Array(from).each do |from_state|
         transition = Transition.new(name, from: from_state, to: to, state_machine: state_machine, &block)
         state_machine.transitions << transition
-        event_transitions[from_state] = transition
+        event_transitions.register(from_state.to_s, transition)
       end
     end
 

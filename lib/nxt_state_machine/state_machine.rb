@@ -5,9 +5,9 @@ module NxtStateMachine
       @class_context = class_context
       @options = opts
 
-      @states = Registry.new(
+      @states = NxtRegistry::Registry.new(
         :states,
-        on_key_occupied: Proc.new do |key|
+        on_key_already_registered: Proc.new do |key|
           raise NxtStateMachine::Errors::StateAlreadyRegistered,
                 "A state with the name '#{key}' was already registered!"
         end
@@ -50,7 +50,7 @@ module NxtStateMachine
           raise NxtStateMachine::Errors::InitialStateAlreadyDefined, ":#{initial_state.name} was already defined as the initial state"
         else
           state = new_state_class(&block).new(name, opts)
-          states[name] = state
+          states.register(name.to_s, state)
           self.initial_state = state if opts.fetch(:initial)
 
           class_context.define_method "#{name}?" do
@@ -83,17 +83,17 @@ module NxtStateMachine
 
     def event(name, &block)
       event = Event.new(name, state_machine: self, &block)
-      events[name] = event
+      events.register(name.to_s, event)
 
       class_context.define_method name do |*args, **opts|
         event.state_machine.can_transition!(name, event.state_machine.current_state_name(self))
-        transition = event.event_transitions.fetch(event.state_machine.current_state_name(self))
+        transition = event.event_transitions.resolve(event.state_machine.current_state_name(self))
         transition.execute_with(name, self, :set_state_with, *args, **opts)
       end
 
       class_context.define_method "#{name}!" do |*args, **opts|
         event.state_machine.can_transition!(name, event.state_machine.current_state_name(self))
-        transition = event.event_transitions.fetch(event.state_machine.current_state_name(self))
+        transition = event.event_transitions.resolve(event.state_machine.current_state_name(self))
         transition.execute_with("#{name}!", self, :set_state_with!, *args, **opts)
       end
 
@@ -104,8 +104,8 @@ module NxtStateMachine
 
     def can_transition?(event_name, from)
       normalized_event_name = event_name.to_s.gsub('!', '')
-      event = events[normalized_event_name]
-      event && event.event_transitions.key?(from)
+      event = events.resolve(normalized_event_name)
+      event && event.event_transitions.key?(from.to_s)
     end
 
     def can_transition!(event, from)

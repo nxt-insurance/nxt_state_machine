@@ -115,13 +115,13 @@ RSpec.describe NxtStateMachine do
       end
 
       it 'is possible to pass options to a state' do
-        expect(subject.state_machine.states.fetch(:draft).options[:pre_published]).to be_truthy
-        expect(subject.state_machine.states.fetch(:approved).options['pre_published']).to be_truthy
-        expect(subject.state_machine.states.fetch(:published).options[:pre_published]).to be_falsey
+        expect(subject.state_machine.states.fetch('draft').options[:pre_published]).to be_truthy
+        expect(subject.state_machine.states.fetch('approved').options['pre_published']).to be_truthy
+        expect(subject.state_machine.states.fetch('published').options[:pre_published]).to be_falsey
       end
 
       it 'is possible to add methods to states' do
-        state = subject.state_machine.states.fetch(:published)
+        state = subject.state_machine.states.fetch('published')
         expect(state.category).to eq('crazy')
       end
     end
