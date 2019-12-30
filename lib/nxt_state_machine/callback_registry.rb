@@ -23,12 +23,10 @@ module NxtStateMachine
     private
 
     def callbacks
-      @callbacks ||= begin
-        registry :from do
-          nested :to do
-            nested :kind, default: -> { [] } do
-              attrs :before, :after
-            end
+      @callbacks ||= registry :from do
+        nested :to do
+          nested :kind, default: -> { [] } do
+            attrs :before, :after
           end
         end
       end

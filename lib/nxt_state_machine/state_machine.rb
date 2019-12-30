@@ -5,38 +5,34 @@ module NxtStateMachine
       @class_context = class_context
       @options = opts
 
-      @states = NxtRegistry::Registry.new(:states) do
-        on_key_already_registered do |key|
-          raise NxtStateMachine::Errors::StateAlreadyRegistered,
-                "A state with the name '#{key}' was already registered!"
-        end
-      end
-
+      @states = NxtStateMachine::StateRegistry.new
       @transitions = TransitionsStore.new
-
       @events = event_registry
-
       @callbacks = CallbackRegistry.new
+      @error_callback_registry = ErrorCallbackRegistry.new
 
       @initial_state = nil
     end
 
-    attr_reader :class_context, :states, :transitions, :events, :options, :callbacks, :name
+    attr_reader :class_context, :states, :transitions, :events, :options, :callbacks, :name, :error_callback_registry
     attr_accessor :initial_state
 
     def get_state_with(method = nil, &block)
       method_or_block = (method || block)
-      @get_state_with ||= method_or_block && Callable.new(method_or_block) || raise_missing_configuration_error(:get_state_with)
+      @get_state_with ||= method_or_block && Callable.new(method_or_block) ||
+        raise_missing_configuration_error(:get_state_with)
     end
 
     def set_state_with(method = nil, &block)
       method_or_block = (method || block)
-      @set_state_with ||= method_or_block && Callable.new(method_or_block) || raise_missing_configuration_error(:set_state_with)
+      @set_state_with ||= method_or_block && Callable.new(method_or_block) ||
+        raise_missing_configuration_error(:set_state_with)
     end
 
     def set_state_with!(method = nil, &block)
       method_or_block = (method || block)
-      @set_state_with_bang ||= method_or_block && Callable.new(method_or_block) || raise_missing_configuration_error(:set_state_with!)
+      @set_state_with_bang ||= method_or_block && Callable.new(method_or_block) ||
+        raise_missing_configuration_error(:set_state_with!)
     end
 
     def state(*names, **opts, &block)
@@ -121,8 +117,11 @@ module NxtStateMachine
     end
 
     def on_error(error = StandardError, from:, to:, run: nil, &block)
-      # TODO
-      # error_callback_registry.register(from, to, error, run, block)
+      error_callback_registry.register(from, to, error, run, block)
+    end
+
+    def on_error!(error = StandardError, from:, to:, run: nil, &block)
+      error_callback_registry.register!(from, to, error, run, block)
     end
 
     def around_transition(from:, to:, run: nil, &block)
@@ -140,6 +139,10 @@ module NxtStateMachine
 
     def run_after_callbacks(transition, context)
       run_callbacks(transition, :after, context)
+    end
+
+    def find_error_callback(error, transition)
+      error_callback_registry.resolve(error, transition)
     end
 
     def run_callbacks(transition, kind, context)

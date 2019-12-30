@@ -1,7 +1,6 @@
 # NxtStateMachine
 
 ## TODO
-- Implement :on_error callbacks  
 - Do not transform states to strings and inverse the interface to tansition.from.name?
 - Change callback interface to accept a method as first argument instead of run?
 - Namespace for multiple machines is kind of cool (Would namespace events, maybe state as well)
@@ -82,7 +81,7 @@ class ArticleWorkflow
     end
     
     on_error! CustomError from: any_state, to: :approved do |error, transition|
-      # TODO Bang method would be nice if on_error overlaps with others!
+      # Would overwrite an existing error handler 
     end
   end
 end

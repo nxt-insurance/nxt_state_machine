@@ -19,7 +19,7 @@ module NxtStateMachine
     # TODO: Prepare?
     # What if we would return a new object here: executable_transition - or transitions would be transition templates or so
     def execute_with(event, context, set_state_with_method, *args, **opts)
-      # This exposes the transition block on the transition itself so it can be executed through transition.apply_block later in :set_state_with
+      # This exposes the transition block on the transition itself so it can be executed through later in :set_state_with
       self.context = context
       self.event = event
 
@@ -39,8 +39,12 @@ module NxtStateMachine
     end
 
     def execute(&block)
-      # TODO error callback would apply here
       TransitionProxy.new(event, state_machine,self, context).call(&block)
+    rescue StandardError => error
+      callback = state_machine.find_error_callback(error, self)
+      raise unless callback
+
+      Callable.new(callback).with_context(context).call(error, self)
     end
 
     alias_method :with_around_callbacks, :execute

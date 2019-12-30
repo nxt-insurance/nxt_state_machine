@@ -682,4 +682,177 @@ RSpec.describe NxtStateMachine::ActiveRecord do
       end
     end
   end
+
+  describe 'error callbacks' do
+    let(:application) {
+      Application.new(
+        content: 'Handle this',
+        received_at: Time.current
+      )
+    }
+
+    subject do
+      state_machine_class.new(application)
+    end
+
+    context 'when the callback applies to all transitions' do
+      let(:state_machine_class) do
+        Class.new do
+          include NxtStateMachine::ActiveRecord
+
+          def initialize(application)
+            @application = application
+            @result = nil
+          end
+
+          attr_reader :application
+          attr_accessor :result
+
+          state_machine(state: :status, scope: :application) do
+            state :received, initial: true
+            state :processed, :errored
+
+            event :process do
+              transitions from: :received, to: :processed do |error:, message:|
+                raise error, message
+              end
+            end
+
+            event :errored do
+              transitions from: any_state, to: :errored do |error:, message:|
+                raise error, message
+              end
+            end
+
+            on_error from: any_state, to: all_states do |error|
+              self.result = error
+            end
+          end
+        end
+      end
+
+      it 'executes the callback on any kind of error' do
+        subject.process!(error: StandardError, message: 'I can handle this')
+        expect(subject.result.message).to eq('I can handle this')
+
+        subject.errored!(error: StandardError, message: 'Errored')
+        expect(subject.result.message).to eq('Errored')
+      end
+    end
+
+    context 'when the callback applies to a specific transition only' do
+      let(:state_machine_class) do
+        Class.new do
+          include NxtStateMachine::ActiveRecord
+
+          def initialize(application)
+            @application = application
+            @result = nil
+          end
+
+          attr_reader :application
+          attr_accessor :result
+
+          state_machine(state: :status, scope: :application) do
+            state :received, initial: true
+            state :processed, :errored
+
+            event :process do
+              transitions from: :received, to: :processed do |error:, message:|
+                raise error, message
+              end
+            end
+
+            event :errored do
+              transitions from: any_state, to: :errored do |error:, message:|
+                raise error, message
+              end
+            end
+
+            on_error from: all_states, to: :processed do |error|
+              self.result = error
+            end
+          end
+        end
+      end
+
+      context 'and the transition raises an error' do
+        it 'executes the callback' do
+          subject.process!(error: StandardError, message: 'I can handle this')
+          expect(subject.result.message).to eq('I can handle this')
+        end
+      end
+
+      context 'and another transition raises an error' do
+        it 'does not execute the callback' do
+          expect {
+            subject.errored!(error: StandardError, message: 'I cannot handle this')
+          }.to raise_error StandardError, 'I cannot handle this'
+        end
+      end
+    end
+
+    context 'when the callback applies to a specific kind of error only' do
+      let(:state_machine_class) do
+        Class.new do
+          include NxtStateMachine::ActiveRecord
+
+          def initialize(application)
+            @application = application
+            @result = nil
+          end
+
+          attr_reader :application
+          attr_accessor :result
+
+          state_machine(state: :status, scope: :application) do
+            state :received, initial: true
+            state :processed, :errored
+
+            event :process do
+              transitions from: :received, to: :processed do |error:, message:|
+                raise error, message
+              end
+
+              on_error ZeroDivisionError, from: all_states, to: :processed do |error|
+                self.result = error
+              end
+            end
+
+            event :errored do
+              transitions from: any_state, to: :errored do |error:, message:|
+                raise error, message
+              end
+            end
+
+            on_error ArgumentError, from: all_states, to: :errored do |error|
+              self.result = error
+            end
+          end
+        end
+      end
+
+      context 'and that kind of error is raised' do
+        it 'executes the callback' do
+          subject.process!(error: ZeroDivisionError, message: 'I can handle zero division')
+          expect(subject.result.message).to eq('I can handle zero division')
+
+          subject.errored!(error: ArgumentError, message: 'I can handle argument errors')
+          expect(subject.result.message).to eq('I can handle argument errors')
+        end
+      end
+
+      context 'and another kind of error is raised' do
+        it 'does not execute the callback' do
+          expect {
+            subject.process!(error: StandardError, message: 'I cannot handle standard errors')
+          }.to raise_error StandardError, 'I cannot handle standard errors'
+
+          expect {
+            subject.process!(error: ArgumentError, message: 'I cannot handle argument errors')
+          }.to raise_error ArgumentError, 'I cannot handle argument errors'
+        end
+      end
+    end
+  end
 end
