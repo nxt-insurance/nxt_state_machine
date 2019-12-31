@@ -205,7 +205,7 @@ RSpec.describe NxtStateMachine do
         expect(subject.state_machine.transitions.count).to eq(4)
 
         expect(
-          subject.state_machine.transitions.map { |t| "#{t.from} => #{t.to}"}
+          subject.state_machine.transitions.map { |t| "#{t.from.enum} => #{t.to.enum}"}
         ).to match_array(
       ["approved => finalized", "draft => approved", "finalized => approved", "finalized => finalized"]
         )
@@ -215,15 +215,15 @@ RSpec.describe NxtStateMachine do
     describe '#all_transitions_from_to' do
       it 'returns all matching transitions' do
         expect(
-          subject.state_machine.all_transitions_from_to(from: :finalized).map { |t| "#{t.from} => #{t.to}"}
+          subject.state_machine.all_transitions_from_to(from: :finalized).map { |t| "#{t.from.enum} => #{t.to.enum}"}
         ).to match_array(["finalized => approved", "finalized => finalized"])
 
         expect(
-          subject.state_machine.all_transitions_from_to(from: :approved).map { |t| "#{t.from} => #{t.to}"}
+          subject.state_machine.all_transitions_from_to(from: :approved).map { |t| "#{t.from.enum} => #{t.to.enum}"}
         ).to match_array(["approved => finalized"])
 
         expect(
-          subject.state_machine.all_transitions_from_to(from: :draft).map { |t| "#{t.from} => #{t.to}"}
+          subject.state_machine.all_transitions_from_to(from: :draft).map { |t| "#{t.from.enum} => #{t.to.enum}"}
         ).to match_array(["draft => approved"])
       end
     end
@@ -240,11 +240,11 @@ RSpec.describe NxtStateMachine do
         attr_accessor :state, :approved_at
 
         state_machine do
-          get_state_with { self.state ||= 'draft' }
+          get_state_with { self.state ||= :draft }
 
           set_state_with do |transition, context|
             transition.apply_block
-            self.state = transition.to
+            self.state = transition.to.enum
           end
 
           state :draft, initial: true
@@ -266,7 +266,7 @@ RSpec.describe NxtStateMachine do
 
       expect {
         subject.approve(approved_at: now)
-      }.to change { subject.state }.from('draft').to('approved')
+      }.to change { subject.state }.from(:draft).to(:approved)
 
       expect(subject.approved_at).to eq(now)
     end

@@ -17,7 +17,8 @@ module NxtStateMachine
               state_machine_targets[name].assign_attributes(state => machine.initial_state.to_s)
             end
 
-            state_machine_targets[name].send(state)
+            current_state = state_machine_targets[name].send(state)
+            current_state&.to_sym
           end
         end
 
@@ -29,7 +30,8 @@ module NxtStateMachine
 
             result = transition.execute do |block|
               block.call
-              state_machine_targets[name].assign_attributes(state => transition.to)
+
+              state_machine_targets[name].assign_attributes(state => transition.to.to_s)
               state_machine_targets[name].save
             end
 
@@ -42,7 +44,7 @@ module NxtStateMachine
             end
           end
         rescue StandardError => error
-          state_machine_targets[name].assign_attributes(state => transition.from)
+          state_machine_targets[name].assign_attributes(state => transition.from.to_s)
 
           if error.is_a?(NxtStateMachine::Errors::TransitionHalted)
             false
@@ -59,7 +61,7 @@ module NxtStateMachine
 
             result = transition.execute do |block|
               block.call
-              state_machine_targets[name].assign_attributes(state => transition.to)
+              state_machine_targets[name].assign_attributes(state => transition.to.to_s)
               state_machine_targets[name].save!
             end
 
@@ -68,7 +70,7 @@ module NxtStateMachine
             result
           end
         rescue StandardError
-          state_machine_targets[name].assign_attributes(state => transition.from)
+          state_machine_targets[name].assign_attributes(state => transition.from.to_s)
           raise
         end
 

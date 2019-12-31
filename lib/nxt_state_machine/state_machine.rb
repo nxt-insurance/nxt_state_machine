@@ -42,15 +42,15 @@ module NxtStateMachine
 
       Array(names).map do |name|
         if opts.fetch(:initial) && initial_state.present?
-          raise NxtStateMachine::Errors::InitialStateAlreadyDefined, ":#{initial_state.name} was already defined as the initial state"
+          raise NxtStateMachine::Errors::InitialStateAlreadyDefined, ":#{initial_state.enum} was already defined as the initial state"
         else
-          state = new_state_class(&block).new(name, opts)
-          states.register(name.to_s, state)
+          state = new_state_class(&block).new(name, self, opts)
+          states.register(name, state)
           self.initial_state = state if opts.fetch(:initial)
 
           class_context.define_method "#{name}?" do
             # States internally are always strings
-            machine.current_state_name(self) == name.to_s
+            machine.current_state_name(self) == name
           end
 
           state
@@ -67,7 +67,7 @@ module NxtStateMachine
     end
 
     def any_state
-      states.values.map(&:name)
+      states.values.map(&:enum)
     end
 
     alias_method :all_states, :any_state
@@ -78,7 +78,7 @@ module NxtStateMachine
 
     def event(name, &block)
       event = Event.new(name, state_machine: self, &block)
-      events.register(name.to_s, event)
+      events.register(name, event)
 
       class_context.define_method name do |*args, **opts|
         event.state_machine.can_transition!(name, event.state_machine.current_state_name(self))
@@ -98,9 +98,9 @@ module NxtStateMachine
     end
 
     def can_transition?(event_name, from)
-      normalized_event_name = event_name.to_s.gsub('!', '')
+      normalized_event_name = event_name
       event = events.resolve(normalized_event_name)
-      event && event.event_transitions.key?(from.to_s)
+      event && event.event_transitions.key?(from)
     end
 
     def can_transition!(event, from)

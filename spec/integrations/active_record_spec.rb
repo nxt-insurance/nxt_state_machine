@@ -13,13 +13,13 @@ RSpec.describe NxtStateMachine::ActiveRecord do
           state :processed, :accepted, :rejected
 
           event :process do
-            transitions from: :received, to: :processed do |t, processed_at|
+            transitions from: :received, to: :processed do |transition, processed_at|
               self.processed_at = processed_at
             end
           end
 
           event :accept do
-            transitions from: :processed, to: :accepted do |t, accepted_at|
+            transitions from: :processed, to: :accepted do |transition, accepted_at|
               self.accepted_at = accepted_at
             end
           end
@@ -69,7 +69,7 @@ RSpec.describe NxtStateMachine::ActiveRecord do
           end
 
           it do
-            expect { subject.process(Time.current) }.to_not change { subject.status }
+            expect { subject.process(Time.current) }.to_not change { subject.status.to_s }
             expect { subject.process!(Time.current) }.to raise_error(ActiveRecord::RecordInvalid)
             expect(subject.status).to eq('received')
             expect(subject).to be_received
@@ -102,7 +102,7 @@ RSpec.describe NxtStateMachine::ActiveRecord do
 
           it do
             subject.received_at = nil
-            expect { subject.process(Time.current) }.to_not change { subject.status }
+            expect { subject.process(Time.current) }.to_not change { subject.status.to_s }
             expect { subject.process!(Time.current) }.to raise_error(ActiveRecord::RecordInvalid)
             expect(subject.reload.status).to eq('received')
             expect(subject).to be_received

@@ -1,16 +1,12 @@
 # NxtStateMachine
 
 ## TODO
-- Do not transform states to strings and inverse the interface to tansition.from.name?
-- Change callback interface to accept a method as first argument instead of run?
-- Namespace for multiple machines is kind of cool (Would namespace events, maybe state as well)
 - Test :around_transition callback chain for all integrations
 - What about inheritance? => What would be the expected behaviour? (dup vs. no dup)
     => Might also make sense to walk the ancestors chain and collect configure blocks
     => This might be super flexible as we could apply these in amend / reset mode
     => Probably would be best to have :amend_configuration and :reset_configuration methods on the state_machine 
 - Reevaluate the return value of the transition? What would you expect?
-- Add method to walk a path ? => Could this be done with the pipeline?!
 - Write implementations for Hash, AttrAccessor
 
 ```ruby
@@ -38,7 +34,12 @@ class ArticleWorkflow
     end
 
     event :submit do
-      transition from: %i[written rejected deleted], to: :submitted
+      # When the block takes arguments (instead of only keyword arguments!!) 
+      # the transition is always passed in as the first argument!!!
+      transition from: %i[written rejected deleted], to: :submitted do |transition|
+        puts transition.from.enum
+        puts transition.to.enum
+      end
     end
 
     event :approve do
@@ -51,8 +52,7 @@ class ArticleWorkflow
       after_transition from: %i[written submitted deleted], to: :approved, call: :call_me_back
 
       around_transition from: any_state, to: :approved do |block|
-        # Note that around transition callbacks get passed a proc 
-        # Thus you have to do `block.call` instead of yield
+        # Note that around transition callbacks get passed a proc object that you have to call 
         puts 'around transition enter' 
         block.call  
         puts 'around transition exit'
@@ -63,9 +63,7 @@ class ArticleWorkflow
     end
 
     event :publish do
-      before_transition from: any_state, to: :published do
-        halt_transition if Time.current < Date.yesterday
-      end
+      before_transition from: any_state, to: :published, run: :some_method
 
       transition from: :approved, to: :published
     end
@@ -83,6 +81,12 @@ class ArticleWorkflow
     on_error! CustomError from: any_state, to: :approved do |error, transition|
       # Would overwrite an existing error handler 
     end
+  end
+
+  private
+
+  def some_method
+    # This can also except the transition as an argument 
   end
 end
 

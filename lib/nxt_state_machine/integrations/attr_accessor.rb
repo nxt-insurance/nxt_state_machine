@@ -8,10 +8,11 @@ module NxtStateMachine
           @subject ||= scope ? send(scope) : self
 
           if @subject.send(state).nil?
-            @subject.send("#{state}=", initial_state.name)
+            @subject.send("#{state}=", initial_state.enum)
           end
 
-          @subject.send(state)
+          current_state = @subject.send(state)
+          current_state&.to_sym
         end
 
         machine.set_state_with do |transition|
@@ -21,7 +22,7 @@ module NxtStateMachine
 
           result = transition.execute do |block|
             block.call
-            @subject.send("#{state}=", transition.to)
+            @subject.send("#{state}=", transition.to.enum)
           end
 
           if result
@@ -32,7 +33,7 @@ module NxtStateMachine
             halt_transition
           end
         rescue StandardError => error
-          @subject.send("#{state}=", transition.from)
+          @subject.send("#{state}=", transition.from.enum)
 
           if error.is_a?(NxtStateMachine::Errors::TransitionHalted)
             false
@@ -48,14 +49,14 @@ module NxtStateMachine
 
           result = transition.execute do |block|
             block.call
-            @subject.send("#{state}=", transition.to)
+            @subject.send("#{state}=", transition.to.enum)
           end
 
           transition.run_after_callbacks
 
           result
         rescue StandardError
-          @subject.send("#{state}=", transition.from)
+          @subject.send("#{state}=", transition.from.enum)
           raise
         end
 

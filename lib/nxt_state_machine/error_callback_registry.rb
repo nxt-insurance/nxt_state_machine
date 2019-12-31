@@ -8,16 +8,16 @@ module NxtStateMachine
 
       Array(from).each do |from_state|
         Array(to).each do |to_state|
-          callbacks.from(from_state.to_s).to(to_state.to_s).error(error, method_or_block)
+          callbacks.from(from_state).to(to_state).error(error, method_or_block)
         end
       end
     end
 
     def resolve(error, transition)
-      candidate = callbacks.from(transition.from.to_s).to(transition.to.to_s).error.keys.find { |kind_of_error| error.is_a?(kind_of_error) }
+      candidate = callbacks.from(transition.from.enum).to(transition.to.enum).error.keys.find { |kind_of_error| error.is_a?(kind_of_error) }
       return unless candidate
 
-      callbacks.from(transition.from.to_s).to(transition.to.to_s).error(candidate)
+      callbacks.from(transition.from.enum).to(transition.to.enum).error(candidate)
     end
 
     private

@@ -37,7 +37,7 @@ RSpec.describe NxtStateMachine::AttrAccessor do
         end
 
         it 'sets the initial state' do
-          expect(subject.status).to eq('received')
+          expect(subject.status).to eq(:received)
         end
       end
 
@@ -85,7 +85,7 @@ RSpec.describe NxtStateMachine::AttrAccessor do
         end
 
         it 'executes the transition' do
-          expect { subject.process(processed_at: 'now') }.to change { subject.status }.from('received').to('processed')
+          expect { subject.process(processed_at: 'now') }.to change { subject.status }.from(:received).to(:processed)
           expect(subject.processed_at).to eq('now')
         end
       end
@@ -98,7 +98,7 @@ RSpec.describe NxtStateMachine::AttrAccessor do
         it 'does not set the state' do
           expect { subject.accept(accepted_at: 'now') }.to raise_error(ZeroDivisionError)
           expect(subject.accepted_at).to eq('now')
-          expect(subject.status).to eq('processed')
+          expect(subject.status).to eq(:processed)
         end
       end
     end
@@ -110,7 +110,7 @@ RSpec.describe NxtStateMachine::AttrAccessor do
         end
 
         it 'executes the transition' do
-          expect { subject.process!(processed_at: 'now') }.to change { subject.status }.from('received').to('processed')
+          expect { subject.process!(processed_at: 'now') }.to change { subject.status }.from(:received).to(:processed)
           expect(subject.processed_at).to eq('now')
         end
       end
@@ -123,7 +123,7 @@ RSpec.describe NxtStateMachine::AttrAccessor do
         it 'does not set the state' do
           expect { subject.accept!(accepted_at: 'now') }.to raise_error(ZeroDivisionError)
           expect(subject.accepted_at).to eq('now')
-          expect(subject.status).to eq('processed')
+          expect(subject.status).to eq(:processed)
         end
       end
     end

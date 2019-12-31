@@ -1,16 +1,17 @@
 module NxtStateMachine
   class State
-    def initialize(name, **opts)
-      @name = name.to_s
+    def initialize(enum, machine, **opts)
+      @enum = enum
+      @machine = machine
       @initial = opts.delete(:initial)
       @transitions = []
       @options = opts.with_indifferent_access
     end
 
-    attr_accessor :name, :initial, :transitions, :options
+    attr_accessor :enum, :initial, :transitions, :machine, :options
 
     def to_s
-      name
+      enum.to_s
     end
   end
 end

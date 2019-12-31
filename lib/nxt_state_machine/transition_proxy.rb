@@ -32,7 +32,7 @@ module NxtStateMachine
     end
 
     def around_callbacks
-      @around_callbacks ||= state_machine.callbacks.resolve(transition).kind('around')
+      @around_callbacks ||= state_machine.callbacks.resolve(transition).kind(:around)
     end
 
     attr_reader :proxy, :transition, :state_machine, :context, :event

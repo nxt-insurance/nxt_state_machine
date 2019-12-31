@@ -11,7 +11,7 @@ RSpec.describe NxtStateMachine::ActiveRecord do
           event :next do
             before_transition from: any_state, to: all_states do |transition|
               parts = comment.split(' | ')
-              parts << "#{transition.from} => #{transition.to}"
+              parts << "#{transition.from.enum} => #{transition.to.enum}"
               self.comment = parts.join(' | ')
             end
 

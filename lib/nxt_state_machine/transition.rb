@@ -2,8 +2,8 @@ module NxtStateMachine
   class Transition
     def initialize(name, from:, to:, state_machine:, &block)
       @name = name
-      @from = StateEnum.new(state_machine, from)
-      @to = StateEnum.new(state_machine, to)
+      @from = state_machine.states.resolve(from)
+      @to = state_machine.states.resolve(to)
       @state_machine = state_machine
       @block = block
 
@@ -58,11 +58,11 @@ module NxtStateMachine
     end
 
     def transitions_from_to?(from_state, to_state)
-      from.in?(Array(from_state).map(&:to_s)) && to.in?(Array(to_state).map(&:to_s))
+      from.enum.in?(Array(from_state)) && to.enum.in?(Array(to_state))
     end
 
     def id
-      @id ||= "#{from}_#{to}"
+      @id ||= "#{from.to_s}_#{to.to_s}"
     end
 
     attr_reader :block_proxy, :event
@@ -76,8 +76,8 @@ module NxtStateMachine
     attr_writer :block_proxy, :event
 
     def ensure_states_exist
-      raise NxtStateMachine::Errors::UnknownStateError, "No state with :#{from} registered" unless state_machine.states.key?(from)
-      raise NxtStateMachine::Errors::UnknownStateError, "No state with :#{to} registered" unless state_machine.states.key?(to)
+      raise NxtStateMachine::Errors::UnknownStateError, "No state with :#{from} registered" unless state_machine.states.key?(from.enum)
+      raise NxtStateMachine::Errors::UnknownStateError, "No state with :#{to} registered" unless state_machine.states.key?(to.enum)
     end
   end
 end
