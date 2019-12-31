@@ -31,7 +31,7 @@ module NxtStateMachine
         end
       end
 
-      state_machine.send(set_state_with_method).with_context(context).call(self)
+      state_machine.send(set_state_with_method).with_context(context).call(state_machine.target(context), self)
     end
 
     def apply_block

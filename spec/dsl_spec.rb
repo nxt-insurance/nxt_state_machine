@@ -242,7 +242,7 @@ RSpec.describe NxtStateMachine do
         state_machine do
           get_state_with { self.state ||= :draft }
 
-          set_state_with do |transition, context|
+          set_state_with do |target, transition|
             transition.apply_block
             self.state = transition.to.enum
           end

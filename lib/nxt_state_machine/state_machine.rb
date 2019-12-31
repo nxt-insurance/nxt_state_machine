@@ -154,7 +154,11 @@ module NxtStateMachine
     end
 
     def current_state_name(context)
-      get_state_with.with_context(context).call
+      get_state_with.with_context(context).call(target(context))
+    end
+
+    def target(context)
+      @target ||= context.send(options[:scope] || :itself)
     end
 
     private

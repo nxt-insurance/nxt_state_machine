@@ -49,7 +49,7 @@ RSpec.describe NxtStateMachine do
           around_transition from: any_state, to: all_states, run: :say_hello
         end
 
-        def set_state(transition)
+        def set_state(target, transition)
           transition.run_before_callbacks
 
           result = transition.execute do
