@@ -16,10 +16,8 @@ module NxtStateMachine
     # TODO: Probably would make sense if we could also define the event name to be passed in
     # => This way we could differentiate what event triggered the callback!!!
 
-    # TODO: Prepare?
-    # What if we would return a new object here: executable_transition - or transitions would be transition templates or so
-    def execute_with(event, context, set_state_with_method, *args, **opts)
-      # This exposes the transition block on the transition itself so it can be executed through later in :set_state_with
+    def prepare(event, context, set_state_with_method, *args, **opts)
+      # This exposes the transition block on the transition itself so it can be executed later in :set_state_with
       self.context = context
       self.event = event
 
@@ -39,7 +37,7 @@ module NxtStateMachine
     end
 
     def execute(&block)
-      TransitionProxy.new(event, state_machine,self, context).call(&block)
+      Transition::Proxy.new(event, state_machine,self, context).call(&block)
     rescue StandardError => error
       callback = state_machine.find_error_callback(error, self)
       raise unless callback

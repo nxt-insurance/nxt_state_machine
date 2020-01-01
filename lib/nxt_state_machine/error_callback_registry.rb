@@ -14,7 +14,12 @@ module NxtStateMachine
     end
 
     def resolve(error, transition)
-      candidate = callbacks.from(transition.from.enum).to(transition.to.enum).error.keys.find { |kind_of_error| error.is_a?(kind_of_error) }
+      candidate = callbacks.from(
+        transition.from.enum
+      ).to(
+        transition.to.enum
+      ).error.keys.find { |kind_of_error| error.is_a?(kind_of_error) }
+
       return unless candidate
 
       callbacks.from(transition.from.enum).to(transition.to.enum).error(candidate)

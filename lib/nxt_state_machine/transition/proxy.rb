@@ -1,5 +1,5 @@
 module NxtStateMachine
-  class TransitionProxy
+  class Transition::Proxy
     def initialize(event, state_machine, transition, context)
       @event = event
       @transition = transition
@@ -16,23 +16,13 @@ module NxtStateMachine
         block
       end
 
-      if around_callbacks.any?
-        around_callback_chain(proxy).call
-      else
-        proxy.call
-      end
+      around_callback_chain(proxy).call
     end
 
     private
 
     def around_callback_chain(proxy)
-      around_callbacks.map { |c| Callable.new(c).with_context(context) }.reverse.inject(proxy) do |previous, callback|
-        -> { callback.call(previous, transition) }
-      end
-    end
-
-    def around_callbacks
-      @around_callbacks ||= state_machine.callbacks.resolve(transition).kind(:around)
+      @around_callback_chain ||= Transition::AroundCallbackChain.new(transition, context, state_machine).build(proxy)
     end
 
     attr_reader :proxy, :transition, :state_machine, :context, :event

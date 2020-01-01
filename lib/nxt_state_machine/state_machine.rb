@@ -6,7 +6,7 @@ module NxtStateMachine
       @options = opts
 
       @states = NxtStateMachine::StateRegistry.new
-      @transitions = TransitionsStore.new
+      @transitions = Transition::Store.new
       @events = event_registry
       @callbacks = CallbackRegistry.new
       @error_callback_registry = ErrorCallbackRegistry.new
@@ -83,13 +83,13 @@ module NxtStateMachine
       class_context.define_method name do |*args, **opts|
         event.state_machine.can_transition!(name, event.state_machine.current_state_name(self))
         transition = event.event_transitions.resolve(event.state_machine.current_state_name(self))
-        transition.execute_with(name, self, :set_state_with, *args, **opts)
+        transition.prepare(name, self, :set_state_with, *args, **opts)
       end
 
       class_context.define_method "#{name}!" do |*args, **opts|
         event.state_machine.can_transition!(name, event.state_machine.current_state_name(self))
         transition = event.event_transitions.resolve(event.state_machine.current_state_name(self))
-        transition.execute_with("#{name}!", self, :set_state_with!, *args, **opts)
+        transition.prepare("#{name}!", self, :set_state_with!, *args, **opts)
       end
 
       class_context.define_method "can_#{name}?" do
