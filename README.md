@@ -1,5 +1,12 @@
 # NxtStateMachine
 
+NxtStateMachine is a simple state machine library that ships  with an easy to use integration for ActiveRecord.
+It should be easy to implement other integrations. It also comes with in memory adapters for Hash and attr_accessors.  
+ 
+
+
+
+
 ## TODO
 - Test :around_transition callback chain for all integrations
 - What about inheritance? => What would be the expected behaviour? (dup vs. no dup)
@@ -43,13 +50,13 @@ class ArticleWorkflow
     end
 
     event :approve do
-      before_transition from: %i[written submitted deleted], to: :approved, call: :call_me_back
+      before_transition from: %i[written submitted deleted], to: :approved, run: :call_me_back
 
       transition from: %i[written submitted deleted], to: :approved do |headline:|
         article.headline = headline
       end
 
-      after_transition from: %i[written submitted deleted], to: :approved, call: :call_me_back
+      after_transition from: %i[written submitted deleted], to: :approved, run: :call_me_back
 
       around_transition from: any_state, to: :approved do |block|
         # Note that around transition callbacks get passed a proc object that you have to call 
@@ -86,15 +93,17 @@ class ArticleWorkflow
   private
 
   def some_method
-    # This can also except the transition as an argument 
+  end
+
+  def call_me_back(transition)
+    puts transition.from.enum
+    puts transition.to.enum
   end
 end
 
 ```
 
-Welcome to your new gem! In this directory, you'll find the files you need to be able to package up your Ruby library into a gem. Put your Ruby code in the file `lib/nxt_state_machine`. To experiment with that code, run `bin/console` for an interactive prompt.
 
-TODO: Delete this and the text above, and describe your gem
 
 ## Installation
 
