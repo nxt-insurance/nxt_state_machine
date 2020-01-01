@@ -158,7 +158,8 @@ module NxtStateMachine
     end
 
     def target(context)
-      context.send(options[:target] || :itself)
+      @target_method ||= options[:target] || :itself
+      context.send(@target_method)
     end
 
     private

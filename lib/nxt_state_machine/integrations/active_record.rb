@@ -1,21 +1,21 @@
 module NxtStateMachine
   module ActiveRecord
     module ClassMethods
-      def state_machine(name = :default, state: :state, target: nil, &config)
+      def state_machine(name = :default, state_attr: :state, target: nil, &config)
         machine = super(
           name,
-          state: state,
+          state_attr: state_attr,
           target: target,
           &config
         )
 
         machine.get_state_with do |target|
           if target
-            if target.send(state).nil? && target.new_record?
-              target.assign_attributes(state => machine.initial_state.to_s)
+            if target.send(state_attr).nil? && target.new_record?
+              target.assign_attributes(state_attr => machine.initial_state.to_s)
             end
 
-            current_state = target.send(state)
+            current_state = target.send(state_attr)
             current_state&.to_sym
           end
         end
@@ -26,7 +26,7 @@ module NxtStateMachine
 
             result = transition.execute do |block|
               block.call
-              target.assign_attributes(state => transition.to.to_s)
+              target.assign_attributes(state_attr => transition.to.to_s)
               target.save
             end
 
@@ -39,7 +39,7 @@ module NxtStateMachine
             end
           end
         rescue StandardError => error
-          target.assign_attributes(state => transition.from.to_s)
+          target.assign_attributes(state_attr => transition.from.to_s)
 
           if error.is_a?(NxtStateMachine::Errors::TransitionHalted)
             false
@@ -54,7 +54,7 @@ module NxtStateMachine
 
             result = transition.execute do |block|
               block.call
-              target.assign_attributes(state => transition.to.to_s)
+              target.assign_attributes(state_attr => transition.to.to_s)
               target.save!
             end
 
@@ -63,7 +63,7 @@ module NxtStateMachine
             result
           end
         rescue StandardError
-          target.assign_attributes(state => transition.from.to_s)
+          target.assign_attributes(state_attr => transition.from.to_s)
           raise
         end
 

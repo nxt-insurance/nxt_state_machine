@@ -10,7 +10,7 @@ RSpec.describe NxtStateMachine::AttrAccessor do
 
         attr_accessor :status, :processed_at, :accepted_at
 
-        state_machine(state: :status) do
+        state_machine(state_attr: :status) do
           state :received, initial: true
           state :processed, :accepted
 
@@ -62,7 +62,7 @@ RSpec.describe NxtStateMachine::AttrAccessor do
 
             attr_accessor :status
 
-            state_machine(state: :status) do
+            state_machine(state_attr: :status) do
               state :received, :processed, :accepted, :rejected
             end
           end

@@ -1,15 +1,20 @@
 module NxtStateMachine
   module AttrAccessor
     module ClassMethods
-      def state_machine(name = :default, state: :state, target: nil, &config)
-        machine = super(name, state: state, target: target, &config)
+      def state_machine(name = :default, state_attr: :state, target: nil, &config)
+        machine = super(
+          name,
+          state_attr: state_attr,
+          target: target,
+          &config
+        )
 
         machine.get_state_with do |target|
-          if target.send(state).nil?
-            target.send("#{state}=", initial_state.enum)
+          if target.send(state_attr).nil?
+            target.send("#{state_attr}=", initial_state.enum)
           end
 
-          current_state = target.send(state)
+          current_state = target.send(state_attr)
           current_state&.to_sym
         end
 
@@ -18,7 +23,7 @@ module NxtStateMachine
 
           result = transition.execute do |block|
             block.call
-            target.send("#{state}=", transition.to.enum)
+            target.send("#{state_attr}=", transition.to.enum)
           end
 
           if result
@@ -29,7 +34,7 @@ module NxtStateMachine
             halt_transition
           end
         rescue StandardError => error
-          target.send("#{state}=", transition.from.enum)
+          target.send("#{state_attr}=", transition.from.enum)
 
           if error.is_a?(NxtStateMachine::Errors::TransitionHalted)
             false
@@ -43,14 +48,14 @@ module NxtStateMachine
 
           result = transition.execute do |block|
             block.call
-            target.send("#{state}=", transition.to.enum)
+            target.send("#{state_attr}=", transition.to.enum)
           end
 
           transition.run_after_callbacks
 
           result
         rescue StandardError
-          target.send("#{state}=", transition.from.enum)
+          target.send("#{state_attr}=", transition.from.enum)
           raise
         end
 

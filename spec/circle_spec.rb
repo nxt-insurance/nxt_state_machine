@@ -4,7 +4,7 @@ RSpec.describe NxtStateMachine::ActiveRecord do
       Class.new(Workflow) do
         include NxtStateMachine::ActiveRecord
 
-        state_machine(state: :status) do
+        state_machine(state_attr: :status) do
           state :a, initial: true
           state :b, :c, :d
 

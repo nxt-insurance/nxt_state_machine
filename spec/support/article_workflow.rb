@@ -8,7 +8,7 @@ class ArticleWorkflow
 
   attr_accessor :article
 
-  state_machine(target: :article, state: :status) do
+  state_machine(target: :article, state_attr: :status) do
     state :draft, initial: true
     state :written
     state :submitted

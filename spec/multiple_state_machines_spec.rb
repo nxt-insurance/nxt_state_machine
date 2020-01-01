@@ -11,7 +11,7 @@ RSpec.describe NxtStateMachine do
 
         attr_accessor :workflow, :error_workflow
 
-        state_machine(target: :workflow, state: :status) do
+        state_machine(target: :workflow, state_attr: :status) do
           state :draft, initial: true
           state :processing, :errored
 
@@ -38,7 +38,7 @@ RSpec.describe NxtStateMachine do
           end
         end
 
-        state_machine(:error, target: :error_workflow, state: :status) do
+        state_machine(:error, target: :error_workflow, state_attr: :status) do
           state :un_started, initial: true
           state :started, :resolved
 
@@ -96,7 +96,7 @@ RSpec.describe NxtStateMachine do
 
           attr_accessor :workflow, :error_workflow
 
-          state_machine(target: :workflow, state: :status) do
+          state_machine(target: :workflow, state_attr: :status) do
             state :draft, initial: true
             state :processing
 
@@ -107,7 +107,7 @@ RSpec.describe NxtStateMachine do
             end
           end
 
-          state_machine(:error, target: :error_workflow, state: :status) do
+          state_machine(:error, target: :error_workflow, state_attr: :status) do
             state :draft, initial: true
             state :processing
 
