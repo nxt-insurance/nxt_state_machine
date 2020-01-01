@@ -38,7 +38,7 @@ module NxtStateMachine
     end
 
     def state_machines
-      @state_machines ||= registry :state_machine
+      @state_machines ||= registry :state_machines
     end
 
     def new(*args, **opts, &block)
