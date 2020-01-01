@@ -25,6 +25,7 @@ require "nxt_state_machine/transition_proxy"
 require "nxt_state_machine/state_machine"
 require "nxt_state_machine/integrations/active_record"
 require "nxt_state_machine/integrations/attr_accessor"
+require "nxt_state_machine/integrations/hash"
 
 module NxtStateMachine
   module ClassMethods
