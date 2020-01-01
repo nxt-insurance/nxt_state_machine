@@ -35,7 +35,7 @@ module NxtStateMachine
     def state_machine(name = :default, **opts, &config)
       state_machines.resolve!(name) || state_machines.register(
         name,
-        StateMachine.new(name,self, event_registry, **opts).configure(&config)
+        StateMachine.new(name, self, state_machine_event_registry, **opts).configure(&config)
       )
     end
 
@@ -60,8 +60,8 @@ module NxtStateMachine
 
     private
 
-    def event_registry
-      @event_registry ||= EventRegistry.new
+    def state_machine_event_registry
+      @state_machine_event_registry ||= EventRegistry.new
     end
   end
 
