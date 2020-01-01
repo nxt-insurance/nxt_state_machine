@@ -26,7 +26,6 @@ module NxtStateMachine
 
             result = transition.execute do |block|
               block.call
-
               target.assign_attributes(state => transition.to.to_s)
               target.save
             end

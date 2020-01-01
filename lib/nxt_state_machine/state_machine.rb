@@ -158,7 +158,7 @@ module NxtStateMachine
     end
 
     def target(context)
-      @target ||= context.send(options[:scope] || :itself)
+      context.send(options[:scope] || :itself)
     end
 
     private

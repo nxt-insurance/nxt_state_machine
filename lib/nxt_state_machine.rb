@@ -85,12 +85,6 @@ module NxtStateMachine
     end
 
     delegate :initial_state, :states, to: :state_machine
-
-    private
-
-    def state_machine_targets
-      @state_machine_targets ||= {}
-    end
   end
 
   def self.included(base)
