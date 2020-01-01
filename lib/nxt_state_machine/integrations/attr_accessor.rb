@@ -14,17 +14,13 @@ module NxtStateMachine
             target.send("#{state_attr}=", initial_state.enum)
           end
 
-          current_state = target.send(state_attr)
-          current_state&.to_sym
+          target.send(state_attr)
         end
 
         machine.set_state_with do |target, transition|
           transition.run_before_callbacks
 
-          result = transition.execute do |block|
-            block.call
-            target.send("#{state_attr}=", transition.to.enum)
-          end
+          result = set_state(target, transition, state_attr)
 
           if result
             transition.run_after_callbacks
@@ -45,12 +41,7 @@ module NxtStateMachine
 
         machine.set_state_with! do |target, transition|
           transition.run_before_callbacks
-
-          result = transition.execute do |block|
-            block.call
-            target.send("#{state_attr}=", transition.to.enum)
-          end
-
+          result = set_state(target, transition, state_attr)
           transition.run_after_callbacks
 
           result
@@ -63,8 +54,20 @@ module NxtStateMachine
       end
     end
 
+    module InstanceMethods
+      private
+
+      def set_state(target, transition, state_attr)
+        transition.execute do |block|
+          block.call
+          target.send("#{state_attr}=", transition.to.enum)
+        end
+      end
+    end
+
     def self.included(base)
       base.include(NxtStateMachine)
+      base.include(InstanceMethods)
       base.extend(ClassMethods)
     end
   end

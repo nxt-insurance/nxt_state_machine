@@ -1,7 +1,7 @@
 # NxtStateMachine
 
 NxtStateMachine is a simple state machine library that ships  with an easy to use integration for ActiveRecord.
-It should be easy to implement other integrations. It also comes with in memory adapters for Hash and attr_accessors.  
+It should be easy to implement other integrations. It also comes with in memory adapters for Hash and attr_accessor.  
  
 
 
@@ -14,7 +14,7 @@ It should be easy to implement other integrations. It also comes with in memory 
     => This might be super flexible as we could apply these in amend / reset mode
     => Probably would be best to have :amend_configuration and :reset_configuration methods on the state_machine 
 - Reevaluate the return value of the transition? What would you expect?
-- Write implementations for Hash, AttrAccessor
+- Test implementations for Hash, AttrAccessor
 
 ```ruby
 class ArticleWorkflow

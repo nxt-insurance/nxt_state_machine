@@ -24,11 +24,7 @@ module NxtStateMachine
           target.transaction do
             transition.run_before_callbacks
 
-            result = transition.execute do |block|
-              block.call
-              target.assign_attributes(state_attr => transition.to.to_s)
-              target.save
-            end
+            result = set_state(target, transition, state_attr, :save)
 
             if result
               transition.run_after_callbacks
@@ -51,13 +47,7 @@ module NxtStateMachine
         machine.set_state_with! do |target, transition|
           target.transaction do
             transition.run_before_callbacks
-
-            result = transition.execute do |block|
-              block.call
-              target.assign_attributes(state_attr => transition.to.to_s)
-              target.save!
-            end
-
+            result = set_state(target, transition, state_attr, :save!)
             transition.run_after_callbacks
 
             result
@@ -71,8 +61,21 @@ module NxtStateMachine
       end
     end
 
+    module InstanceMethods
+      private
+
+      def set_state(target, transition, state_attr, method)
+        transition.execute do |block|
+          block.call
+          target.assign_attributes(state_attr => transition.to.to_s)
+          target.send(method)
+        end
+      end
+    end
+
     def self.included(base)
       base.include(NxtStateMachine)
+      base.include(InstanceMethods)
       base.extend(ClassMethods)
     end
   end
