@@ -1,5 +1,5 @@
 RSpec.describe NxtStateMachine::AttrAccessor do
-  context 'without scope' do
+  context 'without target' do
     let(:state_machine_class) do
       Class.new do
         include NxtStateMachine::AttrAccessor

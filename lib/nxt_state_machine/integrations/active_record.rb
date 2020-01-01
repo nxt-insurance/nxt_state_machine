@@ -1,11 +1,11 @@
 module NxtStateMachine
   module ActiveRecord
     module ClassMethods
-      def state_machine(name = :default, state: :state, scope: nil, &config)
+      def state_machine(name = :default, state: :state, target: nil, &config)
         machine = super(
           name,
           state: state,
-          scope: scope,
+          target: target,
           &config
         )
 

@@ -253,7 +253,7 @@ RSpec.describe NxtStateMachine::ActiveRecord do
 
         attr_reader :application
 
-        state_machine(state: :status, scope: :application) do
+        state_machine(state: :status, target: :application) do
           state :received, initial: true
           state :processed, :accepted, :rejected
 
@@ -365,7 +365,7 @@ RSpec.describe NxtStateMachine::ActiveRecord do
 
               attr_reader :application
 
-              state_machine(state: :status, scope: :application) do
+              state_machine(state: :status, target: :application) do
                 state :received, initial: true
                 state :processed, :accepted, :rejected
 
@@ -416,7 +416,7 @@ RSpec.describe NxtStateMachine::ActiveRecord do
 
               attr_reader :application
 
-              state_machine(state: :status, scope: :application) do
+              state_machine(state: :status, target: :application) do
                 state :received, initial: true
                 state :processed, :accepted, :rejected
 
@@ -464,7 +464,7 @@ RSpec.describe NxtStateMachine::ActiveRecord do
 
               attr_reader :application
 
-              state_machine(state: :status, scope: :application) do
+              state_machine(state: :status, target: :application) do
                 state :received, initial: true
                 state :processed, :accepted, :rejected
 
@@ -517,7 +517,7 @@ RSpec.describe NxtStateMachine::ActiveRecord do
 
             attr_reader :application, :result
 
-            state_machine(state: :status, scope: :application) do
+            state_machine(state: :status, target: :application) do
               state :received, initial: true
               state :processed
 
@@ -587,7 +587,7 @@ RSpec.describe NxtStateMachine::ActiveRecord do
 
         attr_reader :application
 
-        state_machine(state: :status, scope: :application) do
+        state_machine(state: :status, target: :application) do
           state :received, initial: true
           state :processed, :accepted, :rejected
 
@@ -708,7 +708,7 @@ RSpec.describe NxtStateMachine::ActiveRecord do
           attr_reader :application
           attr_accessor :result
 
-          state_machine(state: :status, scope: :application) do
+          state_machine(state: :status, target: :application) do
             state :received, initial: true
             state :processed, :errored
 
@@ -753,7 +753,7 @@ RSpec.describe NxtStateMachine::ActiveRecord do
           attr_reader :application
           attr_accessor :result
 
-          state_machine(state: :status, scope: :application) do
+          state_machine(state: :status, target: :application) do
             state :received, initial: true
             state :processed, :errored
 
@@ -805,7 +805,7 @@ RSpec.describe NxtStateMachine::ActiveRecord do
           attr_reader :application
           attr_accessor :result
 
-          state_machine(state: :status, scope: :application) do
+          state_machine(state: :status, target: :application) do
             state :received, initial: true
             state :processed, :errored
 

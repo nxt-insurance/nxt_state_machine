@@ -1,8 +1,8 @@
 module NxtStateMachine
   module AttrAccessor
     module ClassMethods
-      def state_machine(name = :default, state: :state, scope: nil, &config)
-        machine = super(name, state: state, scope: scope, &config)
+      def state_machine(name = :default, state: :state, target: nil, &config)
+        machine = super(name, state: state, target: target, &config)
 
         machine.get_state_with do |target|
           if target.send(state).nil?
