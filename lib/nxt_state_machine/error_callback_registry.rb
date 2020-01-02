@@ -30,7 +30,7 @@ module NxtStateMachine
     def callbacks
       @callbacks ||= registry :from do
         nested :to do
-          nested :error, transform_keys: false
+          nested :error, transform_keys: false, call: false
         end
       end
     end
