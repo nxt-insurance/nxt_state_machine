@@ -2,13 +2,13 @@ PATH
   remote: ../nxt_registry
   specs:
     nxt_registry (0.1.0)
-      activesupport
 
 PATH
   remote: .
   specs:
     nxt_state_machine (0.1.0)
       activesupport
+      nxt_registry
 
 GEM
   remote: https://rubygems.org/
