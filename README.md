@@ -115,12 +115,12 @@ Or install it yourself as:
 
 In order to use nxt_state_machine with ActiveRecord simply `include NxtStateMachine::ActiveRecord` into your class.
 This does not necessarily have to be a model (thus an instance of ActiveRecord) itself. If you are a fan of the single 
-responsibility principle you might want to put your workflow logic in a seprate class instead of into the model directly.
+responsibility principle you might want to put your workflow logic in a separate class instead of into the model directly.
 Therefore simply define the target of your state machine as follows. This enables you to split up complex workflows into 
 multiple classes (maybe orchestrated by another toplevel workflow). If you do not provide a specific target, an instance 
 of the class you include nxt_state_machine into will be the target (most likely your model).
 
-#### target: option
+#### Define which object holds you state with the target: option
 
 ```ruby
 class Workflow
@@ -138,14 +138,15 @@ class Workflow
 end
 ```
 
-#### state_attr: option
+#### Define which attribute holds you state with the state_attr: option
 
 Customize which attribute is used to persist and fetch your state with `state_machine(state_attr: :state) do`. 
 If this is not customized, nxt_state_machine assumes your target has a `:state` attribute.
 
 ### States
 
-Defining states is as easy as:
+The initial state will be set on new records that do not yet have a state set. 
+Of course there can only be one initial state.
 
 ```ruby
 class Article < ApplicationRecord
@@ -157,9 +158,6 @@ class Article < ApplicationRecord
   end
 end
 ```
-
-The initial state will be set on new records that do not yet have a state set. 
-Of course there can only be one initial state.
 
 ### Events
 
@@ -208,9 +206,12 @@ article.<event_name!> # Will run the transition and call save! on your target
 # Event that accepts keyword arguments
 article.approve(approved_at: Time.current)
 article.approve!(approved_at: Time.current)
+```
 
-# NOTE: In case an event accepts arguments (other than keyword arguments), 
-# it will always be passed the current transition object as the first argument! 
+*NOTE: In case an event accepts arguments (other than keyword arguments),
+it will always be passed the current transition object as the first argument!*
+
+```ruby
 event :approve do
   transition from: %i[written rejected], to: :approved do |transition, approved_at:|
     # The transition object provides some useful information in the current transition
@@ -219,17 +220,16 @@ event :approve do
   end
 end
 ```
- 
+
 *NOTE* Transitions run in transactions that will be rolled back in case of an exception or if your target cannot be 
 saved due to validation errors. The state is then set back to the state before the transition! 
 
 ## TODO
-- Test :around_transition callback chain for all integrations
+- Reevaluate the return value of the transition? What would you expect?!!!
 - What about inheritance? => What would be the expected behaviour? (dup vs. no dup)
     => Might also make sense to walk the ancestors chain and collect configure blocks
     => This might be super flexible as we could apply these in amend / reset mode
     => Probably would be best to have :amend_configuration and :reset_configuration methods on the state_machine 
-- Reevaluate the return value of the transition? What would you expect?
 - Test implementations for Hash, AttrAccessor
 
 ## Development
