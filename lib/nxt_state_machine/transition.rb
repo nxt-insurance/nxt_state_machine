@@ -20,15 +20,9 @@ module NxtStateMachine
       # This exposes the transition block on the transition itself so it can be executed later in :set_state_with
       self.context = context
       self.event = event
+      self.block_proxy = nil
 
-      #self.block_proxy = Proc.new do
-      #  if block
-      #    # if the block takes arguments we always pass the transition as the first one
-      #    args.prepend(self) if block.arity > 0
-      #    context.instance_exec(*args, **opts, &block)
-      #  end
-      #end
-
+      # block_proxy only is set when the transition accepts a block!
       if block
         self.block_proxy = Proc.new do
           # if the block takes arguments we always pass the transition as the first one
