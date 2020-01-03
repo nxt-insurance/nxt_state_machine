@@ -8,15 +8,15 @@ Gem::Specification.new do |spec|
   spec.authors       = ["Andreas Robecke", "Nils Sommer", "Raphael Kallensee", "Lütfi Demirci"]
   spec.email         = ["a.robecke@getsafe.de"]
 
-  spec.summary       = %q{State of the art}
-  spec.description   = %q{This implements a basic state machine}
+  spec.summary       = %q{A rich but straight forward state machine library}
+  spec.description   = %q{A state machine library that can be used with ActiveRecord or in plain ruby and should be easy to customize for other integrations}
   spec.homepage      = "https://github.com/nxt-insurance"
   spec.license       = "MIT"
 
   # Prevent pushing this gem to RubyGems.org. To allow pushes either set the 'allowed_push_host'
   # to allow pushing to a single host or delete this section to allow pushing to any host.
   if spec.respond_to?(:metadata)
-    spec.metadata["allowed_push_host"] = "https://rubygems.pkg.github.com/nxt-insurance"
+    spec.metadata["allowed_push_host"] = 'https://rubygems.org'
 
     spec.metadata["homepage_uri"] = spec.homepage
     spec.metadata["source_code_uri"] = "https://github.com/nxt-insurance/nxt_state_machine"
