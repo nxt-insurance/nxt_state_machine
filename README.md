@@ -1,20 +1,8 @@
 # NxtStateMachine
 
-NxtStateMachine is a simple state machine library that ships  with an easy to use integration for ActiveRecord.
-It should be easy to implement other integrations. It also comes with in memory adapters for Hash and attr_accessor.  
- 
-
-
-
-
-## TODO
-- Test :around_transition callback chain for all integrations
-- What about inheritance? => What would be the expected behaviour? (dup vs. no dup)
-    => Might also make sense to walk the ancestors chain and collect configure blocks
-    => This might be super flexible as we could apply these in amend / reset mode
-    => Probably would be best to have :amend_configuration and :reset_configuration methods on the state_machine 
-- Reevaluate the return value of the transition? What would you expect?
-- Test implementations for Hash, AttrAccessor
+NxtStateMachine is a simple state machine library that ships with an easy to use integration for ActiveRecord.
+It was build with the intend in mind to make it easy to implement other integrations. 
+Beside the ActiveRecord integration, it ships with in memory adapters for Hash and attr_accessor.  
 
 ```ruby
 class ArticleWorkflow
@@ -123,7 +111,126 @@ Or install it yourself as:
 
 ## Usage
 
-TODO: Write usage instructions here
+### ActiveRecord
+
+In order to use nxt_state_machine with ActiveRecord simply `include NxtStateMachine::ActiveRecord` into your class.
+This does not necessarily have to be a model (thus an instance of ActiveRecord) itself. If you are a fan of the single 
+responsibility principle you might want to put your workflow logic in a seprate class instead of into the model directly.
+Therefore simply define the target of your state machine as follows. This enables you to split up complex workflows into 
+multiple classes (maybe orchestrated by another toplevel workflow). If you do not provide a specific target, an instance 
+of the class you include nxt_state_machine into will be the target (most likely your model).
+
+#### target: option
+
+```ruby
+class Workflow
+  include NxtStateMachine::ActiveRecord
+
+  def initialize(article)
+    @article = article
+  end
+
+  attr_reader :article
+
+  state_machine(target: :article) do
+    # ...
+  end
+end
+```
+
+#### state_attr: option
+
+Customize which attribute is used to persist and fetch your state with `state_machine(state_attr: :state) do`. 
+If this is not customized, nxt_state_machine assumes your target has a `:state` attribute.
+
+### States
+
+Defining states is as easy as:
+
+```ruby
+class Article < ApplicationRecord
+  include NxtStateMachine::ActiveRecord
+  
+  state_machine do
+    state :draft, initial: true
+    states :written, :submitted
+  end
+end
+```
+
+The initial state will be set on new records that do not yet have a state set. 
+Of course there can only be one initial state.
+
+### Events
+
+Once you have defined your states you can define events and their transitions. Events trigger state transitions based
+on the current state of your target.  
+
+```ruby
+class Article < ApplicationRecord
+  include NxtStateMachine::ActiveRecord
+  
+  state_machine do
+    state :draft, initial: true
+    states :written, :approved, :rejected, :published 
+
+    event :write do
+      transition from: :draft, to: :written
+      transition from: :rejected, to: :written
+      # same as transition from: %i[draft rejected], to: :written
+    end
+
+    event :reject do
+      transition from: all_states, to: :rejected # all_states is equivalent to any_state 
+    end
+
+    event :approve do
+      # We recommend to use keyword arguments to make events accept custom arguments
+      transition from: %i[written rejected], to: :approved do |approved_at:|
+        self.approved_at = approved_at
+        # NOTE: The transition is halted if this returns a falsey value
+      end
+    end
+  end
+end
+```
+
+The events above define the following methods in your workflow class.
+
+```ruby
+article.write
+article.write!
+# ...
+# Generally speaking
+article.<event_name> # will run the transition and call save on your target
+article.<event_name!> # Will run the transition and call save! on your target
+
+# Event that accepts keyword arguments
+article.approve(approved_at: Time.current)
+article.approve!(approved_at: Time.current)
+
+# NOTE: In case an event accepts arguments (other than keyword arguments), 
+# it will always be passed the current transition object as the first argument! 
+event :approve do
+  transition from: %i[written rejected], to: :approved do |transition, approved_at:|
+    # The transition object provides some useful information in the current transition
+    puts transition.from.enum
+    puts transition.to.enum
+  end
+end
+```
+ 
+*NOTE* Transitions run in transactions that will be rolled back in case of an exception or if your target cannot be 
+saved due to validation errors. The state is then set back to the state before the transition! 
+
+## TODO
+- Test :around_transition callback chain for all integrations
+- What about inheritance? => What would be the expected behaviour? (dup vs. no dup)
+    => Might also make sense to walk the ancestors chain and collect configure blocks
+    => This might be super flexible as we could apply these in amend / reset mode
+    => Probably would be best to have :amend_configuration and :reset_configuration methods on the state_machine 
+- Reevaluate the return value of the transition? What would you expect?
+- Test implementations for Hash, AttrAccessor
 
 ## Development
 
