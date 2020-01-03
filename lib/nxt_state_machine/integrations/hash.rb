@@ -20,14 +20,8 @@ module NxtStateMachine
         machine.set_state_with do |target, transition|
           transition.run_before_callbacks
           result = set_state(target, transition, state_attr)
-
-          if result
-            transition.run_after_callbacks
-            result
-          else
-            # abort transaction and reset state
-            halt_transition
-          end
+          transition.run_after_callbacks
+          result
         rescue StandardError => error
           target[state_attr] = transition.from.enum
 
@@ -58,8 +52,9 @@ module NxtStateMachine
 
       def set_state(target, transition, state_attr)
         transition.execute do |block|
-          block.call
-          target[state_attr] = transition.to.enum
+          result = block ? block.call : nil
+          set_state_result = target[state_attr] = transition.to.enum || halt_transition
+          block ? result : set_state_result
         end
       end
     end

@@ -855,4 +855,108 @@ RSpec.describe NxtStateMachine::ActiveRecord do
       end
     end
   end
+
+  describe '#transitions' do
+    let(:state_machine_class) do
+      Class.new(Application) do
+        include NxtStateMachine::ActiveRecord
+
+        def self.name
+          'Application'
+        end
+
+        state_machine(state_attr: :status) do
+          state :received, initial: true
+          state :processed, :accepted, :rejected
+
+          event :process do
+            transitions from: :received, to: :processed do |raise: false, halt: false|
+              self.processed_at = Time.current
+              raise ZeroDivisionError, 'oh oh' if raise
+              halt_transition if halt
+              'This will be returned'
+            end
+          end
+
+          event :accept do
+            transitions from: :processed, to: :accepted
+          end
+        end
+      end
+    end
+
+    subject do
+      state_machine_class.new(content: 'content is required', received_at: Time.current)
+    end
+
+    context 'with block' do
+      context 'when successful' do
+        context 'with bang' do
+          it 'returns the value of the block' do
+            expect(subject.process!).to eq('This will be returned')
+          end
+        end
+
+        context 'without bang' do
+          it 'returns the value of the block' do
+            expect(subject.process).to eq('This will be returned')
+          end
+        end
+      end
+
+      context 'when not successful' do
+        context 'with bang' do
+          it 'raises an error' do
+            expect { subject.process!(raise: true) }.to raise_error ZeroDivisionError
+          end
+        end
+
+        context 'without bang' do
+          it 'returns false' do
+            expect(subject.process(halt: true)).to be_falsey
+          end
+        end
+      end
+    end
+
+    context 'without block' do
+      context 'when successful' do
+        before do
+          subject.process!
+          subject.accepted_at = Time.current
+        end
+
+        context 'with bang' do
+          it 'returns true' do
+            expect(subject.accept!).to be_truthy
+          end
+        end
+
+        context 'without bang' do
+          it 'returns true' do
+            expect(subject.accept).to be_truthy
+          end
+        end
+      end
+
+      context 'when not successful' do
+        before do
+          subject.process!
+          subject.accepted_at = nil
+        end
+
+        context 'with bang' do
+          it 'raises an error' do
+            expect { subject.accept! }.to raise_error ActiveRecord::RecordInvalid
+          end
+        end
+
+        context 'without bang' do
+          it 'returns false' do
+            expect(subject.accept).to be_falsey
+          end
+        end
+      end
+    end
+  end
 end

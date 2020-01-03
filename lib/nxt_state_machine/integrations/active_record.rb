@@ -23,16 +23,10 @@ module NxtStateMachine
         machine.set_state_with do |target, transition|
           target.transaction do
             transition.run_before_callbacks
-
             result = set_state(target, transition, state_attr, :save)
+            transition.run_after_callbacks
 
-            if result
-              transition.run_after_callbacks
-              result
-            else
-              # abort transaction and reset state
-              halt_transition
-            end
+            result
           end
         rescue StandardError => error
           target.assign_attributes(state_attr => transition.from.to_s)
@@ -66,9 +60,10 @@ module NxtStateMachine
 
       def set_state(target, transition, state_attr, method)
         transition.execute do |block|
-          block.call
+          result = block ? block.call : nil
           target.assign_attributes(state_attr => transition.to.to_s)
-          target.send(method)
+          set_state_result = target.send(method) || halt_transition
+          block ? result : set_state_result
         end
       end
     end

@@ -21,8 +21,16 @@ module NxtStateMachine
       self.context = context
       self.event = event
 
-      self.block_proxy = Proc.new do
-        if block
+      #self.block_proxy = Proc.new do
+      #  if block
+      #    # if the block takes arguments we always pass the transition as the first one
+      #    args.prepend(self) if block.arity > 0
+      #    context.instance_exec(*args, **opts, &block)
+      #  end
+      #end
+
+      if block
+        self.block_proxy = Proc.new do
           # if the block takes arguments we always pass the transition as the first one
           args.prepend(self) if block.arity > 0
           context.instance_exec(*args, **opts, &block)
@@ -32,7 +40,10 @@ module NxtStateMachine
       state_machine.send(set_state_with_method).with_context(context).call(state_machine.target(context), self)
     end
 
+    # TODO: Remove this
     def apply_block
+      return unless block_proxy
+
       block_proxy.call
     end
 

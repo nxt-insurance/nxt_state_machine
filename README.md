@@ -4,95 +4,6 @@ NxtStateMachine is a simple state machine library that ships with an easy to use
 It was build with the intend in mind to make it easy to implement other integrations. 
 Beside the ActiveRecord integration, it ships with in memory adapters for Hash and attr_accessor.  
 
-```ruby
-class ArticleWorkflow
-  include NxtStateMachine::ActiveRecord
-
-  def initialize(article, **options)
-    @article = article
-    @options = options
-  end
-
-  attr_accessor :article
-
-  state_machine(target: :article, state_attr: :status) do
-    state :draft, initial: true
-    state :written
-    state :submitted
-    state :approved
-    state :published
-    state :rejected
-    state :deleted
-
-    event :write do
-      transition from: %i[draft written deleted], to: :written
-    end
-
-    event :submit do
-      # When the block takes arguments (instead of only keyword arguments!!) 
-      # the transition is always passed in as the first argument!!!
-      transition from: %i[written rejected deleted], to: :submitted do |transition|
-        puts transition.from.enum
-        puts transition.to.enum
-      end
-    end
-
-    event :approve do
-      before_transition from: %i[written submitted deleted], to: :approved, run: :call_me_back
-
-      transition from: %i[written submitted deleted], to: :approved do |headline:|
-        article.headline = headline
-      end
-
-      after_transition from: %i[written submitted deleted], to: :approved, run: :call_me_back
-
-      around_transition from: any_state, to: :approved do |block|
-        # Note that around transition callbacks get passed a proc object that you have to call 
-        puts 'around transition enter' 
-        block.call  
-        puts 'around transition exit'
-      end
-
-      on_error CustomError from: any_state, to: :approved do |error, transition|
-      end
-    end
-
-    event :publish do
-      before_transition from: any_state, to: :published, run: :some_method
-
-      transition from: :approved, to: :published
-    end
-
-    event :reject do
-      transition from: %i[draft submitted deleted], to: :rejected
-    end
-
-    event :delete do
-      transition from: any_state, to: :deleted do
-        article.deleted_at = Time.current
-      end
-    end
-    
-    on_error! CustomError from: any_state, to: :approved do |error, transition|
-      # Would overwrite an existing error handler 
-    end
-  end
-
-  private
-
-  def some_method
-  end
-
-  def call_me_back(transition)
-    puts transition.from.enum
-    puts transition.to.enum
-  end
-end
-
-```
-
-
-
 ## Installation
 
 Add this line to your application's Gemfile:
@@ -224,8 +135,108 @@ end
 *NOTE* Transitions run in transactions that will be rolled back in case of an exception or if your target cannot be 
 saved due to validation errors. The state is then set back to the state before the transition! 
 
+#### Return values of transitions
+
+If transitions take blocks, the transition will return the value of the block. This means that your block can return 
+false and thus the return value of your transition is false even though the transition executed just fine! If a 
+transition does not take a block, it will return the value of `:save` and `:save!` respectively.
+
+
+### Callbacks
+
+### Error Callbacks
+
+
+### Putting it all together 
+
+```ruby
+class ArticleWorkflow
+  include NxtStateMachine::ActiveRecord
+
+  def initialize(article, **options)
+    @article = article
+    @options = options
+  end
+
+  attr_accessor :article
+
+  state_machine(target: :article, state_attr: :status) do
+    state :draft, initial: true
+    state :written
+    state :submitted
+    state :approved
+    state :published
+    state :rejected
+    state :deleted
+
+    event :write do
+      transition from: %i[draft written deleted], to: :written
+    end
+
+    event :submit do
+      # When the block takes arguments (instead of only keyword arguments!!) 
+      # the transition is always passed in as the first argument!!!
+      transition from: %i[written rejected deleted], to: :submitted do |transition|
+        puts transition.from.enum
+        puts transition.to.enum
+      end
+    end
+
+    event :approve do
+      before_transition from: %i[written submitted deleted], to: :approved, run: :call_me_back
+
+      transition from: %i[written submitted deleted], to: :approved do |headline:|
+        article.headline = headline
+      end
+
+      after_transition from: %i[written submitted deleted], to: :approved, run: :call_me_back
+
+      around_transition from: any_state, to: :approved do |block|
+        # Note that around transition callbacks get passed a proc object that you have to call 
+        puts 'around transition enter' 
+        block.call  
+        puts 'around transition exit'
+      end
+
+      on_error CustomError from: any_state, to: :approved do |error, transition|
+      end
+    end
+
+    event :publish do
+      before_transition from: any_state, to: :published, run: :some_method
+
+      transition from: :approved, to: :published
+    end
+
+    event :reject do
+      transition from: %i[draft submitted deleted], to: :rejected
+    end
+
+    event :delete do
+      transition from: any_state, to: :deleted do
+        article.deleted_at = Time.current
+      end
+    end
+    
+    on_error! CustomError from: any_state, to: :approved do |error, transition|
+      # Would overwrite an existing error handler 
+    end
+  end
+
+  private
+
+  def some_method
+  end
+
+  def call_me_back(transition)
+    puts transition.from.enum
+    puts transition.to.enum
+  end
+end
+```
+
 ## TODO
-- Reevaluate the return value of the transition? What would you expect?!!!
+- Test return values of transitions with and without block!!!
 - What about inheritance? => What would be the expected behaviour? (dup vs. no dup)
     => Might also make sense to walk the ancestors chain and collect configure blocks
     => This might be super flexible as we could apply these in amend / reset mode
