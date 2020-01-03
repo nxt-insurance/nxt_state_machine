@@ -66,7 +66,16 @@ class Article < ApplicationRecord
   state_machine do
     state :draft, initial: true
     states :written, :submitted
-  end
+    # You can pass options to states that you can query in a transition later
+    state :deleted, end_state: true
+
+    # You can even define custom methods on states if options are not sufficient 
+    state :advanced do
+      def advanced_state?
+        true
+      end
+    end
+   end
 end
 ```
 
@@ -126,8 +135,8 @@ it will always be passed the current transition object as the first argument!*
 event :approve do
   transition from: %i[written rejected], to: :approved do |transition, approved_at:|
     # The transition object provides some useful information in the current transition
-    puts transition.from.enum
-    puts transition.to.enum
+    puts transition.from # will give you the state object with the options and methods you defined earlier
+    puts transition.to.enum # by calling :enum on the state it will give you the state enum 
   end
 end
 ```
