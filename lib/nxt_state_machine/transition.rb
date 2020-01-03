@@ -40,13 +40,6 @@ module NxtStateMachine
       state_machine.send(set_state_with_method).with_context(context).call(state_machine.target(context), self)
     end
 
-    # TODO: Remove this
-    def apply_block
-      return unless block_proxy
-
-      block_proxy.call
-    end
-
     def execute(&block)
       Transition::Proxy.new(event, state_machine,self, context).call(&block)
     rescue StandardError => error

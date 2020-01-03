@@ -19,8 +19,10 @@ RSpec.describe NxtStateMachine do
             state_machine do
               get_state_with { self.state ||= :draft }
               set_state_with do |transition, context|
-                transition.apply_block
-                self.state = transition.to
+                transition.execute do |block|
+                  block.call
+                  self.state = transition.to
+                end
               end
 
               state :draft, initial: true
@@ -243,8 +245,10 @@ RSpec.describe NxtStateMachine do
           get_state_with { self.state ||= :draft }
 
           set_state_with do |target, transition|
-            transition.apply_block
-            self.state = transition.to.enum
+            transition.execute do |block|
+              block.call
+              self.state = transition.to.enum
+            end
           end
 
           state :draft, initial: true

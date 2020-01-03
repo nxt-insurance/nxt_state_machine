@@ -52,8 +52,8 @@ RSpec.describe NxtStateMachine do
         def set_state(target, transition)
           transition.run_before_callbacks
 
-          result = transition.execute do
-            transition.apply_block
+          result = transition.execute do |block|
+            block.call
             self.state = transition.to.enum
           end
 
