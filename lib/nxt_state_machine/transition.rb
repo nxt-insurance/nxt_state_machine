@@ -17,24 +17,32 @@ module NxtStateMachine
     # => This way we could differentiate what event triggered the callback!!!
 
     def prepare(event, context, set_state_with_method, *args, **opts)
-      # This exposes the transition block on the transition itself so it can be executed later in :set_state_with
-      self.context = context
-      self.event = event
-      self.block_proxy = nil
+      # This exposes the transition block on the transition_to_execute so it can be executed later in :set_state_with
+      current_transition = clone
+      current_transition.send(:context=, context)
+      current_transition.send(:event=, event)
+      current_transition.send(:block_proxy=, nil)
 
       # block_proxy only is set when the transition accepts a block!
       if block
-        self.block_proxy = Proc.new do
+        proxy = Proc.new do
           # if the block takes arguments we always pass the transition as the first one
-          args.prepend(self) if block.arity > 0
+          args.prepend(current_transition) if block.arity > 0
           context.instance_exec(*args, **opts, &block)
         end
+
+        current_transition.send(:block_proxy=, proxy)
       end
 
-      state_machine.send(set_state_with_method).with_context(context).call(state_machine.target(context), self)
+      state_machine.send(
+        set_state_with_method
+      ).with_context(
+        context
+      ).call(state_machine.target(context), current_transition)
     end
 
     def execute(&block)
+      # This is called on the cloned transition from above!
       Transition::Proxy.new(event, state_machine,self, context).call(&block)
     rescue StandardError => error
       callback = state_machine.find_error_callback(error, self)
