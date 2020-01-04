@@ -14,6 +14,8 @@ jobs:
     steps:
       - checkout
 
+      - run: gem install bundler --version $BUNDLER_VERSION
+
       # Download and cache dependencies
       - restore_cache:
           keys:
