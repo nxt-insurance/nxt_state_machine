@@ -1,3 +1,5 @@
+[![CircleCI](https://circleci.com/gh/nxt-insurance/nxt_state_machine.svg?style=svg)](https://circleci.com/gh/nxt-insurance/nxt_state_machine)
+
 # NxtStateMachine
 
 NxtStateMachine is a simple state machine library that ships with an easy to use integration for ActiveRecord.
