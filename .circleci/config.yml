@@ -8,18 +8,20 @@ jobs:
     docker:
       # specify the version you desire here
       - image: circleci/ruby:2.6.1-node
+    environment:
+      BUNDLER_VERSION: 2.0.2
 
     working_directory: ~/repo
 
     steps:
       - checkout
 
-      - run: gem install bundler --version $BUNDLER_VERSION
-
       # Download and cache dependencies
       - restore_cache:
           keys:
             - v1-dependencies-{{ checksum "Gemfile.lock" }}
+            
+      - run: gem install bundler --version $BUNDLER_VERSION
 
       - run:
           name: install dependencies
