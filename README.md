@@ -1,4 +1,4 @@
-[![CircleCI](https://circleci.com/gh/nxt-insurance/nxt_state_machine.svg?style=svg)](https://circleci.com/gh/nxt-insurance/nxt_state_machine)
+[![CircleCI](https://circleci.com/gh/nxt-insurance/nxt_state_machine.svg?style=svg)](https://circleci.com/gh/nxt-insurance/nxt_state_machine) [![Depfu](https://badges.depfu.com/badges/e9cb30113bbde657670ab3f5b94cfa67/count.svg)](https://depfu.com/github/nxt-insurance/nxt_state_machine?project_id=10452)
 
 # NxtStateMachine
 
