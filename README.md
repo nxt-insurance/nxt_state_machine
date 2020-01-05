@@ -36,9 +36,9 @@ class ArticleWorkflow
   attr_accessor :article
 
   state_machine(target: :article, state_attr: :status) do
+    # First we setup the states
     state :draft, initial: true
-    state :written
-    state :submitted
+    states :written, :submitted # define multiple states at the same time 
     state :approved
     state :published
     state :rejected
@@ -327,10 +327,10 @@ end
 
 ## TODO
 - Test implementations for Hash, AttrAccessor
+- Multi threading spec
+- Should we clone machines for each context?
 - What about inheritance? => What would be the expected behaviour? (dup vs. no dup)
     => Might also make sense to walk the ancestors chain and collect configure blocks
-    => This might be super flexible as we could apply these in amend / reset mode
-    => Probably would be best to have :amend_configuration and :reset_configuration methods on the state_machine 
 
 
 ## Development

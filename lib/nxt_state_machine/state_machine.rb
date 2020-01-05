@@ -14,8 +14,8 @@ module NxtStateMachine
       @initial_state = nil
     end
 
-    attr_reader :class_context, :states, :transitions, :events, :options, :callbacks, :name, :error_callback_registry
-    attr_accessor :initial_state
+    attr_reader :class_context, :transitions, :events, :options, :callbacks, :name, :error_callback_registry
+    attr_accessor :initial_state, :context
 
     def get_state_with(method = nil, &block)
       method_or_block = (method || block)
@@ -56,6 +56,13 @@ module NxtStateMachine
           state
         end
       end
+    end
+
+    def states(*names, **opts, &block)
+      # method overloading in ruby ;-)
+      return @states unless names.any?
+
+      state(*names, **opts, &block)
     end
 
     def transitions

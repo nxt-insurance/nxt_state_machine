@@ -71,15 +71,15 @@ module NxtStateMachine
     end
 
     def state_machine(name = :default)
-      @state_machine ||= self.class.state_machines[name]
+      @state_machine ||= self.class.state_machines.resolve(name)
     end
 
     def current_state_name(name = :default)
-      state_machines[name].current_state_name(self)
+      state_machines.resolve(name).current_state_name(self)
     end
 
     def current_state(name = :default)
-      state_machines[name].states.fetch(current_state_name(name))
+      state_machines.resolve(name).states.resolve(current_state_name(name))
     end
 
     def halt_transition(*args, **opts)
