@@ -13,8 +13,9 @@ RSpec.describe NxtStateMachine::ActiveRecord do
           state :processed, :accepted, :rejected
 
           event :process do
-            transitions from: :received, to: :processed do |transition, processed_at|
+            transitions from: :received, to: :processed do |transition, processed_at, make_invalid: false|
               self.processed_at = processed_at
+              self.received_at = nil if make_invalid
             end
           end
 
@@ -101,9 +102,8 @@ RSpec.describe NxtStateMachine::ActiveRecord do
           end
 
           it do
-            subject.received_at = nil
-            expect { subject.process(Time.current) }.to_not change { subject.status.to_s }
-            expect { subject.process!(Time.current) }.to raise_error(ActiveRecord::RecordInvalid)
+            expect { subject.process(Time.current, make_invalid: true) }.to_not change { subject.status.to_s }
+            expect { subject.reload.process!(Time.current, make_invalid: true) }.to raise_error(ActiveRecord::RecordInvalid)
             expect(subject.reload.status).to eq('received')
             expect(subject).to be_received
           end
@@ -258,8 +258,9 @@ RSpec.describe NxtStateMachine::ActiveRecord do
           state :processed, :accepted, :rejected
 
           event :process do
-            transition from: :received, to: :processed do |t, processed_at|
+            transition from: :received, to: :processed do |t, processed_at, make_invalid: false|
               application.processed_at = processed_at
+              application.content = nil if make_invalid
             end
           end
 
@@ -268,6 +269,11 @@ RSpec.describe NxtStateMachine::ActiveRecord do
               application.accepted_at = accepted_at
             end
           end
+        end
+
+        def reload
+          application.reload
+          self
         end
       end
     end
@@ -336,13 +342,9 @@ RSpec.describe NxtStateMachine::ActiveRecord do
         end
 
         context 'when the record is invalid' do
-          before do
-            application.content = nil
-          end
-
           it do
-            expect { subject.process(Time.current) }.to_not change { subject.application.status }
-            expect { subject.process!(Time.current) }.to raise_error ActiveRecord::RecordInvalid
+            expect { subject.process(Time.current, make_invalid: true) }.to_not change { subject.application.status }
+            expect { subject.reload.process!(Time.current, make_invalid: true) }.to raise_error ActiveRecord::RecordInvalid
             expect(subject.application.reload.status).to eq('received')
             expect(subject).to be_received
           end
@@ -923,7 +925,7 @@ RSpec.describe NxtStateMachine::ActiveRecord do
       context 'when successful' do
         before do
           subject.process!
-          subject.accepted_at = Time.current
+          subject.update!(accepted_at: Time.current)
         end
 
         context 'with bang' do

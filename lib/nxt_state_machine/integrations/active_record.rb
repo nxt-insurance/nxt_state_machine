@@ -21,7 +21,7 @@ module NxtStateMachine
         end
 
         machine.set_state_with do |target, transition|
-          target.transaction do
+          target.with_lock do
             transition.run_before_callbacks
             result = set_state(target, transition, state_attr, :save)
             transition.run_after_callbacks
@@ -39,7 +39,7 @@ module NxtStateMachine
         end
 
         machine.set_state_with! do |target, transition|
-          target.transaction do
+          target.with_lock do
             transition.run_before_callbacks
             result = set_state(target, transition, state_attr, :save!)
             transition.run_after_callbacks

@@ -255,7 +255,7 @@ Transitions can be halted in callbacks and during the transition itself simply b
 You can register `before_transition`, `around_transition` and `after_transition` callbacks. By defining the 
 :from and :to states you decide on which transitions the callback actually runs. Around callbacks need to call the
 proc object that they get passed in. Registering callbacks inside an event block or on the state_machine top level
-behavious exactly the same way and is only a matter of structure. The only thing that defines when callbacks run is
+behaves exactly the same way and is only a matter of structure. The only thing that defines when callbacks run is
 the :from and :to parameters with which they are registered.
    
 
@@ -327,7 +327,9 @@ end
 
 ## TODO
 - Test implementations for Hash, AttrAccessor
-- Multi threading spec
+- Thread safety spec!
+- Spec locks?
+- Explain locking in readme!
 - Should we clone machines for each context?
 - What about inheritance? => What would be the expected behaviour? (dup vs. no dup)
     => Might also make sense to walk the ancestors chain and collect configure blocks
