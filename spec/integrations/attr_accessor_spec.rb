@@ -15,8 +15,10 @@ RSpec.describe NxtStateMachine::AttrAccessor do
           state :processed, :accepted
 
           event :process do
-            transitions from: :received, to: :processed do |processed_at:|
+            transitions from: :received, to: :processed do |processed_at:, test_multi_threading: false|
+              sleep(rand(0)/10.0) if test_multi_threading
               self.processed_at = processed_at
+              sleep(rand(0)/10.0) if test_multi_threading
             end
           end
 
@@ -142,13 +144,13 @@ RSpec.describe NxtStateMachine::AttrAccessor do
       it 'is thread safe' do
         amount.times do |index|
           threads[index] = Thread.new {
-            sleep(rand(0)/10.0)
-            targets[index].process!(processed_at: "thread #{index}")
+            targets[index].process!(processed_at: "thread #{index}", test_multi_threading: true)
           }
         end
 
         threads.map(&:join)
 
+        # Check if all transitions have the expected result - meaning one transition runs in isolation of another one
         targets.each do |k,v|
           expect(v.processed_at).to eq("thread #{k}")
         end

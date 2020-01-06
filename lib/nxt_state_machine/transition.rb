@@ -34,8 +34,8 @@ module NxtStateMachine
         current_transition.send(:block_proxy=, proxy)
       end
 
-      state_machine.send(
-        set_state_with_method
+      Callable.new(
+        state_machine.send(set_state_with_method)
       ).bind(
         context
       ).call(state_machine.target(context), current_transition)

@@ -19,19 +19,19 @@ module NxtStateMachine
 
     def get_state_with(method = nil, &block)
       method_or_block = (method || block)
-      @get_state_with ||= method_or_block && Callable.new(method_or_block) ||
+      @get_state_with ||= method_or_block ||
         raise_missing_configuration_error(:get_state_with)
     end
 
     def set_state_with(method = nil, &block)
       method_or_block = (method || block)
-      @set_state_with ||= method_or_block && Callable.new(method_or_block) ||
+      @set_state_with ||= method_or_block ||
         raise_missing_configuration_error(:set_state_with)
     end
 
     def set_state_with!(method = nil, &block)
       method_or_block = (method || block)
-      @set_state_with_bang ||= method_or_block && Callable.new(method_or_block) ||
+      @set_state_with_bang ||= method_or_block ||
         raise_missing_configuration_error(:set_state_with!)
     end
 
@@ -49,7 +49,6 @@ module NxtStateMachine
           self.initial_state = state if opts.fetch(:initial)
 
           class_context.define_method "#{name}?" do
-            # States internally are always strings
             machine.current_state_name(self) == name
           end
 
@@ -161,7 +160,7 @@ module NxtStateMachine
     end
 
     def current_state_name(context)
-      get_state_with.bind(context).call(target(context))
+      Callable.new(get_state_with).bind(context).call(target(context))
     end
 
     def target(context)
