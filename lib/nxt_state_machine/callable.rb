@@ -13,10 +13,12 @@ module NxtStateMachine
       end
     end
 
-    def with_context(execution_context = nil)
-      self.context = execution_context
-      ensure_context_not_missing
-      self
+    def bind(execution_context = nil)
+      # When we switch the context we clone the callable in order to guarantee threadsafety
+      cloned_callable = clone
+      cloned_callable.send(:context=, execution_context)
+      cloned_callable.send(:ensure_context_not_missing)
+      cloned_callable
     end
 
     def call(*args, **opts)

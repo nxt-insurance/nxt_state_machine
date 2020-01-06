@@ -127,5 +127,32 @@ RSpec.describe NxtStateMachine::AttrAccessor do
         end
       end
     end
+
+    context 'multi threaded' do
+      let(:amount) { 10_000 }
+
+      let(:targets) do
+        amount.times.each_with_object({}) do |index, acc|
+          acc[index] = state_machine_class.new
+        end
+      end
+
+      let(:threads) { [] }
+
+      it 'is thread safe' do
+        amount.times do |index|
+          threads[index] = Thread.new {
+            sleep(rand(0)/10.0)
+            targets[index].process!(processed_at: "thread #{index}")
+          }
+        end
+
+        threads.map(&:join)
+
+        targets.each do |k,v|
+          expect(v.processed_at).to eq("thread #{k}")
+        end
+      end
+    end
   end
 end

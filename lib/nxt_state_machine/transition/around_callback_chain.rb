@@ -10,7 +10,7 @@ module NxtStateMachine
     def build(proxy)
       return proxy unless callbacks.any?
 
-      callbacks.map { |c| Callable.new(c).with_context(context) }.reverse.inject(proxy) do |previous, callback|
+      callbacks.map { |c| Callable.new(c).bind(context) }.reverse.inject(proxy) do |previous, callback|
         -> { callback.call(previous, transition) }
       end
     end

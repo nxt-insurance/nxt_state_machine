@@ -156,12 +156,12 @@ module NxtStateMachine
       current_callbacks = callbacks.resolve(transition, kind)
 
       current_callbacks.each do |callback|
-        Callable.new(callback).with_context(context).call(transition)
+        Callable.new(callback).bind(context).call(transition)
       end
     end
 
     def current_state_name(context)
-      get_state_with.with_context(context).call(target(context))
+      get_state_with.bind(context).call(target(context))
     end
 
     def target(context)

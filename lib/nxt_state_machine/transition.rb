@@ -36,7 +36,7 @@ module NxtStateMachine
 
       state_machine.send(
         set_state_with_method
-      ).with_context(
+      ).bind(
         context
       ).call(state_machine.target(context), current_transition)
     end
@@ -48,7 +48,7 @@ module NxtStateMachine
       callback = state_machine.find_error_callback(error, self)
       raise unless callback
 
-      Callable.new(callback).with_context(context).call(error, self)
+      Callable.new(callback).bind(context).call(error, self)
     end
 
     alias_method :with_around_callbacks, :execute
