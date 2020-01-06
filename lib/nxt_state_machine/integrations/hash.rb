@@ -61,6 +61,7 @@ module NxtStateMachine
 
     def self.included(base)
       base.include(NxtStateMachine)
+      base.include(InstanceMethods)
       base.extend(ClassMethods)
     end
   end

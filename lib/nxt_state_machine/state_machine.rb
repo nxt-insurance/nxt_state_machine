@@ -15,7 +15,7 @@ module NxtStateMachine
     end
 
     attr_reader :class_context, :transitions, :events, :options, :callbacks, :name, :error_callback_registry
-    attr_accessor :initial_state, :context
+    attr_accessor :initial_state
 
     def get_state_with(method = nil, &block)
       method_or_block = (method || block)
@@ -44,7 +44,7 @@ module NxtStateMachine
         if opts.fetch(:initial) && initial_state.present?
           raise NxtStateMachine::Errors::InitialStateAlreadyDefined, ":#{initial_state.enum} was already defined as the initial state"
         else
-          state = new_state_class(&block).new(name, self, opts)
+          state = new_state_class(&block).new(name, self, **opts.reverse_merge(index: states.size))
           states.register(name, state)
           self.initial_state = state if opts.fetch(:initial)
 
@@ -105,8 +105,7 @@ module NxtStateMachine
     end
 
     def can_transition?(event_name, from)
-      normalized_event_name = event_name
-      event = events.resolve(normalized_event_name)
+      event = events.resolve(event_name)
       event && event.event_transitions.key?(from)
     end
 
@@ -140,6 +139,7 @@ module NxtStateMachine
       self
     end
 
+    # TODO: Everything that require context should live in some sort of proxy
     def run_before_callbacks(transition, context)
       run_callbacks(transition, :before, context)
     end

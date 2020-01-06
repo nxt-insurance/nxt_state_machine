@@ -129,32 +129,5 @@ RSpec.describe NxtStateMachine::AttrAccessor do
         end
       end
     end
-
-    context 'multi threaded' do
-      let(:amount) { 10_000 }
-
-      let(:targets) do
-        amount.times.each_with_object({}) do |index, acc|
-          acc[index] = state_machine_class.new
-        end
-      end
-
-      let(:threads) { [] }
-
-      it 'is thread safe' do
-        amount.times do |index|
-          threads[index] = Thread.new {
-            targets[index].process!(processed_at: "thread #{index}", test_multi_threading: true)
-          }
-        end
-
-        threads.map(&:join)
-
-        # Check if all transitions have the expected result - meaning one transition runs in isolation of another one
-        targets.each do |k,v|
-          expect(v.processed_at).to eq("thread #{k}")
-        end
-      end
-    end
   end
 end

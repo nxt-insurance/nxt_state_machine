@@ -169,6 +169,16 @@ class Article < ApplicationRecord
 end
 ```
 
+You can also navigate between states 
+
+```ruby
+state.next # will give you the next state in the order they have been registered
+state.previous # will give you the previously registered state
+state.first? # first registered state?
+state.last? # last registered state?
+state.index # gives you the index of the state in the registry (can also be overwritten by passing index as an option)
+```
+
 ### Events
 
 Once you have defined your states you can define events and their transitions. Events trigger state transitions based
@@ -196,7 +206,7 @@ class Article < ApplicationRecord
       # We recommend to use keyword arguments to make events accept custom arguments
       transition from: %i[written rejected], to: :approved do |approved_at:|
         self.approved_at = approved_at
-        # NOTE: The transition is halted if this returns a falsey value
+        # NOTE: The transition is NOT halted if this returns a falsey value
       end
     end
   end
