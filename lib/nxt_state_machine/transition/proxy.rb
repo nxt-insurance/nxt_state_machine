@@ -10,7 +10,7 @@ module NxtStateMachine
     def call(&block)
       proxy = if block.arity == 1
         Proc.new do
-          block.call(transition.block_proxy)
+          block.call(transition.block)
         end
       else
         block

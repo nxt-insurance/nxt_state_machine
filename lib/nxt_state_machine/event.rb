@@ -26,7 +26,7 @@ module NxtStateMachine
 
     def transitions(from:, to:, &block)
       Array(from).each do |from_state|
-        transition = Transition.new(name, from: from_state, to: to, state_machine: state_machine, &block)
+        transition = Transition::Factory.new(name, from: from_state, to: to, state_machine: state_machine, &block)
         state_machine.transitions << transition
         event_transitions.register(from_state, transition)
       end

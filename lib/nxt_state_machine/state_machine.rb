@@ -83,19 +83,20 @@ module NxtStateMachine
     end
 
     def event(name, &block)
+      name = name.to_sym
       event = Event.new(name, state_machine: self, &block)
       events.register(name, event)
 
       class_context.define_method name do |*args, **opts|
         event.state_machine.can_transition!(name, event.state_machine.current_state_name(self))
         transition = event.event_transitions.resolve(event.state_machine.current_state_name(self))
-        transition.prepare(name, self, :set_state_with, *args, **opts)
+        transition.build_transition(name, self, :set_state_with, *args, **opts)
       end
 
       class_context.define_method "#{name}!" do |*args, **opts|
         event.state_machine.can_transition!(name, event.state_machine.current_state_name(self))
         transition = event.event_transitions.resolve(event.state_machine.current_state_name(self))
-        transition.prepare("#{name}!", self, :set_state_with!, *args, **opts)
+        transition.build_transition("#{name}!".to_sym, self, :set_state_with!, *args, **opts)
       end
 
       class_context.define_method "can_#{name}?" do
