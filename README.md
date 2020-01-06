@@ -216,8 +216,12 @@ article.approve(approved_at: Time.current)
 article.approve!(approved_at: Time.current)
 ```
 
-**NOTE:** Transitions run in transactions that will be rolled back in case of an exception or if your target cannot be 
-saved due to validation errors. The state is then set back to the state before the transition! 
+**NOTE:** Transitions run in transactions that acquire a lock to prevent concurrency issues. Transactions will be 
+rolled back in case of an exception or if your target cannot be saved due to validation errors. 
+The state is set back to the state before the transition! If you try to transitions on records with unpersisted changes
+you will get a `RuntimeError: Locking a record with unpersisted changes is not supported.` error saying something
+like `Use :save to persist the changes, or :reload to discard them explicitly.` since it's not possible to acquire a 
+lock on modified records. 
 
 ### Transitions
 
