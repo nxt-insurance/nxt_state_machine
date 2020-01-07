@@ -136,9 +136,13 @@ RSpec.describe NxtStateMachine do
         expect(subject.state_machine.states.resolve(:approved).first?).to be_falsey
         expect(subject.state_machine.states.resolve(:approved).last?).to be_falsey
 
-        expect(subject.state_machine.states.resolve(:published).next.enum).to eq(:draft)
-        expect(subject.state_machine.states.resolve(:published).last?).to be_truthy
+        expect(subject.state_machine.states.resolve(:published).next.enum).to eq(:rejected)
+        expect(subject.state_machine.states.resolve(:published).last?).to be_falsey
         expect(subject.state_machine.states.resolve(:published).first?).to be_falsey
+
+        expect(subject.state_machine.states.resolve(:rejected).next.enum).to eq(:draft)
+        expect(subject.state_machine.states.resolve(:rejected).last?).to be_truthy
+        expect(subject.state_machine.states.resolve(:rejected).first?).to be_falsey
       end
     end
 

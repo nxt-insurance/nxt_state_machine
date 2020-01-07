@@ -41,25 +41,32 @@ class ArticleWorkflow
     # First we setup the states
     state :draft, initial: true
     states :written, :submitted # define multiple states at the same time 
-    state :approved
+    state :approved 
     state :published
-    state :rejected
-    state :deleted
+    state :rejected, negative: true # You can pass options to states that you can query in the transition
+    state :deleted, negative: true do # States can even have custom methods if options are not sufficient
+      def deleted_at
+        Time.current
+      end
+    end
+
 
     event :write do
       transition from: %i[draft written deleted], to: :written
     end
 
     event :submit do
-      # When the block takes arguments (instead of only keyword arguments!!) 
-      # the transition is always passed in as the first argument!!!
-      transition from: %i[written rejected deleted], to: :submitted do |transition|
+      # If you want transitions to take arguments, we recommend to use keyword arguments
+      # When the block takes arguments (instead of just keyword arguments) the first argument 
+      # passed to the block will always be the transition!
+      transition from: %i[written rejected deleted], to: :submitted do |transition, *others|
         puts transition.from.enum
         puts transition.to.enum
       end
     end
 
     event :approve do
+      # use methods as callbacks with run: 
       before_transition from: %i[written submitted deleted], to: :approved, run: :call_me_back
 
       transition from: %i[written submitted deleted], to: :approved do |headline:|
@@ -68,6 +75,7 @@ class ArticleWorkflow
 
       after_transition from: %i[written submitted deleted], to: :approved, run: :call_me_back
 
+      # use blocks with callbacks
       around_transition from: any_state, to: :approved do |block|
         # Note that around transition callbacks get passed a proc object that you have to call 
         puts 'around transition enter' 
@@ -176,7 +184,8 @@ state.next # will give you the next state in the order they have been registered
 state.previous # will give you the previously registered state
 state.first? # first registered state?
 state.last? # last registered state?
-state.index # gives you the index of the state in the registry (can also be overwritten by passing index as an option)
+state.index # gives you the index of the state in the registry 
+            # (can also be set manually on all states by passing an index option when defining the states)
 ```
 
 ### Events
