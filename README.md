@@ -185,7 +185,7 @@ state.previous # will give you the previously registered state
 state.first? # first registered state?
 state.last? # last registered state?
 state.index # gives you the index of the state in the registry 
-            # (can also be set manually on all states by passing an index option when defining the states)
+# You can also set indexes manually by passing in indexes when defining states. Make sure they are in order! 
 ```
 
 ### Events

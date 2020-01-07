@@ -7,6 +7,8 @@ module NxtStateMachine
       @transitions = []
       @options = opts.with_indifferent_access
       @index = opts.fetch(:index)
+
+      ensure_index_not_occupied
     end
 
     attr_accessor :enum, :initial, :index, :transitions, :state_machine, :options
@@ -16,23 +18,34 @@ module NxtStateMachine
     end
 
     def previous
-      previous_index = (index - 1) % state_machine.states.size
-      key = state_machine.states.keys[previous_index]
-      state_machine.states.resolve(key)
+      current_index = sorted_states.index { |state| state.index == index }
+      sorted_states[(current_index - 1) % sorted_states.size]
     end
 
     def next
-      next_index = (index + 1) % state_machine.states.size
-      key = state_machine.states.keys[next_index]
-      state_machine.states.resolve(key)
+      current_index = sorted_states.index { |state| state.index == index }
+      sorted_states[(current_index + 1) % sorted_states.size]
     end
 
     def last?
-      index == state_machine.states.size - 1
+      sorted_states.last.index == index
     end
 
     def first?
-      index == 0
+      sorted_states.first.index == index
+    end
+
+    private
+
+    def sorted_states
+      state_machine.states.values.sort_by(&:index)
+    end
+
+    def ensure_index_not_occupied
+      state_with_same_index = state_machine.states.values.find { |state| state.index == index }
+      return unless state_with_same_index
+
+      raise StateWithSameIndexAlreadyRegistered, "The index #{index} is already occupied by state: #{state_with_same_index.enum}"
     end
   end
 end

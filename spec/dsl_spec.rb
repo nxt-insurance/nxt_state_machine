@@ -107,7 +107,8 @@ RSpec.describe NxtStateMachine do
           state_machine do
             state :draft, pre_published: true
             state :approved, pre_published: true
-            state :published, pre_published: false do
+            state :rejected, index: 3
+            state :published, pre_published: false, index: 2 do
               def category
                 'crazy'
               end
