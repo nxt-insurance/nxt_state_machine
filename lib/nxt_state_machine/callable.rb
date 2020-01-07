@@ -19,9 +19,9 @@ module NxtStateMachine
       self
     end
 
-    # NOTE: allowing call(*args, **opts) is dangerous when called with a hash as an argument!
-    # It will automatically become the **opts which might not be what you want! Probably better
-    # to introduce arguments: [], options: { } or something
+    # NOTE: Currentl we only allow arguments! Not keyword args or **options
+    # If we would allow **options and we would pass a hash as the only argument it would
+    # automatically be parsed as the options!
     def call(*args)
       ensure_context_not_missing
 
