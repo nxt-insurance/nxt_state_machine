@@ -9,21 +9,21 @@ module NxtStateMachine
           &config
         )
 
-        machine.get_state_with do |target|
-          if target[state_attr].nil?
-            target[state_attr] = initial_state.enum
+        machine.get_state_with do |current_target|
+          if current_target[state_attr].nil?
+            current_target[state_attr] = initial_state.enum
           end
 
-          target[state_attr]
+          current_target[state_attr]
         end
 
-        machine.set_state_with do |target, transition|
+        machine.set_state_with do |current_target, transition|
           transition.run_before_callbacks
-          result = set_state(target, transition, state_attr)
+          result = set_state(current_target, transition, state_attr)
           transition.run_after_callbacks
           result
         rescue StandardError => error
-          target[state_attr] = transition.from.enum
+          current_target[state_attr] = transition.from.enum
 
           if error.is_a?(NxtStateMachine::Errors::TransitionHalted)
             false
@@ -32,14 +32,14 @@ module NxtStateMachine
           end
         end
 
-        machine.set_state_with! do |target, transition|
+        machine.set_state_with! do |current_target, transition|
           transition.run_before_callbacks
-          result = set_state(target, transition, state_attr)
+          result = set_state(current_target, transition, state_attr)
           transition.run_after_callbacks
 
           result
         rescue StandardError
-          target[state_attr] = transition.from.enum
+          current_target[state_attr] = transition.from.enum
           raise
         end
 
@@ -50,10 +50,10 @@ module NxtStateMachine
     module InstanceMethods
       private
 
-      def set_state(target, transition, state_attr)
+      def set_state(current_target, transition, state_attr)
         transition.execute do |block|
           result = block ? block.call : nil
-          set_state_result = target[state_attr] = transition.to.enum || halt_transition
+          set_state_result = current_target[state_attr] = transition.to.enum || halt_transition
           block ? result : set_state_result
         end
       end

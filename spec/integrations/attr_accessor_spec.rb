@@ -15,10 +15,8 @@ RSpec.describe NxtStateMachine::AttrAccessor do
           state :processed, :accepted
 
           event :process do
-            transitions from: :received, to: :processed do |processed_at:, test_multi_threading: false|
-              sleep(rand(0)/10.0) if test_multi_threading
+            transitions from: :received, to: :processed do |processed_at:|
               self.processed_at = processed_at
-              sleep(rand(0)/10.0) if test_multi_threading
             end
           end
 

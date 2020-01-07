@@ -19,10 +19,12 @@ module NxtStateMachine
       self
     end
 
-    def call(*args, **opts)
+    # NOTE: allowing call(*args, **opts) is dangerous when called with a hash as an argument!
+    # It will automatically become the **opts which might not be what you want! Probably better
+    # to introduce arguments: [], options: { } or something
+    def call(*args)
       ensure_context_not_missing
 
-      args << opts
       args = args.take(arity)
 
       if method?
