@@ -1,1 +1,3 @@
-Error = Class.new(StandardError)
+module NxtStateMachine
+  Error = Class.new(StandardError)
+end
