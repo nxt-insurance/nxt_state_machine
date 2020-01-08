@@ -18,21 +18,15 @@ module NxtStateMachine
     attr_accessor :initial_state
 
     def get_state_with(method = nil, &block)
-      method_or_block = (method || block)
-      @get_state_with ||= method_or_block ||
-        raise_missing_configuration_error(:get_state_with)
+      @get_state_with ||= (method || block) || raise_missing_configuration_error(:get_state_with)
     end
 
     def set_state_with(method = nil, &block)
-      method_or_block = (method || block)
-      @set_state_with ||= method_or_block ||
-        raise_missing_configuration_error(:set_state_with)
+      @set_state_with ||= (method || block) || raise_missing_configuration_error(:set_state_with)
     end
 
     def set_state_with!(method = nil, &block)
-      method_or_block = (method || block)
-      @set_state_with_bang ||= method_or_block ||
-        raise_missing_configuration_error(:set_state_with!)
+      @set_state_with_bang ||= (method || block) || raise_missing_configuration_error(:set_state_with!)
     end
 
     def state(*names, **opts, &block)
