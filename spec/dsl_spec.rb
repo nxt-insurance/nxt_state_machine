@@ -45,6 +45,12 @@ RSpec.describe NxtStateMachine do
           expect(subject.respond_to?(:can_approve?)).to be_truthy
           expect(subject.can_approve?).to be_truthy
         end
+
+        describe '#names' do
+          it do
+            expect(subject.state_machine.events.values.flat_map(&:names)).to eq([:approve, :approve!])
+          end
+        end
       end
 
       context 'but there were no transitions defined for the event' do
