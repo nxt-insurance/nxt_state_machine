@@ -35,6 +35,10 @@ module NxtStateMachine
 
     alias_method :transition, :transitions
 
+    def transitions_from?(state)
+      event_transitions.resolve!(state).present?
+    end
+
     private
 
     def configure(&block)

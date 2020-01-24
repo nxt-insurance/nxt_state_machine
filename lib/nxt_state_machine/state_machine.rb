@@ -66,6 +66,10 @@ module NxtStateMachine
       transitions.select { |transition| transition.transitions_from_to?(from, to) }
     end
 
+    def events_for_state(state)
+      events.values.select { |event| event.transitions_from?(state) }
+    end
+
     def any_state
       states.values.map(&:enum)
     end

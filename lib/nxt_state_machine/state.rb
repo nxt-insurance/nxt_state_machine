@@ -35,6 +35,10 @@ module NxtStateMachine
       sorted_states.first.index == index
     end
 
+    def events
+      state_machine.events_for_state(enum)
+    end
+
     private
 
     def sorted_states

@@ -173,6 +173,39 @@ RSpec.describe NxtStateMachine do
                          "A state with the name 'draft' was already registered!"
       end
     end
+
+    context 'events' do
+      subject do
+        Class.new do
+          include NxtStateMachine
+
+          state_machine do
+            state :draft
+            state :finalized
+            state :approved
+            state :rejected
+
+            event :finalize do
+              transition from: :draft, to: :finalized
+            end
+
+            event :approve do
+              transition from: :finalized, to: :approved
+            end
+
+            event :reject do
+              transition from: [:finalized, :approved], to: :rejected
+            end
+          end
+        end
+      end
+
+      it 'is possible to access events on the states' do
+        expect(subject.state_machine.states.resolve(:draft).events.map(&:name)).to eq([:finalize])
+        expect(subject.state_machine.states.resolve(:finalized).events.map(&:name)).to eq([:approve, :reject])
+        expect(subject.state_machine.states.resolve(:approved).events.map(&:name)).to eq([:reject])
+      end
+    end
   end
 
   describe '.transition' do
