@@ -1,5 +1,7 @@
 module NxtStateMachine
   class State
+    include Comparable
+
     def initialize(enum, state_machine, **opts)
       @enum = enum
       @state_machine = state_machine
@@ -37,6 +39,10 @@ module NxtStateMachine
 
     def events
       state_machine.events_for_state(enum)
+    end
+
+    def <=>(other)
+      index <=> other.index
     end
 
     private
