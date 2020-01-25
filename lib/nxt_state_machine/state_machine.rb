@@ -80,9 +80,9 @@ module NxtStateMachine
       all_states - excluded
     end
 
-    def event(name, &block)
+    def event(name, **options, &block)
       name = name.to_sym
-      event = Event.new(name, state_machine: self, &block)
+      event = Event.new(name, self, **options, &block)
       events.register(name, event)
 
       Event::Names.set_state_method_map(name).each do |event_name, set_state_method|

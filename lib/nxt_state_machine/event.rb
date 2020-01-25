@@ -2,7 +2,7 @@ module NxtStateMachine
   class Event
     include NxtRegistry
 
-    def initialize(name, state_machine:, &block)
+    def initialize(name, state_machine, **options, &block)
       @state_machine = state_machine
       @name = name
       @event_transitions = registry("#{name} event transitions")

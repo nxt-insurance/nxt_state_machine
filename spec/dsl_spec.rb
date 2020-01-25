@@ -28,7 +28,7 @@ RSpec.describe NxtStateMachine do
               state :draft, initial: true
               state :approved
 
-              event :approve do
+              event :approve, path: :happy do
                 transition from: :draft, to: :approved
               end
             end
