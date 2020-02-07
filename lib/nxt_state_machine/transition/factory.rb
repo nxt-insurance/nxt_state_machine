@@ -39,7 +39,7 @@ module NxtStateMachine
         end)
       end
 
-      transition.prepare
+      transition.trigger
     end
 
     private
