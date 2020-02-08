@@ -51,6 +51,16 @@ module NxtStateMachine
           raise
         end
 
+        machine.define_singleton_method :add_state_methods_to_model do |model_class|
+          model_class.class_eval do
+            machine.states.keys.each do |state_name|
+              define_method "#{state_name}?" do
+                send(machine.options.fetch(:state_attr)) == state_name
+              end
+            end
+          end
+        end
+
         machine
       end
     end

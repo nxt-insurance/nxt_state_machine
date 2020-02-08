@@ -271,6 +271,8 @@ RSpec.describe NxtStateMachine::ActiveRecord do
           end
         end
 
+        state_machine.add_state_methods_to_model(Application)
+
         def reload
           application.reload
           self
@@ -288,6 +290,7 @@ RSpec.describe NxtStateMachine::ActiveRecord do
 
         it 'sets the initial state' do
           expect(subject.application.status).to eq('received')
+          expect(subject.application).to be_received
           expect(subject.application).to be_new_record
         end
       end
@@ -310,6 +313,7 @@ RSpec.describe NxtStateMachine::ActiveRecord do
           it do
             expect { subject.process(Time.current) }.to change { subject.application.status }.from('received').to('processed')
             expect(subject.application).to be_persisted
+            expect(application).to be_processed
           end
         end
 

@@ -352,6 +352,7 @@ end
 
 ## TODO
 - Test implementations for Hash, AttrAccessor
+- Decide on how to include state methods in model classes
 - Thread safety spec!
 - Spec locks?
 - Explain locking in readme!
