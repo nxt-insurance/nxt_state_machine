@@ -353,6 +353,11 @@ end
 ## TODO
 - Test implementations for Hash, AttrAccessor
 - Decide on how to include state methods in model classes
+- What should be the scope of locks? => Around before and after transition or not?
+    => Would be cool to make this optional?
+    => Is there a major drawback if we do not implement this at all?
+- Could we make transitions async by using active job and maybe even have some kind of semaphore logic since I see this happening alot.
+
 - Thread safety spec!
 - Spec locks?
 - Explain locking in readme!
