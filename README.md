@@ -335,8 +335,6 @@ You can raise an error, have everything rolled back and then have your error han
 error handler. You can also defuse errors. This means they will not cause a rollback of the transaction during the 
 transition and you can actually persist changes to your model before the defused error is raised and handled. 
 
-### Multiple state machines in the same class
-
 ```ruby
 state_machine do 
   # ...
@@ -344,6 +342,9 @@ state_machine do
   defuse CustomError, from: any_state, to: all_states        
  
   event :approve do
+    # You can also defuse on event level 
+    # defuse CustomError, from: %i[written submitted deleted], to: :approved 
+
     transition from: %i[written submitted deleted], to: :approved do |headline:|
       # This will be save to the database even if defused CustomError is raised after 
       article.update!(headline: headline)
@@ -353,6 +354,12 @@ state_machine do
     
   on_error! CustomError from: any_state, to: :approved do |error, transition|
     # You can still handle the defused Error if you want to 
+    # You should probably reload your model here to not accidentally save changes that 
+    # were made to the model during the transition before a non defused error was raised 
+    article.reload
+    # The error callback does not run inside the transaction. No more strings attached here. 
+    # You can now persist changes to your model again. 
+    article.update!(error: error.message)   
   end
 end
 ```
