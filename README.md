@@ -327,7 +327,35 @@ state_machine do
 end
 ```
 
+### ActiveRecord transaction, rollback and locks - breaking the flow by defusing errors
+
+You want to break out of your transition (which is wrapped inside a lock)? 
+You can raise an error, have everything rolled back and then have your error handler take over.
+**NOTE:** Unless you reload your model all assignments you did, previous to the error, should still be available in your
+error handler. You can also defuse errors. This means they will not cause a rollback of the transaction during the 
+transition and you can actually persist changes to your model before the defused error is raised and handled. 
+
 ### Multiple state machines in the same class
+
+```ruby
+state_machine do 
+  # ...
+  #
+  defuse CustomError, from: any_state, to: all_states        
+ 
+  event :approve do
+    transition from: %i[written submitted deleted], to: :approved do |headline:|
+      # This will be save to the database even if defused CustomError is raised after 
+      article.update!(headline: headline)
+      raise CustomError, 'This does not rollback the headline update above'
+    end
+  end
+    
+  on_error! CustomError from: any_state, to: :approved do |error, transition|
+    # You can still handle the defused Error if you want to 
+  end
+end
+```
 
 In theory you can also have multiple state_machines in the same class. To do so you have to give each 
 state_machine a name. Events need to be unique globally in order to determine which state_machine will be called. 
@@ -353,11 +381,6 @@ end
 ## TODO
 - Test implementations for Hash, AttrAccessor
 - Decide on how to include state methods in model classes
-- What should be the scope of locks? => Around before and after transition or not?
-    => Would be cool to make this optional?
-    => Is there a major drawback if we do not implement this at all?
-- Could we make transitions async by using active job and maybe even have some kind of semaphore logic since I see this happening alot.
-
 - Thread safety spec!
 - Spec locks?
 - Explain locking in readme!

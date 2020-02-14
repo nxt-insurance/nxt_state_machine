@@ -965,4 +965,74 @@ RSpec.describe NxtStateMachine::ActiveRecord do
       end
     end
   end
+
+  describe '#ignore_errors' do
+    let(:state_machine_class) do
+      Class.new do
+        include NxtStateMachine::ActiveRecord
+
+        def initialize(application)
+          @application = application
+          @result = []
+        end
+
+        attr_reader :application, :result
+
+        state_machine(state_attr: :status, target: :application) do
+          state :received, initial: true
+          state :processed
+          state :checked
+
+          event :process do
+            defuse ZeroDivisionError, from: any_state, to: :processed
+
+            transitions from: :received, to: :processed do
+              application.update!(processed_at: Time.current)
+              raise_zero_division_error
+            end
+          end
+
+          event :check do
+            transitions from: :received, to: :checked do
+              application.update!(content: 'This is rolled back')
+            end
+
+            after_transition from: :received, to: :checked do
+              raise_zero_division_error
+            end
+          end
+
+          on_error from: any_state, to: all_states do |error|
+            application.reload.update!(error: error)
+          end
+        end
+
+        def raise_zero_division_error
+          raise ZeroDivisionError, 'this is ok'
+        end
+      end
+    end
+
+    subject do
+      state_machine_class.new(application)
+    end
+
+    let(:application) {
+      Application.create!(
+        content: 'Received',
+        received_at: Time.current,
+        status: :received
+      )
+    }
+
+    it 'does not rollback the transaction on defused errors' do
+      expect { subject.process! }.to change { application.reload.processed_at }.from(nil).to(be_a(Time))
+      expect(application.error).to eq('this is ok')
+      expect { subject.check! }.to_not change { application.reload.content }
+    end
+
+    it 'rolls back the transaction on non defused errors' do
+      expect { subject.check! }.to_not change { application.reload.content }
+    end
+  end
 end

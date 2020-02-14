@@ -23,6 +23,7 @@ module NxtStateMachine
              :any_state,
              :all_states,
              :all_states_except,
+             :defuse,
              to: :state_machine
 
     def transitions(from:, to:, &block)

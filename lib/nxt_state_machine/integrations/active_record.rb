@@ -21,34 +21,11 @@ module NxtStateMachine
         end
 
         machine.set_state_with do |target, transition|
-          target.with_lock do
-            transition.run_before_callbacks
-            result = set_state(target, transition, state_attr, :save)
-            transition.run_after_callbacks
-
-            result
-          end
-        rescue StandardError => error
-          target.assign_attributes(state_attr => transition.from.to_s)
-
-          if error.is_a?(NxtStateMachine::Errors::TransitionHalted)
-            false
-          else
-            raise
-          end
+          set_state(machine, target, transition, state_attr, :save)
         end
 
         machine.set_state_with! do |target, transition|
-          target.with_lock do
-            transition.run_before_callbacks
-            result = set_state(target, transition, state_attr, :save!)
-            transition.run_after_callbacks
-
-            result
-          end
-        rescue StandardError
-          target.assign_attributes(state_attr => transition.from.to_s)
-          raise
+          set_state(machine, target, transition, state_attr, :save!)
         end
 
         machine.define_singleton_method :add_state_methods_to_model do |model_class|
@@ -68,11 +45,40 @@ module NxtStateMachine
     module InstanceMethods
       private
 
-      def set_state(target, transition, state_attr, method)
+      def set_state(machine, target, transition, state_attr, save_with_method)
+        result = nil
+        defused_error = nil
+
+        target.with_lock do
+          transition.run_before_callbacks
+          result = execute_transition(target, transition, state_attr, save_with_method)
+          transition.run_after_callbacks
+
+          result
+        rescue StandardError => error
+          if machine.defuse_registry.resolve(transition).find { |error_class| error.is_a?(error_class) }
+            defused_error = error
+          else
+            raise error
+          end
+        end
+
+        raise defused_error if defused_error
+
+        result
+      rescue StandardError => error
+        target.assign_attributes(state_attr => transition.from.to_s)
+
+        raise unless save_with_method == :save && error.is_a?(NxtStateMachine::Errors::TransitionHalted)
+
+        false
+      end
+
+      def execute_transition(target, transition, state_attr, save_with_method)
         transition.execute do |block|
           result = block ? block.call : nil
           target.assign_attributes(state_attr => transition.to.to_s)
-          set_state_result = target.send(method) || halt_transition
+          set_state_result = target.send(save_with_method) || halt_transition
           block ? result : set_state_result
         end
       end

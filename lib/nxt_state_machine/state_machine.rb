@@ -10,11 +10,12 @@ module NxtStateMachine
       @events = event_registry
       @callbacks = CallbackRegistry.new
       @error_callback_registry = ErrorCallbackRegistry.new
+      @defuse_registry = DefuseRegistry.new
 
       @initial_state = nil
     end
 
-    attr_reader :class_context, :transitions, :events, :options, :callbacks, :name, :error_callback_registry
+    attr_reader :class_context, :transitions, :events, :options, :callbacks, :name, :error_callback_registry, :defuse_registry
     attr_accessor :initial_state
 
     def get_state_with(method = nil, &block)
@@ -114,6 +115,10 @@ module NxtStateMachine
 
     def after_transition(from:, to:, run: nil, &block)
       callbacks.register(from, to, :after, run, block)
+    end
+
+    def defuse(errors = [], from:, to:)
+      defuse_registry.register(from, to, errors)
     end
 
     def on_error(error = StandardError, from:, to:, run: nil, &block)
