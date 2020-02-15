@@ -386,11 +386,7 @@ end
 
 
 ## TODO
-- Test implementations for Hash, AttrAccessor
 - Decide on how to include state methods in model classes
-- Thread safety spec!
-- Spec locks?
-- Explain locking in readme!
 - Should we clone machines for each context?
 - What about inheritance? => What would be the expected behaviour? (dup vs. no dup)
     => Might also make sense to walk the ancestors chain and collect configure blocks
