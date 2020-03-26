@@ -22,7 +22,7 @@ module NxtStateMachine
           result = set_state(target, transition, state_attr)
           transition.run_after_callbacks
 
-          result
+          transition.run_success_callbacks || result
         rescue StandardError => error
           target.send("#{state_attr}=", transition.from.enum)
 
@@ -38,7 +38,7 @@ module NxtStateMachine
           result = set_state(target, transition, state_attr)
           transition.run_after_callbacks
 
-          result
+          transition.run_success_callbacks || result
         rescue StandardError
           target.send("#{state_attr}=", transition.from.enum)
           raise

@@ -117,6 +117,10 @@ module NxtStateMachine
       callbacks.register(from, to, :after, run, block)
     end
 
+    def on_success(from:, to:, run: nil, &block)
+      callbacks.register(from, to, :success, run, block)
+    end
+
     def defuse(errors = [], from:, to:)
       defuse_registry.register(from, to, errors)
     end
@@ -147,16 +151,23 @@ module NxtStateMachine
       run_callbacks(transition, :after, context)
     end
 
+    def run_success_callbacks(transition, context)
+      run_callbacks(transition, :success, context)
+    end
+
     def find_error_callback(error, transition)
       error_callback_registry.resolve(error, transition)
     end
 
     def run_callbacks(transition, kind, context)
       current_callbacks = callbacks.resolve(transition, kind)
+      return unless current_callbacks.any?
 
       current_callbacks.each do |callback|
         Callable.new(callback).bind(context).call(transition)
       end
+
+      true
     end
 
     def current_state_name(context)

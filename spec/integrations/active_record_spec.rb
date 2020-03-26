@@ -579,6 +579,81 @@ RSpec.describe NxtStateMachine::ActiveRecord do
           end
         end
       end
+
+      context 'success callbacks' do
+        let(:state_machine_class) do
+          Class.new do
+            include NxtStateMachine::ActiveRecord
+
+            def initialize(application)
+              @application = application
+            end
+
+            attr_reader :application
+
+            state_machine(state_attr: :status, target: :application) do
+              state :received, initial: true
+              state :processed, :accepted, :rejected
+
+              event :process do
+                transitions from: :received, to: :processed do |raise_in: ''|
+                  application.processed_at = Time.current
+                  raise_in
+                end
+
+                after_transition from: :received, to: :processed do |transition|
+                  raise ZeroDivisionError, "After transition" if transition.result == 'raise_in_after_transition'
+                end
+
+                on_success from: :received, to: :processed do |transition|
+                  raise ZeroDivisionError, "On success" if transition.result == 'raise_in_on_success'
+                  accept!
+                end
+              end
+
+              event :accept do
+                transitions from: :processed, to: :accepted do
+                  application.accepted_at = Time.current
+                end
+              end
+            end
+          end
+        end
+
+        let(:application) {
+          Application.create!(
+            content: 'Please make it happen',
+            received_at: Time.current,
+            status: 'received'
+          )
+        }
+
+        subject do
+          state_machine_class.new(application)
+        end
+
+        context 'when there is an error before' do
+          it 'does not run the on success callback' do
+            expect { subject.process!(raise_in: 'raise_in_after_transition') }.to raise_error(ZeroDivisionError, /After transition/)
+            expect(application.reload.status).to eq('received')
+          end
+        end
+
+        context 'when there is no error before' do
+          context 'when there is an error in the success callback' do
+            it do
+              expect { subject.process!(raise_in: 'raise_in_on_success') }.to raise_error(ZeroDivisionError, /On success/)
+              expect(application.reload.status).to eq('processed')
+            end
+          end
+
+          context 'when triggering another transition' do
+            it 'transitions to the next state' do
+              expect { subject.process! }.to change { application.reload.status }.from('received').to('accepted')
+            end
+          end
+        end
+      end
     end
   end
 

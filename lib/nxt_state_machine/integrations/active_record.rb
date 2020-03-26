@@ -65,7 +65,7 @@ module NxtStateMachine
 
         raise defused_error if defused_error
 
-        result
+        transition.run_success_callbacks || result
       rescue StandardError => error
         target.assign_attributes(state_attr => transition.from.to_s)
 

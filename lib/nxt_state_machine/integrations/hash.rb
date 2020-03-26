@@ -21,7 +21,7 @@ module NxtStateMachine
           transition.run_before_callbacks
           result = set_state(current_target, transition, state_attr)
           transition.run_after_callbacks
-          result
+          transition.run_success_callbacks || result
         rescue StandardError => error
           current_target[state_attr] = transition.from.enum
 
@@ -37,7 +37,7 @@ module NxtStateMachine
           result = set_state(current_target, transition, state_attr)
           transition.run_after_callbacks
 
-          result
+          transition.run_success_callbacks || result
         rescue StandardError
           current_target[state_attr] = transition.from.enum
           raise
