@@ -11,9 +11,10 @@ module NxtStateMachine
       @set_state_method = set_state_method
       @context = context
       @block = block
+      @result = nil
     end
 
-    attr_reader :name, :from, :to, :block, :event
+    attr_reader :name, :from, :to, :block, :event, :result
 
     # This triggers the set state method
     def trigger
@@ -31,7 +32,7 @@ module NxtStateMachine
 
     # This must be used in set_state method to actually execute the transition within the around callback chain
     def execute(&block)
-      Transition::Proxy.new(event, state_machine,self, context).call(&block)
+      self.result = Transition::Proxy.new(event, state_machine,self, context).call(&block)
     end
 
     alias_method :with_around_callbacks, :execute
@@ -44,9 +45,13 @@ module NxtStateMachine
       state_machine.run_after_callbacks(self, context)
     end
 
+    def run_success_callbacks
+      state_machine.run_success_callbacks(self, context)
+    end
+
     private
 
     attr_reader :state_machine, :set_state_method, :context
-    attr_writer :block
+    attr_writer :block, :result
   end
 end

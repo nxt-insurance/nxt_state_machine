@@ -83,6 +83,10 @@ class ArticleWorkflow
         puts 'around transition exit'
       end
 
+      on_success from: any_state, to: :approved do |transition|
+        # This is the last callback in the chain - It runs outside of the active record transaction
+      end
+
       on_error CustomError from: any_state, to: :approved do |error, transition|
       end
     end
@@ -277,10 +281,10 @@ Transitions can be halted in callbacks and during the transition itself simply b
 
 ### Callbacks
 
-You can register `before_transition`, `around_transition` and `after_transition` callbacks. By defining the 
-:from and :to states you decide on which transitions the callback actually runs. Around callbacks need to call the
-proc object that they get passed in. Registering callbacks inside an event block or on the state_machine top level
-behaves exactly the same way and is only a matter of structure. The only thing that defines when callbacks run is
+You can register `before_transition`, `around_transition`, `after_transition` and `on_success` callbacks. 
+By defining the :from and :to states you decide on which transitions the callback actually runs. Around callbacks need 
+to call the proc object that they get passed in. Registering callbacks inside an event block or on the state_machine top
+level behaves exactly the same way and is only a matter of structure. The only thing that defines when callbacks run is
 the :from and :to parameters with which they are registered.
    
 
@@ -297,6 +301,11 @@ event :approve do
     puts 'around transition enter' 
     block.call  
     puts 'around transition exit'
+  end
+
+  # Use this to trigger another event after the transaction around the transition completed 
+  on_success from: any_state, to: :approved do |transition|
+    # This is the last callback in the chain - It runs outside of the active record transaction
   end
 end
 ```

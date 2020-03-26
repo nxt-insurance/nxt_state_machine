@@ -18,6 +18,7 @@ module NxtStateMachine
     delegate :before_transition,
              :after_transition,
              :around_transition,
+             :on_success,
              :on_error,
              :on_error!,
              :any_state,
