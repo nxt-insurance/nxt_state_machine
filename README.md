@@ -397,8 +397,7 @@ end
 ## TODO
 - Decide on how to include state methods in model classes
 - Should we clone machines for each context?
-- What about inheritance? => What would be the expected behaviour? (dup vs. no dup)
-    => Might also make sense to walk the ancestors chain and collect configure blocks
+- Currently not possible to extend state_machines when inheriting
 
 
 ## Development

@@ -15,7 +15,7 @@ module NxtStateMachine
       @initial_state = nil
     end
 
-    attr_reader :class_context, :transitions, :events, :options, :callbacks, :name, :error_callback_registry, :defuse_registry
+    attr_reader :class_context, :events, :options, :callbacks, :name, :error_callback_registry, :defuse_registry
     attr_accessor :initial_state
 
     def get_state_with(method = nil, &block)
