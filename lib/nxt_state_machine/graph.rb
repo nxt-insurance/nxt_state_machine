@@ -16,6 +16,11 @@ module NxtStateMachine
 
       graph.output options[:format] => filename
 
+      puts '----------------------------------------------'
+      puts 'Please run the following to open the generated file:'
+      puts "open '#{filename}'"
+      puts '----------------------------------------------'
+
       graph
     end
 
