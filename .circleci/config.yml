@@ -16,11 +16,17 @@ jobs:
     steps:
       - checkout
 
+      - run:
+          name: Install apt dependencies
+          command: |
+            sudo apt update -q \
+            && sudo apt upgrade -q \
+            && sudo apt install -qq graphviz
       # Download and cache dependencies
       - restore_cache:
           keys:
             - v1-dependencies-{{ checksum "Gemfile.lock" }}
-            
+
       - run: gem install bundler --version $BUNDLER_VERSION
 
       - run:
