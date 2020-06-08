@@ -1,6 +1,6 @@
 RSpec.describe NxtStateMachine::Graph do
   subject do
-    described_class.new(ArticleWorkflow.state_machine).draw
+    described_class.new(ArticleWorkflow.state_machines).draw
   end
 
   describe '#draw' do

@@ -1,16 +1,17 @@
 module NxtStateMachine
   class Graph
-    def initialize(state_machine, **options)
-      @state_machine = state_machine
+    def initialize(state_machines, **options)
+      @state_machines = state_machines
       @options = default_options.merge(**options)
     end
 
     def draw
       require 'ruby-graphviz'
 
-      add_nodes
-      add_edges
-
+      state_machines.each do |_, state_machine|
+        add_nodes(state_machine)
+        add_edges(state_machine)
+      end
 
       filename = File.join(options[:path], "#{options[:name]}.#{options[:format]}")
 
@@ -26,7 +27,7 @@ module NxtStateMachine
 
     private
 
-    attr_reader :options, :state_machine
+    attr_reader :options, :state_machines
 
     def graph
       @graph ||= ::GraphViz.new(
@@ -36,7 +37,8 @@ module NxtStateMachine
       )
     end
 
-    def add_nodes
+    def add_nodes(state_machine)
+      binding.pry
       state_machine.states.values.each do |state|
         add_node(state)
       end
@@ -53,7 +55,7 @@ module NxtStateMachine
       graph.add_nodes(state.to_s, node_options)
     end
 
-    def add_edges
+    def add_edges(state_machine)
       state_machine.events.values.each do |event|
         event.event_transitions.values.each do |transition|
           graph.add_edges(transition.from.to_s, transition.to.to_s, label: event.name)
