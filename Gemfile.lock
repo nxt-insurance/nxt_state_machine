@@ -3,7 +3,7 @@ PATH
   specs:
     nxt_state_machine (0.1.8)
       activesupport
-      nxt_registry (~> 0.2.0)
+      nxt_registry (~> 0.3.0)
 
 GEM
   remote: https://rubygems.org/
@@ -26,7 +26,7 @@ GEM
       concurrent-ruby (~> 1.0)
     method_source (1.0.0)
     minitest (5.14.1)
-    nxt_registry (0.2.0)
+    nxt_registry (0.3.0)
       activesupport
     pry (0.13.1)
       coderay (~> 1.1)

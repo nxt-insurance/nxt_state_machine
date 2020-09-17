@@ -8,13 +8,13 @@ module NxtStateMachine
 
       Array(from).each do |from_state|
         Array(to).each do |to_state|
-          callbacks.from(from_state).to(to_state).kind(kind) << method_or_block
+          callbacks.from!(from_state).to!(to_state).kind!(kind) << method_or_block
         end
       end
     end
 
-    def resolve(transition, kind = nil)
-      all_callbacks = callbacks.from(transition.from.enum).to(transition.to.enum)
+    def resolve!(transition, kind = nil)
+      all_callbacks = callbacks.from!(transition.from.enum).to!(transition.to.enum)
       return all_callbacks unless kind
 
       all_callbacks.kind(kind)
@@ -24,8 +24,8 @@ module NxtStateMachine
 
     def callbacks
       @callbacks ||= registry :from do
-        nested :to do
-          nested :kind, default: -> { [] } do
+        level :to do
+          level :kind, default: -> { [] } do
             attrs :before, :after
           end
         end
