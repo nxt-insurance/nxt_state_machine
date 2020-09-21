@@ -91,7 +91,7 @@ module NxtStateMachine
           event.state_machine.can_transition!(name, event.state_machine.current_state_name(self))
           transition = event.event_transitions.resolve(event.state_machine.current_state_name(self))
           # Transition is build every time and thus should be thread safe!
-          transition.build_transition(event_name, self, set_state_method, *args, **opts)
+          transition.build_transition(event, self, set_state_method, *args, **opts)
         end
       end
 

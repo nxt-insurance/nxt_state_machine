@@ -49,7 +49,7 @@ module NxtStateMachine
         result = nil
         defused_error = nil
 
-        target.with_lock do
+        with_conditional_lock(target, transition.event) do
           transition.run_before_callbacks
           result = execute_transition(target, transition, state_attr, save_with_method)
           transition.run_after_callbacks
@@ -80,6 +80,14 @@ module NxtStateMachine
           target.assign_attributes(state_attr => transition.to.to_s)
           set_state_result = target.send(save_with_method) || halt_transition
           block ? result : set_state_result
+        end
+      end
+
+      def with_conditional_lock(target, event, &block)
+        return block.call if event.options[:lock] == false
+
+        target.with_lock do
+          block.call
         end
       end
     end

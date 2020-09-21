@@ -24,6 +24,12 @@ RSpec.describe NxtStateMachine::ActiveRecord do
               self.accepted_at = accepted_at
             end
           end
+
+          event :accept_without_transaction, lock: false do
+            transitions from: :processed, to: :accepted do |transition, accepted_at|
+              self.accepted_at = accepted_at
+            end
+          end
         end
       end
     end

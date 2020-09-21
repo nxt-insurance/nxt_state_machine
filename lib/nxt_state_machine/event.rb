@@ -7,13 +7,14 @@ module NxtStateMachine
       @name = name
       @event_transitions = registry("#{name} event transitions")
       @names = Event::Names.build(name)
+      @options = options
 
       configure(&block)
 
       ensure_event_has_transitions
     end
 
-    attr_reader :name, :state_machine, :event_transitions, :names
+    attr_reader :name, :state_machine, :event_transitions, :names, :options
 
     delegate :before_transition,
              :after_transition,

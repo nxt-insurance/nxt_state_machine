@@ -28,7 +28,7 @@ module NxtStateMachine
         set_state_method: set_state_method
       }
 
-      transition = Transition.new(name, **options)
+      transition = Transition.new(event.name, **options)
 
       if block
         # if the transition takes a block we make it available through a proxy on the transition itself!
