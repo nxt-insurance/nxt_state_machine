@@ -6,7 +6,7 @@ module NxtStateMachine
       @options = opts
 
       @states = NxtStateMachine::StateRegistry.new
-      @transitions = Transition::Store.new
+      @transitions = []
       @events = event_registry
       @callbacks = CallbackRegistry.new
       @error_callback_registry = ErrorCallbackRegistry.new

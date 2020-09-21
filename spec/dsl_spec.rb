@@ -208,37 +208,6 @@ RSpec.describe NxtStateMachine do
     end
   end
 
-  describe '.transition' do
-    context 'when the transition already was registered before' do
-      subject do
-        Class.new do
-          include NxtStateMachine
-
-          state_machine do
-            state :draft
-            state :finalized
-            state :approved
-
-            event :finalize do
-              transition from: :draft, to: :finalized
-            end
-
-            event :approve do
-              transition from: :draft, to: :finalized
-            end
-          end
-        end
-      end
-
-      it do
-        expect {
-          subject
-        }.to raise_error NxtStateMachine::Errors::TransitionAlreadyRegistered,
-                         "A transition from :draft to :finalized was already registered"
-      end
-    end
-  end
-
   context 'transitions' do
     subject do
       Class.new do
