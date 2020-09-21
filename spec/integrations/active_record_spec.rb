@@ -181,6 +181,13 @@ RSpec.describe NxtStateMachine::ActiveRecord do
                     raise ZeroDivisionError, 'oh oh'
                   end
                 end
+
+                event :process_without_lock, lock: false do
+                  transition from: :received, to: :processed do |processed_at|
+                    self.processed_at = processed_at
+                    raise ZeroDivisionError, 'oh oh'
+                  end
+                end
               end
             end
           end
@@ -189,16 +196,32 @@ RSpec.describe NxtStateMachine::ActiveRecord do
             state_machine_class.new(content: 'some', received_at: Time.current)
           end
 
-          it 'does not change the state' do
-            expect { subject.process(Time.current) }.to raise_error ZeroDivisionError
-            expect(subject.new_record?).to be_truthy
-            expect(subject.status).to eq('received')
-            expect(subject).to be_received
+          context 'with lock' do
+            it 'does not change the state' do
+              expect { subject.process(Time.current) }.to raise_error ZeroDivisionError
+              expect(subject.new_record?).to be_truthy
+              expect(subject.status).to eq('received')
+              expect(subject).to be_received
 
-            expect { subject.process!(Time.current) }.to raise_error ZeroDivisionError
-            expect(subject.new_record?).to be_truthy
-            expect(subject.status).to eq('received')
-            expect(subject).to be_received
+              expect { subject.process!(Time.current) }.to raise_error ZeroDivisionError
+              expect(subject.new_record?).to be_truthy
+              expect(subject.status).to eq('received')
+              expect(subject).to be_received
+            end
+          end
+
+          context 'without lock' do
+            it 'does not change the state' do
+              expect { subject.process_without_lock(Time.current) }.to raise_error ZeroDivisionError
+              expect(subject.new_record?).to be_truthy
+              expect(subject.status).to eq('received')
+              expect(subject).to be_received
+
+              expect { subject.process_without_lock!(Time.current) }.to raise_error ZeroDivisionError
+              expect(subject.new_record?).to be_truthy
+              expect(subject.status).to eq('received')
+              expect(subject).to be_received
+            end
           end
         end
 
@@ -213,7 +236,7 @@ RSpec.describe NxtStateMachine::ActiveRecord do
 
               state_machine(state_attr: :status) do
                 state :received, initial: true
-                state :processed, :accepted, :rejected
+                state :processed, :approved, :rejected
 
                 event :process do
                   transition from: :received, to: :processed do |t, processed_at|
@@ -221,6 +244,24 @@ RSpec.describe NxtStateMachine::ActiveRecord do
                   end
 
                   after_transition from: :received, to: :processed do
+                    raise ZeroDivisionError, "Error in before_callback"
+                  end
+                end
+
+                event :process_without_lock, lock: false do
+                  transition from: :received, to: :processed do |t, processed_at|
+                    self.processed_at = processed_at
+                  end
+
+                  after_transition from: :received, to: :processed do
+                    raise ZeroDivisionError, "Error in before_callback"
+                  end
+                end
+
+                event :approve_without_lock, lock: false do
+                  transition from: :processed, to: :approved
+
+                  after_transition from: :processed, to: :approved do
                     raise ZeroDivisionError, "Error in before_callback"
                   end
                 end
@@ -232,16 +273,26 @@ RSpec.describe NxtStateMachine::ActiveRecord do
             state_machine_class.new(content: 'some', received_at: Time.current)
           end
 
-          it 'does not change the state' do
-            expect { subject.process(Time.current) }.to raise_error ZeroDivisionError
-            expect(subject.new_record?).to be_truthy
-            expect(subject.status).to eq('received')
-            expect(subject).to be_received
+          context 'with lock' do
+            it 'does not change the state' do
+              expect { subject.process(Time.current) }.to raise_error ZeroDivisionError
+              expect(subject.new_record?).to be_truthy
+              expect(subject.status).to eq('received')
+              expect(subject).to be_received
+            end
+          end
 
-            expect { subject.process!(Time.current) }.to raise_error ZeroDivisionError
-            expect(subject.new_record?).to be_truthy
-            expect(subject.status).to eq('received')
-            expect(subject).to be_received
+          context 'without lock' do
+            it 'sets the state' do
+              expect { subject.process_without_lock(Time.current) }.to raise_error ZeroDivisionError
+              expect(subject.new_record?).to be_falsey
+              expect(subject.reload.status).to eq('processed')
+              expect(subject).to be_processed
+
+              expect { subject.approve_without_lock! }.to raise_error ZeroDivisionError
+              expect(subject.reload.status).to eq('approved')
+              expect(subject).to be_approved
+            end
           end
         end
       end

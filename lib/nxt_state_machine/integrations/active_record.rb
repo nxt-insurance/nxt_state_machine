@@ -84,11 +84,13 @@ module NxtStateMachine
       end
 
       def with_conditional_lock(target, event, &block)
-        return block.call if event.options[:lock] == false
+        return block.call unless lock_transition?(event)
 
-        target.with_lock do
-          block.call
-        end
+        target.with_lock { block.call }
+      end
+
+      def lock_transition?(event)
+        event.options.fetch(:lock) { true }
       end
     end
 

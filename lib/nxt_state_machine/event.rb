@@ -7,7 +7,7 @@ module NxtStateMachine
       @name = name
       @event_transitions = registry("#{name} event transitions")
       @names = Event::Names.build(name)
-      @options = options
+      @options = options.with_indifferent_access
 
       configure(&block)
 
