@@ -1,11 +1,12 @@
 module NxtStateMachine
   module ActiveRecord
     module ClassMethods
-      def state_machine(name = :default, state_attr: :state, target: nil, &config)
+      def state_machine(name = :default, state_attr: :state, target: nil, lock_transitions: true, &config)
         machine = super(
           name,
           state_attr: state_attr,
           target: target,
+          lock_transitions: lock_transitions,
           &config
         )
 
@@ -90,7 +91,7 @@ module NxtStateMachine
       end
 
       def lock_transition?(event)
-        event.options.fetch(:lock) { true }
+        event.options.fetch(:lock) { state_machine.options.fetch(:lock_transitions) }
       end
     end
 
