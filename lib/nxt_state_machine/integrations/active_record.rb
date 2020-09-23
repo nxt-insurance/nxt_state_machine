@@ -56,7 +56,7 @@ module NxtStateMachine
 
           result
         rescue StandardError => error
-          if machine.defuse_registry.resolve(transition).find { |error_class| error.is_a?(error_class) }
+          if machine.defuse_registry.resolve!(transition).find { |error_class| error.is_a?(error_class) }
             defused_error = error
           else
             raise error

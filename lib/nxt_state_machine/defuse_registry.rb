@@ -11,15 +11,15 @@ module NxtStateMachine
       end
     end
 
-    def resolve(transition)
-      errors.from(transition.from.enum).to(transition.to.enum)
+    def resolve!(transition)
+      errors.from!(transition.from.enum).to!(transition.to.enum)
     end
 
     private
 
     def errors
       @errors ||= registry :from do
-        nested :to, default: -> { [] }
+        level :to, default: -> { [] }
       end
     end
   end
