@@ -244,7 +244,7 @@ RSpec.describe NxtStateMachine::ActiveRecord do
                   end
 
                   after_transition from: :received, to: :processed do
-                    raise ZeroDivisionError, "Error in before_callback"
+                    raise ZeroDivisionError, "Error in after_callback"
                   end
                 end
 
@@ -254,7 +254,7 @@ RSpec.describe NxtStateMachine::ActiveRecord do
                   end
 
                   after_transition from: :received, to: :processed do
-                    raise ZeroDivisionError, "Error in before_callback"
+                    raise ZeroDivisionError, "Error in after_callback"
                   end
                 end
 
@@ -262,7 +262,7 @@ RSpec.describe NxtStateMachine::ActiveRecord do
                   transition from: :processed, to: :approved
 
                   after_transition from: :processed, to: :approved do
-                    raise ZeroDivisionError, "Error in before_callback"
+                    raise ZeroDivisionError, "Error in after_callback"
                   end
                 end
               end
@@ -527,11 +527,11 @@ RSpec.describe NxtStateMachine::ActiveRecord do
 
               attr_reader :application
 
-              state_machine(state_attr: :status, target: :application) do
+              state_machine(state_attr: :status, target: :application, lock_transitions: false) do
                 state :received, initial: true
                 state :processed, :accepted, :rejected
 
-                event :process do
+                event :process, lock: true do
                   transitions from: :received, to: :processed do |_, processed_at|
                     application.processed_at = processed_at
                   end
@@ -541,7 +541,17 @@ RSpec.describe NxtStateMachine::ActiveRecord do
                   end
                 end
 
-                event :accept do
+                event :process_without_lock do
+                  transitions from: :received, to: :processed do |_, processed_at|
+                    application.processed_at = processed_at
+                  end
+
+                  after_transition from: :received, to: :processed do
+                    raise ZeroDivisionError, "oh oh"
+                  end
+                end
+
+                event :accept, lock: true do
                   transitions from: :processed, to: :accepted do |_, accepted_at|
                     application.accepted_at = accepted_at
                   end
@@ -554,16 +564,26 @@ RSpec.describe NxtStateMachine::ActiveRecord do
             state_machine_class.new(application)
           end
 
-          it 'does not change the state' do
-            expect { subject.process(Time.current) }.to raise_error ZeroDivisionError
-            expect(subject.application).to be_new_record
-            expect(subject.application.status).to eq('received')
-            expect(subject).to be_received
+          context 'with lock' do
+            it 'does not change the state' do
+              expect { subject.process(Time.current) }.to raise_error ZeroDivisionError
+              expect(subject.application).to be_new_record
+              expect(subject.application.status).to eq('received')
+              expect(subject).to be_received
 
-            expect { subject.process!(Time.current) }.to raise_error ZeroDivisionError
-            expect(subject.application).to be_new_record
-            expect(subject.application.status).to eq('received')
-            expect(subject).to be_received
+              expect { subject.process!(Time.current) }.to raise_error ZeroDivisionError
+              expect(subject.application).to be_new_record
+              expect(subject.application.status).to eq('received')
+              expect(subject).to be_received
+            end
+          end
+
+          context 'without lock' do
+            it 'changes the state' do
+              expect { subject.process_without_lock(Time.current) }.to raise_error ZeroDivisionError
+              expect(subject.application.reload.status).to eq('processed')
+              expect(subject).to be_processed
+            end
           end
         end
       end
