@@ -124,9 +124,9 @@ RSpec.describe NxtStateMachine do
       end
 
       it 'is possible to pass options to a state' do
-        expect(subject.state_machine.states.resolve(:draft).options[:pre_published]).to be_truthy
-        expect(subject.state_machine.states.resolve(:approved).options['pre_published']).to be_truthy
-        expect(subject.state_machine.states.resolve(:published).options[:pre_published]).to be_falsey
+        expect(subject.state_machine.states.resolve!(:draft).options[:pre_published]).to be_truthy
+        expect(subject.state_machine.states.resolve!(:approved).options['pre_published']).to be_truthy
+        expect(subject.state_machine.states.resolve!(:published).options[:pre_published]).to be_falsey
       end
 
       it 'is possible to add methods to states' do
@@ -135,21 +135,21 @@ RSpec.describe NxtStateMachine do
       end
 
       it 'is possible to navigate between states' do
-        expect(subject.state_machine.states.resolve(:draft).next.enum).to eq(:approved)
-        expect(subject.state_machine.states.resolve(:draft).first?).to be_truthy
-        expect(subject.state_machine.states.resolve(:draft).last?).to be_falsey
+        expect(subject.state_machine.states.resolve!(:draft).next.enum).to eq(:approved)
+        expect(subject.state_machine.states.resolve!(:draft).first?).to be_truthy
+        expect(subject.state_machine.states.resolve!(:draft).last?).to be_falsey
 
-        expect(subject.state_machine.states.resolve(:approved).next.enum).to eq(:published)
-        expect(subject.state_machine.states.resolve(:approved).first?).to be_falsey
-        expect(subject.state_machine.states.resolve(:approved).last?).to be_falsey
+        expect(subject.state_machine.states.resolve!(:approved).next.enum).to eq(:published)
+        expect(subject.state_machine.states.resolve!(:approved).first?).to be_falsey
+        expect(subject.state_machine.states.resolve!(:approved).last?).to be_falsey
 
-        expect(subject.state_machine.states.resolve(:published).next.enum).to eq(:rejected)
-        expect(subject.state_machine.states.resolve(:published).last?).to be_falsey
-        expect(subject.state_machine.states.resolve(:published).first?).to be_falsey
+        expect(subject.state_machine.states.resolve!(:published).next.enum).to eq(:rejected)
+        expect(subject.state_machine.states.resolve!(:published).last?).to be_falsey
+        expect(subject.state_machine.states.resolve!(:published).first?).to be_falsey
 
-        expect(subject.state_machine.states.resolve(:rejected).next.enum).to eq(:draft)
-        expect(subject.state_machine.states.resolve(:rejected).last?).to be_truthy
-        expect(subject.state_machine.states.resolve(:rejected).first?).to be_falsey
+        expect(subject.state_machine.states.resolve!(:rejected).next.enum).to eq(:draft)
+        expect(subject.state_machine.states.resolve!(:rejected).last?).to be_truthy
+        expect(subject.state_machine.states.resolve!(:rejected).first?).to be_falsey
       end
     end
 
@@ -201,9 +201,9 @@ RSpec.describe NxtStateMachine do
       end
 
       it 'is possible to access events on the states' do
-        expect(subject.state_machine.states.resolve(:draft).events.map(&:name)).to eq([:finalize])
-        expect(subject.state_machine.states.resolve(:finalized).events.map(&:name)).to eq([:approve, :reject])
-        expect(subject.state_machine.states.resolve(:approved).events.map(&:name)).to eq([:reject])
+        expect(subject.state_machine.states.resolve!(:draft).events.map(&:name)).to eq([:finalize])
+        expect(subject.state_machine.states.resolve!(:finalized).events.map(&:name)).to eq([:approve, :reject])
+        expect(subject.state_machine.states.resolve!(:approved).events.map(&:name)).to eq([:reject])
       end
     end
   end

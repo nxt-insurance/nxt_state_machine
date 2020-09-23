@@ -18,7 +18,7 @@ module NxtStateMachine
     private
 
     def callbacks
-      @callbacks ||= state_machine.callbacks.resolve(transition).kind(:around)
+      @callbacks ||= state_machine.callbacks.resolve!(transition).kind(:around)
     end
 
     attr_reader :transition, :context, :state_machine

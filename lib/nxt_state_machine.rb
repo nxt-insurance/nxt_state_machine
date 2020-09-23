@@ -37,7 +37,7 @@ module NxtStateMachine
     include NxtRegistry
 
     def state_machine(name = :default, **opts, &config)
-      state_machines.resolve!(name) || state_machines.register(
+      state_machines.resolve(name) || state_machines.register(
         name,
         StateMachine.new(name, self, state_machine_event_registry, **opts).configure(&config)
       )
@@ -75,15 +75,15 @@ module NxtStateMachine
     end
 
     def state_machine(name = :default)
-      @state_machine ||= self.class.state_machines.resolve(name)
+      @state_machine ||= self.class.state_machines.resolve!(name)
     end
 
     def current_state_name(name = :default)
-      state_machines.resolve(name).current_state_name(self)
+      state_machines.resolve!(name).current_state_name(self)
     end
 
     def current_state(name = :default)
-      state_machines.resolve(name).states.resolve(current_state_name(name))
+      state_machines.resolve!(name).states.resolve!(current_state_name(name))
     end
 
     def halt_transition(*args, **opts)

@@ -89,7 +89,7 @@ module NxtStateMachine
       Event::Names.set_state_method_map(name).each do |event_name, set_state_method|
         class_context.define_method event_name do |*args, **opts|
           event.state_machine.can_transition!(name, event.state_machine.current_state_name(self))
-          transition = event.event_transitions.resolve(event.state_machine.current_state_name(self))
+          transition = event.event_transitions.resolve!(event.state_machine.current_state_name(self))
           # Transition is build every time and thus should be thread safe!
           transition.build_transition(event, self, set_state_method, *args, **opts)
         end
@@ -101,7 +101,7 @@ module NxtStateMachine
     end
 
     def can_transition?(event_name, from)
-      event = events.resolve(event_name)
+      event = events.resolve!(event_name)
       event && event.event_transitions.key?(from)
     end
 
@@ -161,7 +161,7 @@ module NxtStateMachine
     end
 
     def run_callbacks(transition, kind, context)
-      current_callbacks = callbacks.resolve(transition, kind)
+      current_callbacks = callbacks.resolve!(transition, kind)
       return unless current_callbacks.any?
 
       current_callbacks.each do |callback|

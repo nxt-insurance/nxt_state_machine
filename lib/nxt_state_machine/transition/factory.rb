@@ -4,8 +4,8 @@ module NxtStateMachine
 
     def initialize(name, from:, to:, state_machine:, &block)
       @name = name
-      @from = state_machine.states.resolve(from)
-      @to = state_machine.states.resolve(to)
+      @from = state_machine.states.resolve!(from)
+      @to = state_machine.states.resolve!(to)
       @state_machine = state_machine
       @block = block
 

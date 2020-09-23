@@ -5,8 +5,8 @@ module NxtStateMachine
     def initialize(name, event:, from:, to:, state_machine:, context:, set_state_method:, &block)
       @name = name
       @event = event
-      @from = state_machine.states.resolve(from)
-      @to = state_machine.states.resolve(to)
+      @from = state_machine.states.resolve!(from)
+      @to = state_machine.states.resolve!(to)
       @state_machine = state_machine
       @set_state_method = set_state_method
       @context = context
