@@ -246,7 +246,7 @@ Transactions will be rolled back in case of an exception or if your target canno
 The state is set back to the state before the transition! If you try to transition on records with unpersisted changes
 you will get a `RuntimeError: Locking a record with unpersisted changes is not supported.` error saying something
 like `Use :save to persist the changes, or :reload to discard them explicitly.` since it's not possible to acquire a 
-lock on modified records. You can also switch of locking and transactions for events by passing in the `lock: false` 
+lock on modified records. You can also switch of locking and transactions for events by passing in the `lock_transitions: false` 
 option when defining an event or globally on the state machine with the `lock_transitions: false` option. Currently 
 there is no option to toggle locking at runtime.   
 
@@ -345,7 +345,7 @@ You can raise an error, have everything rolled back and then have your error han
 **NOTE:** Unless you reload your model all assignments you did, previous to the error, should still be available in your
 error handler. You can also defuse errors. This means they will not cause a rollback of the transaction during the 
 transition and you can actually persist changes to your model before the defused error is raised and handled. You can 
-also switch off locking (and transactions) for events by passing the `lock: false` option when defining an event. This
+also switch off locking (and transactions) for events by passing the `lock_transitions: false` option when defining an event. This
 can also by set globally for a state_machine by passing the `lock_transitions: false` option when setting up the state 
 machine.  
 
@@ -366,7 +366,7 @@ state_machine do
     end
   end
 
-  event :approve_without_lock, lock: false do
+  event :approve_without_lock, lock_transitions: false do
     transition from: %i[written submitted deleted], to: :approved do |headline:|
       # This will be saved to the database because the event does not wrap the transition in a transaction 
       article.update!(headline: headline)

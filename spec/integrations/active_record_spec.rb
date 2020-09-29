@@ -182,7 +182,7 @@ RSpec.describe NxtStateMachine::ActiveRecord do
                   end
                 end
 
-                event :process_without_lock, lock: false do
+                event :process_without_lock, lock_transitions: false do
                   transition from: :received, to: :processed do |processed_at|
                     self.processed_at = processed_at
                     raise ZeroDivisionError, 'oh oh'
@@ -248,7 +248,7 @@ RSpec.describe NxtStateMachine::ActiveRecord do
                   end
                 end
 
-                event :process_without_lock, lock: false do
+                event :process_without_lock, lock_transitions: false do
                   transition from: :received, to: :processed do |t, processed_at|
                     self.processed_at = processed_at
                   end
@@ -258,7 +258,7 @@ RSpec.describe NxtStateMachine::ActiveRecord do
                   end
                 end
 
-                event :approve_without_lock, lock: false do
+                event :approve_without_lock, lock_transitions: false do
                   transition from: :processed, to: :approved
 
                   after_transition from: :processed, to: :approved do
@@ -531,7 +531,7 @@ RSpec.describe NxtStateMachine::ActiveRecord do
                 state :received, initial: true
                 state :processed, :accepted, :rejected
 
-                event :process, lock: true do
+                event :process, lock_transitions: true do
                   transitions from: :received, to: :processed do |_, processed_at|
                     application.processed_at = processed_at
                   end
@@ -551,7 +551,7 @@ RSpec.describe NxtStateMachine::ActiveRecord do
                   end
                 end
 
-                event :accept, lock: true do
+                event :accept, lock_transitions: true do
                   transitions from: :processed, to: :accepted do |_, accepted_at|
                     application.accepted_at = accepted_at
                   end

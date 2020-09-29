@@ -91,7 +91,7 @@ module NxtStateMachine
       end
 
       def lock_transition?(event)
-        event.options.fetch(:lock) { state_machine.options.fetch(:lock_transitions) }
+        event.options.fetch(:lock_transitions) { state_machine.options.fetch(:lock_transitions) }
       end
     end
 
