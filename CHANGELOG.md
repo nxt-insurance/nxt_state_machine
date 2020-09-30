@@ -1,6 +1,6 @@
 # v0.1.9 2020-09-23
 
-### Added
+### Added 
 
 - Allow to toggle locking of transitions for active record adapter per event or globally 
 
