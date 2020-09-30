@@ -1,11 +1,12 @@
 module NxtStateMachine
   module ActiveRecord
     module ClassMethods
-      def state_machine(name = :default, state_attr: :state, target: nil, &config)
+      def state_machine(name = :default, state_attr: :state, target: nil, lock_transitions: true, &config)
         machine = super(
           name,
           state_attr: state_attr,
           target: target,
+          lock_transitions: lock_transitions,
           &config
         )
 
@@ -49,7 +50,7 @@ module NxtStateMachine
         result = nil
         defused_error = nil
 
-        target.with_lock do
+        with_conditional_lock(target, transition.event) do
           transition.run_before_callbacks
           result = execute_transition(target, transition, state_attr, save_with_method)
           transition.run_after_callbacks
@@ -81,6 +82,16 @@ module NxtStateMachine
           set_state_result = target.send(save_with_method) || halt_transition
           block ? result : set_state_result
         end
+      end
+
+      def with_conditional_lock(target, event, &block)
+        return block.call unless lock_transition?(event)
+
+        target.with_lock { block.call }
+      end
+
+      def lock_transition?(event)
+        event.options.fetch(:lock_transitions) { state_machine.options.fetch(:lock_transitions) }
       end
     end
 
