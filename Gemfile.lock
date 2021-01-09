@@ -8,12 +8,12 @@ PATH
 GEM
   remote: https://rubygems.org/
   specs:
-    activemodel (6.1.0)
-      activesupport (= 6.1.0)
-    activerecord (6.1.0)
-      activemodel (= 6.1.0)
-      activesupport (= 6.1.0)
-    activesupport (6.1.0)
+    activemodel (6.1.1)
+      activesupport (= 6.1.1)
+    activerecord (6.1.1)
+      activemodel (= 6.1.1)
+      activesupport (= 6.1.1)
+    activesupport (6.1.1)
       concurrent-ruby (~> 1.0, >= 1.0.2)
       i18n (>= 1.6, < 2)
       minitest (>= 5.1)
@@ -25,7 +25,7 @@ GEM
     i18n (1.8.7)
       concurrent-ruby (~> 1.0)
     method_source (1.0.0)
-    minitest (5.14.2)
+    minitest (5.14.3)
     nxt_registry (0.3.6)
       activesupport
     pry (0.13.1)
