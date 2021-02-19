@@ -1,3 +1,12 @@
+# v0.1.10 2021-02-19
+### Fixed
+
+ Add NxtStateMachine::Errors::Error because when including NxtStateMachine::ActiveRecord in a nested
+ class the following error was raised:
+  ```
+    uninitialized constant NxtStateMachine::Errors::Error
+  ```
+
 # v0.1.9 2020-09-23
 
 ### Added 
