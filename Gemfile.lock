@@ -25,8 +25,8 @@ GEM
     i18n (1.8.9)
       concurrent-ruby (~> 1.0)
     method_source (1.0.0)
-    minitest (5.14.3)
-    nxt_registry (0.3.8)
+    minitest (5.14.4)
+    nxt_registry (0.3.9)
       activesupport
     pry (0.14.0)
       coderay (~> 1.1)
