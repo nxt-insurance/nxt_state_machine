@@ -2,7 +2,7 @@ module NxtStateMachine
   class Transition
     include Transition::Interface
 
-    def initialize(name, event:, from:, to:, state_machine:, context:, set_state_method:, &block)
+    def initialize(name, event:, from:, to:, state_machine:, context:, set_state_method:, arguments:, options:, &block)
       @name = name
       @event = event
       @from = state_machine.states.resolve!(from)
@@ -11,6 +11,8 @@ module NxtStateMachine
       @set_state_method = set_state_method
       @context = context
       @block = block
+      @arguments = arguments
+      @options = options
       @result = nil
     end
 

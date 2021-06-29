@@ -25,7 +25,9 @@ module NxtStateMachine
         state_machine: state_machine,
         context: context,
         event: event,
-        set_state_method: set_state_method
+        set_state_method: set_state_method,
+        arguments: args,
+        options: opts
       }
 
       transition = Transition.new(event.name, **options)
