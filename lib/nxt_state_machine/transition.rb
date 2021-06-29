@@ -16,7 +16,7 @@ module NxtStateMachine
       @result = nil
     end
 
-    attr_reader :name, :from, :to, :block, :event, :result
+    attr_reader :name, :from, :to, :block, :event, :result, :arguments, :options
 
     # This triggers the set state method
     def trigger

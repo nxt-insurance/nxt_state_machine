@@ -137,7 +137,7 @@ RSpec.describe NxtStateMachine::ActiveRecord do
                     raise ZeroDivisionError, "Error in before_callback"
                   end
 
-                  transition from: :received, to: :processed do |processed_at|
+                  transition from: :received, to: :processed do |t, processed_at|
                     self.processed_at = processed_at
                   end
                 end
@@ -176,14 +176,14 @@ RSpec.describe NxtStateMachine::ActiveRecord do
                 state :processed, :accepted, :rejected
 
                 event :process do
-                  transition from: :received, to: :processed do |processed_at|
+                  transition from: :received, to: :processed do |t, processed_at|
                     self.processed_at = processed_at
                     raise ZeroDivisionError, 'oh oh'
                   end
                 end
 
                 event :process_without_lock, lock_transitions: false do
-                  transition from: :received, to: :processed do |processed_at|
+                  transition from: :received, to: :processed do |t, processed_at|
                     self.processed_at = processed_at
                     raise ZeroDivisionError, 'oh oh'
                   end
