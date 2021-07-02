@@ -127,6 +127,89 @@ RSpec.describe NxtStateMachine do
   end
 
   describe 'callbacks' do
+    let(:state_machine_class) do
+      Class.new do
+        include NxtStateMachine
 
+        def initialize
+          @state = 'received'
+          @result = []
+        end
+
+        attr_accessor :state, :result
+
+        state_machine do
+          get_state_with :state
+          set_state_with :set_state
+          set_state_with! :set_state
+
+          state :received, initial: true
+          state :processed, :accepted, :rejected
+
+          event :process do
+            before_transition from: any_state, to: :processed do |transition|
+              append_result 'before transition:'
+              append_result "args: #{transition.arguments}, opts: #{transition.options} "
+            end
+
+            transitions from: :received, to: :processed do |processor, processed_at:|
+              append_result 'during transition'
+            end
+
+            around_transition from: :received, to: :processed do |block, transition|
+              append_result 'around enter 1'
+              block.call
+              append_result "args 1: #{transition.arguments}, opts: #{transition.options} "
+              append_result 'around exit 1'
+            end
+
+            around_transition from: :received, to: :processed do |block, transition|
+              append_result 'around enter 2'
+              block.call
+              append_result "args 2: #{transition.arguments}, opts: #{transition.options} "
+              append_result 'around exit 2'
+            end
+
+            after_transition from: any_state, to: :processed do |transition|
+              append_result 'after transition'
+              append_result "args: #{transition.arguments}, opts: #{transition.options} "
+            end
+          end
+        end
+
+        def set_state(_, transition)
+          transition.run_before_callbacks
+
+          result = transition.execute do |block|
+            block.call
+            self.state = transition.to.enum
+          end
+
+          result && transition.run_after_callbacks && result
+        end
+
+        def append_result(tmp)
+          result << tmp
+        end
+      end
+    end
+
+    subject { state_machine_class.new }
+
+    it 'stores arguments and options on the transition' do
+      expect(subject.process('Andy', processed_at: 'yesterday')).to eq(
+        ["before transition:",
+          "args: [\"Andy\"], opts: {:processed_at=>\"yesterday\"} ",
+          "around enter 1",
+          "around enter 2",
+          "during transition",
+          "args 2: [\"Andy\"], opts: {:processed_at=>\"yesterday\"} ",
+          "around exit 2",
+          "args 1: [\"Andy\"], opts: {:processed_at=>\"yesterday\"} ",
+          "around exit 1",
+          "after transition",
+          "args: [\"Andy\"], opts: {:processed_at=>\"yesterday\"} "]
+      )
+    end
   end
 end
