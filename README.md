@@ -298,7 +298,7 @@ event :approve do
 
   after_transition from: %i[written submitted deleted], to: :approved, run: :call_me_back
 
-  around_transition from: any_state, to: :approved do |block|
+  around_transition from: any_state, to: :approved do |block, _transition|
     # Note that around transition callbacks get passed a proc object that you have to call 
     puts 'around transition enter' 
     block.call  
@@ -309,6 +309,16 @@ event :approve do
   on_success from: any_state, to: :approved do |transition|
     # This is the last callback in the chain - It runs outside of the active record transaction
   end
+end
+```
+
+In callbacks you also have access to the current transition object. Through it you also have access to the arguments
+and options that have been passed in when the transition was triggered:
+
+```ruby
+before_transition from: any_state, to: :processed do |transition|
+  puts transition.arguments # => :arg_1, :arg_2 what was passed to the process!(:arg_1, :arg_2)
+  puts transition.options # => { arg_1: 'arg 1', arg_2: 'arg 2' } what was passed to the process!(arg_1: 'arg 1', arg_2: 'arg 2')
 end
 ```
 
