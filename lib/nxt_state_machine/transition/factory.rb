@@ -36,8 +36,8 @@ module NxtStateMachine
         # if the transition takes a block we make it available through a proxy on the transition itself!
         transition.send(:block=, Proc.new do
           # if the transition block takes arguments we always pass the transition itself as the first argument
-          # this does not apply to callbacks but only for the transition block.
-          # Callbacks simply have access to the transition object and can access arguments and options through that
+          # callbacks also get passed the transition object in case they take an argument and can access args and
+          # options passed to the transition when invoked through that transition object
           if block.arity > 0
             args = [transition] + args
           end
