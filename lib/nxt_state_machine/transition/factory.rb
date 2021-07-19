@@ -25,7 +25,9 @@ module NxtStateMachine
         state_machine: state_machine,
         context: context,
         event: event,
-        set_state_method: set_state_method
+        set_state_method: set_state_method,
+        arguments: args,
+        options: opts
       }
 
       transition = Transition.new(event.name, **options)
@@ -33,8 +35,12 @@ module NxtStateMachine
       if block
         # if the transition takes a block we make it available through a proxy on the transition itself!
         transition.send(:block=, Proc.new do
-          # if the block takes arguments we always pass the transition as the first one
-          args.prepend(transition) if block.arity > 0
+          # if the transition block takes arguments we always pass the transition itself as the first argument
+          # callbacks also get passed the transition object in case they take an argument and can access args and
+          # options passed to the transition when invoked through that transition object
+          if block.arity > 0
+            args = [transition] + args
+          end
           context.instance_exec(*args, **opts, &block)
         end)
       end
