@@ -1,3 +1,12 @@
+# v0.1.10 2021-07-19
+
+### Added
+
+- Transition now optionally get passed the transition object that allows to access transition arguments and options.
+
+[Compare v0.1.9...v0.1.10](https://github.com/nxt-insurance/nxt_state_machine/compare/v0.1.9...v0.1.10)
+
+
 # v0.1.9 2020-09-23
 
 ### Added 
