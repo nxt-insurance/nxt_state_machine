@@ -75,10 +75,7 @@ module NxtStateMachine
       states.values.map(&:enum)
     end
 
-    def any_state_except(*excluded)
-      any_state - excluded
-    end
-
+    alias_method :all_states_except, :any_state_except
     alias_method :all_states, :any_state
 
     def all_states_except(*excluded)
