@@ -1,3 +1,11 @@
+# v0.1.11 2023-04-20
+
+### Added
+
+- new event 'any_state_except'
+
+[Compare v0.1.10...v0.1.11](https://github.com/nxt-insurance/nxt_state_machine/pull/82)
+
 # v0.1.10 2021-07-19
 
 ### Added
