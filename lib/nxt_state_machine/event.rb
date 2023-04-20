@@ -23,6 +23,7 @@ module NxtStateMachine
              :on_error,
              :on_error!,
              :any_state,
+             :any_state_except,
              :all_states,
              :all_states_except,
              :defuse,
