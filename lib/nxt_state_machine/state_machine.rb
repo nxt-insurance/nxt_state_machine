@@ -82,6 +82,10 @@ module NxtStateMachine
       all_states - excluded
     end
 
+    def any_state_except(*excluded)
+      any_state - excluded
+    end
+
     def event(name, **options, &block)
       name = name.to_sym
       event = Event.new(name, self, **options, &block)
