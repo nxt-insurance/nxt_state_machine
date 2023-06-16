@@ -126,6 +126,45 @@ RSpec.describe NxtStateMachine do
     end
   end
 
+  describe '#state_machine' do
+    subject do
+      ArticleWorkflow.new(article, test: 'options').state_machine
+    end
+
+    describe '#states' do
+      it 'returns all states' do
+        expect(subject.states.keys).to match_array(%w[
+          draft
+          written
+          submitted
+          approved
+          published
+          rejected
+          deleted
+        ])
+      end
+    end
+
+    describe '#event_methods' do
+      it 'returns all event names and bang versions' do
+        expect(subject.event_methods).to match_array([
+          :write,
+          :write!,
+          :submit,
+          :submit!,
+          :approve,
+          :approve!,
+          :publish,
+          :publish!,
+          :reject,
+          :reject!,
+          :delete,
+          :delete!,
+        ])
+      end
+    end
+  end
+
   describe 'callbacks' do
     let(:state_machine_class) do
       Class.new do
