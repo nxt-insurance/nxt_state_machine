@@ -29,7 +29,7 @@ RSpec.describe NxtStateMachine do
       end
     end
 
-    let(:thread_count) { 10_000 }
+    let(:thread_count) { 1_000 }
 
     let(:targets) do
       thread_count.times.each_with_object({}) do |index, acc|

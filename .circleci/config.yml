@@ -15,7 +15,7 @@ jobs:
       - checkout
 
       - run:
-          name: Install apt dependencies
+          name: Install apt dependencies (graphviz)
           command: |
             sudo apt update -q \
             && sudo apt upgrade -q \
@@ -25,7 +25,7 @@ jobs:
           include-branch-in-cache-key: false
       - run:
           name: RSpec tests
-          command: 'bundle exec rspec --format RspecJunitFormatter --out /tmp/test-results/results.xml --format doc'
+          command: 'bundle exec rspec --format RspecJunitFormatter --out /tmp/test-results/results.xml --format progress'
       # collect reports
       - store_test_results:
           path: /tmp/test-results/results.xml
