@@ -1,15 +1,13 @@
-# Ruby CircleCI 2.0 configuration file
-#
-# Check https://circleci.com/docs/2.0/language-ruby/ for more details
-#
-version: 2
+version: 2.1
+
+orbs:
+  ruby: circleci/ruby@2.0.1
+  coveralls: coveralls/coveralls@1.0.6
+
 jobs:
   build:
     docker:
-      # specify the version you desire here
-      - image: circleci/ruby:3.2.2-node
-    environment:
-      BUNDLER_VERSION: 2.0.2
+      - image: 'cimg/ruby:3.2.2-node'
 
     working_directory: ~/repo
 
@@ -22,41 +20,7 @@ jobs:
             sudo apt update -q \
             && sudo apt upgrade -q \
             && sudo apt install -qq graphviz
-      # Download and cache dependencies
-      - restore_cache:
-          keys:
-            - v1-dependencies-{{ checksum "Gemfile.lock" }}
-
-      - run: gem install bundler --version $BUNDLER_VERSION
-
-      - run:
-          name: install dependencies
-          command: |
-            bundle install --jobs=4 --retry=3 --path vendor/bundle
-
-      - save_cache:
-          paths:
-            - ./vendor/bundle
-          key: v1-dependencies-{{ checksum "Gemfile.lock" }}
-
-      # run tests!
-      - run:
-          name: run tests
-          command: |
-            mkdir /tmp/test-results
-            TEST_FILES="$(circleci tests glob "spec/**/*_spec.rb" | \
-              circleci tests split --split-by=timings)"
-
-            bundle exec rspec \
-              --format progress \
-              --format RspecJunitFormatter \
-              --out /tmp/test-results/rspec.xml \
-              --format progress \
-              $TEST_FILES
-
-      # collect reports
-      - store_test_results:
-          path: /tmp/test-results
-      - store_artifacts:
-          path: /tmp/test-results
-          destination: test-results
+      - ruby/install-deps:
+          key: gems-v2
+          include-branch-in-cache-key: false
+      - ruby/rspec-test
