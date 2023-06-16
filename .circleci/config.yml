@@ -25,7 +25,7 @@ jobs:
           include-branch-in-cache-key: false
       - run:
           name: RSpec tests
-          command: 'bundle exec rspec --format RspecJunitFormatter --out /tmp/test-results/results.xml --format progress'
+          command: 'bundle exec rspec --format RspecJunitFormatter --out /tmp/test-results/results.xml --format doc'
       # collect reports
       - store_test_results:
           path: /tmp/test-results/results.xml
