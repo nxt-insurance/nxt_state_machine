@@ -24,11 +24,11 @@ jobs:
           key: gems-v2
           include-branch-in-cache-key: false
       - run:
-          name: RSpec Tests
+          name: RSpec tests
           command: 'bundle exec rspec --format RspecJunitFormatter --out /tmp/test-results/results.xml --format progress'
       # collect reports
       - store_test_results:
-          path: /tmp/test-results
+          path: /tmp/test-results/results.xml
       - store_artifacts:
           path: /tmp/test-results
           destination: test-results
