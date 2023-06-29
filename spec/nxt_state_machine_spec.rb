@@ -149,16 +149,16 @@ RSpec.describe NxtStateMachine do
       it 'returns all event names and bang versions' do
         expect(subject.event_methods).to match_array([
           :write,
-          :write!,
           :submit,
-          :submit!,
           :approve,
-          :approve!,
           :publish,
-          :publish!,
           :reject,
-          :reject!,
           :delete,
+          :write!,
+          :submit!,
+          :approve!,
+          :publish!,
+          :reject!,
           :delete!,
         ])
       end
