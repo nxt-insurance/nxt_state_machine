@@ -1,3 +1,10 @@
+# v0.1.11 2023-06-29
+
+### Added
+- Added `state_machine.event_methods`
+
+[Compare v0.1.10...v0.1.11](https://github.com/nxt-insurance/nxt_state_machine/compare/v0.1.10...v0.1.11)
+
 # v0.1.10 2021-07-19
 
 ### Added
