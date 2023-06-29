@@ -181,7 +181,14 @@ class Article < ApplicationRecord
 end
 ```
 
-You can also navigate between states 
+You can retrieve a list of states using the `states` method:
+
+```rb
+states = Article.state_machine.states # returns a NxtStateMachine::StateRegistry instance
+states.keys # ["draft", "written", "submitted", "approved", "published", "rejected", "deleted"]
+```
+
+You can also navigate between states:
 
 ```ruby
 state.next # will give you the next state in the order they have been registered
@@ -191,6 +198,7 @@ state.last? # last registered state?
 state.index # gives you the index of the state in the registry 
 # You can also set indexes manually by passing in indexes when defining states. Make sure they are in order! 
 ```
+
 
 ### Events
 
@@ -241,14 +249,26 @@ article.approve(approved_at: Time.current)
 article.approve!(approved_at: Time.current)
 ```
 
-**NOTE:** Transitions run in transactions that acquire a lock to prevent concurrency issues per default. 
-Transactions will be rolled back in case of an exception or if your target cannot be saved due to validation errors. 
+> **Note**:
+> 
+> By default, transitions run in transactions that acquire a lock to prevent concurrency issues. 
+Transactions will be rolled back if an exception occurs or if your target cannot be saved due to validation errors. 
 The state is set back to the state before the transition! If you try to transition on records with unpersisted changes
 you will get a `RuntimeError: Locking a record with unpersisted changes is not supported.` error saying something
 like `Use :save to persist the changes, or :reload to discard them explicitly.` since it's not possible to acquire a 
-lock on modified records. You can also switch of locking and transactions for events by passing in the `lock_transitions: false` 
+lock on modified records. 
+> 
+> You can switch off locking and transactions for events by passing in the `lock_transitions: false` 
 option when defining an event or globally on the state machine with the `lock_transitions: false` option. Currently 
 there is no option to toggle locking at runtime.   
+
+
+You can retrieve a list of event methods with `event_methods`:
+
+```rb
+Article.state_machine.event_methods 
+# => [:write, :submit, :approve, :publish, :reject, :delete, :write!, :submit!, :approve!, :publish!, :reject!, :delete!]
+```
 
 ### Transitions
 

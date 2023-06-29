@@ -75,6 +75,13 @@ module NxtStateMachine
       states.values.map(&:enum)
     end
 
+    def event_methods
+      event_names = events.keys
+      event_names_with_bang = event_names.map { |e| e + '!' }
+
+      (event_names + event_names_with_bang).map(&:to_sym)
+    end
+
     alias_method :all_states, :any_state
 
     def all_states_except(*excluded)

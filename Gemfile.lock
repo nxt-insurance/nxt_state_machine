@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    nxt_state_machine (0.1.10)
+    nxt_state_machine (0.1.11)
       activesupport
       nxt_registry (~> 0.3.0)
 
