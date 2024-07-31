@@ -1,3 +1,11 @@
+# v0.1.12 2024-07-31
+
+### Changed
+- Remove Coveralls remainings
+- Upgrade dependencies
+
+[Compare v0.1.11...v0.1.12](https://github.com/nxt-insurance/nxt_state_machine/compare/v0.1.11...v0.1.12)
+
 # v0.1.11 2023-06-29
 
 ### Added
