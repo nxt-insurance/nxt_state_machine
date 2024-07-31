@@ -81,7 +81,7 @@ DEPENDENCIES
   rspec (~> 3.0)
   rspec_junit_formatter
   ruby-graphviz
-  sqlite3
+  sqlite3 (~> 1.3.11)
 
 BUNDLED WITH
    2.5.15
