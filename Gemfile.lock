@@ -39,6 +39,7 @@ GEM
       concurrent-ruby (~> 1.0)
     logger (1.7.0)
     method_source (1.1.0)
+    mini_portile2 (2.8.9)
     minitest (5.26.1)
     mutex_m (0.3.0)
     nxt_registry (0.3.10)
@@ -66,7 +67,8 @@ GEM
     ruby-graphviz (1.2.5)
       rexml
     securerandom (0.4.1)
-    sqlite3 (1.4.4)
+    sqlite3 (2.8.1)
+      mini_portile2 (~> 2.8.0)
     timeout (0.4.1)
     tzinfo (2.0.6)
       concurrent-ruby (~> 1.0)
@@ -83,7 +85,7 @@ DEPENDENCIES
   rspec (~> 3.0)
   rspec_junit_formatter
   ruby-graphviz
-  sqlite3 (~> 1.4.4)
+  sqlite3 (~> 2.8.1)
 
 BUNDLED WITH
    2.5.15
