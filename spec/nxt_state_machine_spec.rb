@@ -1,5 +1,4 @@
 RSpec.describe NxtStateMachine do
-
   let(:article) { Article.new(type: 'manual_approval') }
   let(:headline) { 'Article about state machines' }
 
@@ -24,9 +23,10 @@ RSpec.describe NxtStateMachine do
       end
 
       it do
-        expect {
+        expect do
           subject.current_state_name
-        }.to raise_error NxtStateMachine::Errors::MissingConfiguration, /Configuration method :get_state_with was not defined/
+        end.to raise_error NxtStateMachine::Errors::MissingConfiguration,
+                           /Configuration method :get_state_with was not defined/
       end
     end
   end
@@ -41,9 +41,10 @@ RSpec.describe NxtStateMachine do
       end
 
       it do
-        expect {
+        expect do
           subject.write
-        }.to raise_error NxtStateMachine::Errors::MissingConfiguration, /Configuration method :set_state_with was not defined/
+        end.to raise_error NxtStateMachine::Errors::MissingConfiguration,
+                           /Configuration method :set_state_with was not defined/
       end
     end
   end
@@ -58,9 +59,10 @@ RSpec.describe NxtStateMachine do
       end
 
       it do
-        expect {
+        expect do
           subject.write!
-        }.to raise_error NxtStateMachine::Errors::MissingConfiguration, /Configuration method :set_state_with! was not defined/
+        end.to raise_error NxtStateMachine::Errors::MissingConfiguration,
+                           /Configuration method :set_state_with! was not defined/
       end
     end
   end
@@ -69,10 +71,10 @@ RSpec.describe NxtStateMachine do
     context 'when the transition exists' do
       it do
         expect { subject.write }.to change { article.status }.from(nil).to('written')
-        expect { subject.write }.to_not change { article.reload.status }
+        expect { subject.write }.to_not(change { article.reload.status })
         expect { subject.submit }.to change { article.reload.status }.from('written').to('submitted')
 
-        expect(subject.approve(headline: headline)).to be_truthy
+        expect(subject.approve(headline:)).to be_truthy
         expect(article.reload.status).to eq('approved')
         expect(article.headline).to eq(headline)
       end
@@ -95,7 +97,7 @@ RSpec.describe NxtStateMachine do
     context 'and the transition exists' do
       it 'transitions with the :set_state_with! method ' do
         expect { subject.write! }.to change { article.status }.from(nil).to('written')
-        expect { subject.write! }.to_not change { article.reload.status }
+        expect { subject.write! }.to_not(change { article.reload.status })
         expect { subject.submit! }.to change { article.reload.status }.from('written').to('submitted')
         expect { subject.approve!(headline: nil) }.to raise_error ActiveRecord::RecordInvalid
       end
@@ -134,33 +136,33 @@ RSpec.describe NxtStateMachine do
     describe '#states' do
       it 'returns all states' do
         expect(subject.states.keys).to match_array(%w[
-          draft
-          written
-          submitted
-          approved
-          published
-          rejected
-          deleted
-        ])
+                                                     draft
+                                                     written
+                                                     submitted
+                                                     approved
+                                                     published
+                                                     rejected
+                                                     deleted
+                                                   ])
       end
     end
 
     describe '#event_methods' do
       it 'returns all event names and bang versions' do
-        expect(subject.event_methods).to match_array([
-          :write,
-          :submit,
-          :approve,
-          :publish,
-          :reject,
-          :delete,
-          :write!,
-          :submit!,
-          :approve!,
-          :publish!,
-          :reject!,
-          :delete!,
-        ])
+        expect(subject.event_methods).to match_array(%i[
+                                                       write
+                                                       submit
+                                                       approve
+                                                       publish
+                                                       reject
+                                                       delete
+                                                       write!
+                                                       submit!
+                                                       approve!
+                                                       publish!
+                                                       reject!
+                                                       delete!
+                                                     ])
       end
     end
   end
@@ -191,7 +193,7 @@ RSpec.describe NxtStateMachine do
               append_result "args: #{transition.arguments}, opts: #{transition.options} "
             end
 
-            transitions from: :received, to: :processed do |processor, processed_at:|
+            transitions from: :received, to: :processed do |_processor, processed_at:|
               append_result 'during transition'
             end
 
@@ -236,18 +238,19 @@ RSpec.describe NxtStateMachine do
     subject { state_machine_class.new }
 
     it 'stores arguments and options on the transition' do
+      opts_str = { processed_at: 'yesterday' }.inspect
       expect(subject.process('Andy', processed_at: 'yesterday')).to eq(
-        ["before transition:",
-          "args: [\"Andy\"], opts: {:processed_at=>\"yesterday\"} ",
-          "around enter 1",
-          "around enter 2",
-          "during transition",
-          "args 2: [\"Andy\"], opts: {:processed_at=>\"yesterday\"} ",
-          "around exit 2",
-          "args 1: [\"Andy\"], opts: {:processed_at=>\"yesterday\"} ",
-          "around exit 1",
-          "after transition",
-          "args: [\"Andy\"], opts: {:processed_at=>\"yesterday\"} "]
+        ['before transition:',
+         "args: [\"Andy\"], opts: #{opts_str} ",
+         'around enter 1',
+         'around enter 2',
+         'during transition',
+         "args 2: [\"Andy\"], opts: #{opts_str} ",
+         'around exit 2',
+         "args 1: [\"Andy\"], opts: #{opts_str} ",
+         'around exit 1',
+         'after transition',
+         "args: [\"Andy\"], opts: #{opts_str} "]
       )
     end
   end
